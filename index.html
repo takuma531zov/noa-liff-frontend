@@ -569,6 +569,8 @@
           }
         };
 
+        console.log('予約リクエスト送信:', payload);
+
         const response = await fetch(GAS_BASE_URL, {
           method: 'POST',
           headers: {
@@ -577,7 +579,16 @@
           body: JSON.stringify(payload)
         });
 
+        console.log('レスポンスステータス:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('レスポンスエラー:', errorText);
+          throw new Error(`サーバーエラー (${response.status}): ${errorText.substring(0, 100)}`);
+        }
+
         const result = await response.json();
+        console.log('レスポンス結果:', result);
 
         if (result.success) {
           alert(`ご予約ありがとうございます！\n予約ID: ${result.data.reservationId}`);
@@ -588,7 +599,17 @@
 
       } catch (error) {
         console.error('予約エラー:', error);
-        alert(error.message || '予約の送信に失敗しました。もう一度お試しください。');
+
+        // 詳細なエラーメッセージ
+        let errorMsg = '予約の送信に失敗しました。\n\n';
+        if (error.message.includes('Failed to fetch') || error.message.includes('Load failed')) {
+          errorMsg += 'ネットワークエラー: サーバーに接続できません。\n';
+          errorMsg += 'インターネット接続を確認してください。';
+        } else {
+          errorMsg += `エラー: ${error.message}`;
+        }
+
+        alert(errorMsg);
         submitBtn.disabled = false;
         submitBtn.textContent = '予約を確定する';
       }
