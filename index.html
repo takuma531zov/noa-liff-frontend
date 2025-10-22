@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noa ご予約フォーム</title>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+      background: linear-gradient(135deg, #f5f3f0 0%, #e8e4df 100%);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #d4c5b9 0%, #b8a89a 100%);
+      padding: 32px 24px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.95;
+      letter-spacing: 1px;
+    }
+
+    .form-content {
+      padding: 32px 24px;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><defs><pattern id="wood" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><rect fill="%23f5f1ed" width="100" height="100"/><path d="M0,50 Q25,45 50,50 T100,50" stroke="%23e8dfd5" stroke-width="0.5" fill="none" opacity="0.3"/><path d="M0,30 Q25,28 50,30 T100,30" stroke="%23e8dfd5" stroke-width="0.3" fill="none" opacity="0.2"/><path d="M0,70 Q25,68 50,70 T100,70" stroke="%23e8dfd5" stroke-width="0.3" fill="none" opacity="0.2"/></pattern></defs><rect fill="url(%23wood)" width="400" height="400"/></svg>');
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #5a4a3a;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .required {
+      color: #c67b5c;
+      margin-left: 4px;
+    }
+
+    .form-control,
+    .form-select {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 15px;
+      border: 2px solid #e8dfd5;
+      border-radius: 8px;
+      background: #fefdfb;
+      color: #3a3a3a;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: #c4a68a;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(196, 166, 138, 0.1);
+    }
+
+    .form-select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8"><path fill="%235a4a3a" d="M0 0l6 8 6-8z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      background: #faf8f5;
+      border-radius: 8px;
+      border: 2px solid #e8dfd5;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      margin-top: 3px;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #b8a89a;
+    }
+
+    .checkbox-group label {
+      font-size: 13px;
+      color: #5a4a3a;
+      line-height: 1.6;
+      cursor: pointer;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, #c4a68a 0%, #a88968 100%);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 12px rgba(164, 136, 104, 0.3);
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(164, 136, 104, 0.4);
+    }
+
+    .submit-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      color: #c67b5c;
+      font-size: 13px;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #8a7a6a;
+    }
+
+    .menu-checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .menu-checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #faf8f5;
+      border-radius: 8px;
+      border: 2px solid #e8dfd5;
+      transition: all 0.2s ease;
+    }
+
+    .menu-checkbox-item:has(input:checked) {
+      background: #f0ebe5;
+      border-color: #c4a68a;
+    }
+
+    .menu-checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #b8a89a;
+    }
+
+    .menu-checkbox-item label {
+      flex: 1;
+      font-size: 14px;
+      color: #5a4a3a;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .menu-duration {
+      font-size: 12px;
+      color: #8a7a6a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Noa</h1>
+      <p>ご予約フォーム</p>
+    </div>
+
+    <div id="loading" class="loading">
+      <p>読み込み中...</p>
+      <div id="debugInfo" style="margin-top: 20px; font-size: 12px; color: #666; text-align: left; padding: 10px; background: #f5f5f5; border-radius: 8px; max-width: 90%; margin-left: auto; margin-right: auto; display: none;"></div>
+    </div>
+
+    <form id="reservationForm" class="form-content" style="display: none;">
+      <!-- 店舗選択 -->
+      <div class="form-group">
+        <label class="form-label" for="store">
+          店舗<span class="required">*</span>
+        </label>
+        <select id="store" name="store" class="form-select" required>
+          <option value="">選択してください</option>
+          <option value="大宮店">大宮店</option>
+          <option value="北浦和店">北浦和店</option>
+        </select>
+        <div class="error-message" id="store-error"></div>
+      </div>
+
+      <!-- 日付選択 -->
+      <div class="form-group">
+        <label class="form-label" for="reservationDate">
+          ご希望日<span class="required">*</span>
+        </label>
+        <input type="date" id="reservationDate" name="reservationDate" class="form-control" required>
+        <div class="error-message" id="reservationDate-error"></div>
+      </div>
+
+      <!-- 時間選択 -->
+      <div class="form-group">
+        <label class="form-label" for="reservationTime">
+          ご希望時間<span class="required">*</span>
+        </label>
+        <select id="reservationTime" name="reservationTime" class="form-select" required>
+          <option value="">選択してください</option>
+        </select>
+        <div class="error-message" id="reservationTime-error"></div>
+      </div>
+
+      <!-- スタッフ選択 -->
+      <div class="form-group">
+        <label class="form-label" for="staffId">
+          担当スタッフ<span class="required">*</span>
+        </label>
+        <select id="staffId" name="staffId" class="form-select" required>
+          <option value="">選択してください</option>
+        </select>
+        <div class="error-message" id="staffId-error"></div>
+      </div>
+
+      <!-- メニュー選択 -->
+      <div class="form-group">
+        <label class="form-label">
+          メニュー<span class="required">*</span>
+        </label>
+        <div id="menuCheckboxes" class="menu-checkbox-group">
+          <!-- 動的に生成 -->
+        </div>
+        <div class="error-message" id="menuIds-error"></div>
+      </div>
+
+      <!-- お名前 -->
+      <div class="form-group">
+        <label class="form-label" for="customerName">
+          お名前<span class="required">*</span>
+        </label>
+        <input type="text" id="customerName" name="customerName" class="form-control"
+               placeholder="山田 太郎" required>
+        <div class="error-message" id="customerName-error"></div>
+      </div>
+
+      <!-- 電話番号 -->
+      <div class="form-group">
+        <label class="form-label" for="customerPhone">
+          お電話番号<span class="required">*</span>
+        </label>
+        <input type="tel" id="customerPhone" name="customerPhone" class="form-control"
+               placeholder="090-1234-5678" required>
+        <div class="error-message" id="customerPhone-error"></div>
+      </div>
+
+      <!-- 同意チェック -->
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="consent" name="consent" required>
+          <label for="consent">
+            個人情報の取り扱いに同意します。予約確認およびリマインド通知のため、ご入力いただいた情報を使用させていただきます。
+          </label>
+        </div>
+        <div class="error-message" id="consent-error"></div>
+      </div>
+
+      <!-- 送信ボタン -->
+      <button type="submit" class="submit-btn" id="submitBtn">
+        予約を確定する
+      </button>
+    </form>
+  </div>
+
+  <script>
+    // 環境変数（Vercel環境変数から設定可能）
+    const LIFF_ID = '2008333721-7R6gn2YX';
+    const GAS_BASE_URL = 'https://script.google.com/macros/s/AKfycbxXATZSiSSedilwV1DdpFRwZg3gShcv8kjP3ElV8xdBCf_1uSjxt_sUgXjIqppKWy9W/exec';
+
+    let lineUserId = '';
+    let staffList = [];
+    let menuList = [];
+
+    // デバッグ情報表示用
+    function addDebugLog(message) {
+      const debugDiv = document.getElementById('debugInfo');
+      debugDiv.style.display = 'block';
+      const timestamp = new Date().toLocaleTimeString('ja-JP');
+      debugDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+      console.log(message);
+    }
+
+    // LIFF初期化
+    async function initializeLiff() {
+      try {
+        addDebugLog('LIFF初期化開始');
+        addDebugLog(`LIFF_ID: ${LIFF_ID}`);
+        addDebugLog(`LIFF_ID length: ${LIFF_ID.length}`);
+        addDebugLog(`LIFF_ID type: ${typeof LIFF_ID}`);
+        addDebugLog(`GAS_URL: ${GAS_BASE_URL}`);
+        addDebugLog(`GAS_URL length: ${GAS_BASE_URL.length}`);
+
+        // シンプルなチェック
+        const liffIdValid = LIFF_ID && LIFF_ID.length > 10 && !LIFF_ID.includes('{{');
+        const gasUrlValid = GAS_BASE_URL && GAS_BASE_URL.startsWith('https://') && !GAS_BASE_URL.includes('{{');
+
+        addDebugLog(`LIFF_ID valid: ${liffIdValid}`);
+        addDebugLog(`GAS_URL valid: ${gasUrlValid}`);
+
+        if (!liffIdValid) {
+          throw new Error(`LIFF ID無効（値: "${LIFF_ID}", length: ${LIFF_ID.length}）`);
+        }
+
+        if (!gasUrlValid) {
+          throw new Error(`GAS URL無効（値: "${GAS_BASE_URL}", length: ${GAS_BASE_URL.length}）`);
+        }
+
+        // GASエンドポイント接続テスト
+        addDebugLog('GASエンドポイント接続テスト中...');
+        try {
+          const testResponse = await fetch(`${GAS_BASE_URL}?path=staff`, {
+            method: 'GET',
+            mode: 'cors'
+          });
+          addDebugLog(`GAS接続テスト: ${testResponse.ok ? '✅成功' : '❌失敗 (status: ' + testResponse.status + ')'}`);
+        } catch (e) {
+          addDebugLog(`GAS接続テスト: ❌失敗 (${e.message})`);
+        }
+
+        // LIFF初期化（成功事例のシンプルなパターン）
+        addDebugLog('liff.init()呼び出し中...');
+        addDebugLog(`LIFF SDK version: ${liff.getVersion ? liff.getVersion() : '不明'}`);
+
+        const initStartTime = Date.now();
+        addDebugLog('liff.init()実行開始...');
+
+        // タイムアウト検出（30秒）
+        const timeoutId = setTimeout(() => {
+          addDebugLog('⚠️ liff.init()が30秒経過しても完了しません');
+          addDebugLog('LIFFのEndpoint URL設定を再確認してください');
+        }, 30000);
+
+        // 端末や環境でサイレント認証が詰まる場合のフォールバックとして
+        // withLoginOnExternalBrowser を有効化（LIFF v2.19+）。
+        // これにより LINE アプリ内で認証が完了できない場合、外部ブラウザでのログインにフォールバックします。
+        liff.init({
+          liffId: LIFF_ID,
+          withLoginOnExternalBrowser: true
+        }).then(() => {
+          clearTimeout(timeoutId);
+          const initDuration = Date.now() - initStartTime;
+          addDebugLog(`✅ LIFF初期化成功（${initDuration}ms）`);
+
+          const isLoggedIn = liff.isLoggedIn();
+          const isInClient = liff.isInClient();
+          addDebugLog(`ログイン状態: ${isLoggedIn}`);
+          addDebugLog(`LINEアプリ内: ${isInClient}`);
+
+          // ログインチェック
+          if (!isLoggedIn) {
+            addDebugLog('未ログイン状態 - ログインが必要です');
+            if (!isInClient) {
+              // 外部ブラウザからアクセス - ログインページにリダイレクト
+              addDebugLog('外部ブラウザからのアクセス - ログインリダイレクト');
+              liff.login({ redirectUri: window.location.href });
+              throw new Error('ログインが必要です');
+            }
+            throw new Error('LINEアプリ内ですがログインできていません');
+          }
+
+          // LINE userId取得
+          addDebugLog('liff.getProfile()呼び出し中...');
+          return liff.getProfile();
+
+        }).then((profile) => {
+          lineUserId = profile.userId;
+          addDebugLog(`✅ LINE userId取得成功: ${lineUserId.substring(0, 10)}...`);
+
+          // スタッフとメニューのデータ取得
+          addDebugLog('マスタデータ取得中...');
+          return loadMasterData();
+
+        }).then(() => {
+          addDebugLog('✅ マスタデータ取得成功');
+
+          // フォーム表示
+          addDebugLog('フォーム表示');
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('reservationForm').style.display = 'block';
+
+          // 時間選択肢を生成
+          generateTimeOptions();
+
+        }).catch((err) => {
+          const initDuration = Date.now() - initStartTime;
+          addDebugLog(`❌ LIFF初期化エラー（${initDuration}ms）: ${err}`);
+          addDebugLog(`エラー詳細: ${JSON.stringify(err)}`);
+          throw err;
+        });
+
+      } catch (error) {
+        console.error('LIFF初期化エラー:', error);
+        addDebugLog(`❌ エラー: ${error.message}`);
+        document.getElementById('loading').innerHTML = `<p style="color: #c67b5c;">初期化に失敗しました。<br>${error.message}</p>` + document.getElementById('debugInfo').outerHTML;
+      }
+    }
+
+    // マスターデータ取得
+    async function loadMasterData() {
+      const baseUrl = GAS_BASE_URL;
+
+      try {
+        // スタッフ取得
+        const staffResponse = await fetch(`${baseUrl}?path=staff`);
+        staffList = await staffResponse.json();
+        populateStaffSelect();
+
+        // メニュー取得
+        const menuResponse = await fetch(`${baseUrl}?path=menus`);
+        menuList = await menuResponse.json();
+        populateMenuCheckboxes();
+
+      } catch (error) {
+        console.error('データ取得エラー:', error);
+        alert('データの取得に失敗しました');
+      }
+    }
+
+    // スタッフ選択肢を生成
+    function populateStaffSelect() {
+      const select = document.getElementById('staffId');
+      staffList.forEach(staff => {
+        const option = document.createElement('option');
+        option.value = staff.staffId;
+        option.textContent = staff.staffName;
+        select.appendChild(option);
+      });
+    }
+
+    // メニューチェックボックスを生成
+    function populateMenuCheckboxes() {
+      const container = document.getElementById('menuCheckboxes');
+      menuList.forEach(menu => {
+        const div = document.createElement('div');
+        div.className = 'menu-checkbox-item';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `menu-${menu.menuId}`;
+        checkbox.name = 'menuIds';
+        checkbox.value = menu.menuId;
+
+        const label = document.createElement('label');
+        label.htmlFor = `menu-${menu.menuId}`;
+        label.innerHTML = `
+          <span>${menu.menuName}</span>
+          <span class="menu-duration">${menu.durationMin}分</span>
+        `;
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        container.appendChild(div);
+      });
+    }
+
+    // 時間選択肢を生成（9:00〜20:00、30分刻み）
+    function generateTimeOptions() {
+      const select = document.getElementById('reservationTime');
+      for (let hour = 9; hour < 20; hour++) {
+        for (let min of ['00', '30']) {
+          const time = `${String(hour).padStart(2, '0')}:${min}`;
+          const option = document.createElement('option');
+          option.value = time;
+          option.textContent = time;
+          select.appendChild(option);
+        }
+      }
+    }
+
+    // フォーム送信
+    document.getElementById('reservationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // エラーメッセージクリア
+      document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '送信中...';
+
+      try {
+        // メニューID取得
+        const menuIds = Array.from(document.querySelectorAll('input[name="menuIds"]:checked'))
+          .map(cb => cb.value);
+
+        if (menuIds.length === 0) {
+          throw new Error('メニューを選択してください');
+        }
+
+        const payload = {
+          action: 'createReservation',
+          payload: {
+            store: document.getElementById('store').value,
+            reservationDate: document.getElementById('reservationDate').value,
+            reservationTime: document.getElementById('reservationTime').value,
+            staffId: document.getElementById('staffId').value,
+            menuIds: menuIds,
+            customer: {
+              fullName: document.getElementById('customerName').value,
+              phone: document.getElementById('customerPhone').value,
+              lineUserId: lineUserId,
+              consent: document.getElementById('consent').checked
+            },
+            idempotencyKey: `liff-${Date.now()}-${lineUserId}`
+          }
+        };
+
+        const response = await fetch(GAS_BASE_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert(`ご予約ありがとうございます！\n予約ID: ${result.data.reservationId}`);
+          liff.closeWindow();
+        } else {
+          throw new Error(result.message || '予約に失敗しました');
+        }
+
+      } catch (error) {
+        console.error('予約エラー:', error);
+        alert(error.message || '予約の送信に失敗しました。もう一度お試しください。');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '予約を確定する';
+      }
+    });
+
+    // 初期化実行
+    initializeLiff();
+  </script>
+</body>
+</html>
