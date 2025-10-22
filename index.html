@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Noa ご予約フォーム</title>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+  <script src="config.js"></script>
   <style>
     * {
       margin: 0;
@@ -325,10 +326,6 @@
   </div>
 
   <script>
-    // 環境変数（Vercel環境変数から設定可能）
-    const LIFF_ID = '2008333721-7R6gn2YX';
-    const GAS_BASE_URL = 'https://script.google.com/macros/s/AKfycbxXATZSiSSedilwV1DdpFRwZg3gShcv8kjP3ElV8xdBCf_1uSjxt_sUgXjIqppKWy9W/exec';
-
     let lineUserId = '';
     let staffList = [];
     let menuList = [];
