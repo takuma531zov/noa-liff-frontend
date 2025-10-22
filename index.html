@@ -330,13 +330,18 @@
     let staffList = [];
     let menuList = [];
 
-    // デバッグ情報表示用
+    // デバッグ情報表示用（本番環境では無効化）
+    const DEBUG_MODE = false; // trueでデバッグログ表示
+
     function addDebugLog(message) {
+      console.log(message); // コンソールには常に出力
+
+      if (!DEBUG_MODE) return; // 本番環境では画面表示しない
+
       const debugDiv = document.getElementById('debugInfo');
       debugDiv.style.display = 'block';
       const timestamp = new Date().toLocaleTimeString('ja-JP');
       debugDiv.innerHTML += `[${timestamp}] ${message}<br>`;
-      console.log(message);
     }
 
     // LIFF初期化
