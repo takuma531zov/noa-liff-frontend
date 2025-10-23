@@ -174,6 +174,57 @@
       color: #8a7a6a;
     }
 
+    /* カスタムモーダル */
+    .custom-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .custom-modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-message {
+      color: #4a4a4a;
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      white-space: pre-line;
+    }
+
+    .modal-btn {
+      background: linear-gradient(135deg, #c67b5c 0%, #b86a4a 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-btn:active {
+      transform: scale(0.95);
+    }
+
     .menu-checkbox-group {
       display: flex;
       flex-direction: column;
@@ -325,6 +376,14 @@
     </form>
   </div>
 
+  <!-- カスタムモーダル -->
+  <div id="customModal" class="custom-modal">
+    <div class="modal-content">
+      <div class="modal-message" id="modalMessage"></div>
+      <button class="modal-btn" id="modalBtn">OK</button>
+    </div>
+  </div>
+
   <script>
     let lineUserId = '';
     let staffList = [];
@@ -342,6 +401,21 @@
       debugDiv.style.display = 'block';
       const timestamp = new Date().toLocaleTimeString('ja-JP');
       debugDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+    }
+
+    // カスタムモーダル表示関数
+    function showModal(message, onClose) {
+      const modal = document.getElementById('customModal');
+      const modalMessage = document.getElementById('modalMessage');
+      const modalBtn = document.getElementById('modalBtn');
+
+      modalMessage.textContent = message;
+      modal.classList.add('show');
+
+      modalBtn.onclick = () => {
+        modal.classList.remove('show');
+        if (onClose) onClose();
+      };
     }
 
     // LIFF初期化
@@ -619,8 +693,9 @@
         console.log('レスポンス結果:', result);
 
         if (result.success) {
-          alert(`ご予約ありがとうございます！\n予約ID: ${result.data.reservationId}`);
-          liff.closeWindow();
+          showModal('ご予約を承りました。\n\n次回のご来店を心よりお待ちしております！', () => {
+            liff.closeWindow();
+          });
         } else {
           throw new Error(result.message || '予約に失敗しました');
         }
@@ -634,17 +709,18 @@
         });
         addDebugLog(`❌ 予約エラー: ${error.message}`);
 
-        // 詳細なエラーメッセージ
-        let errorMsg = '予約の送信に失敗しました。\n\n';
+        // カスタマー向けエラーメッセージ
+        let errorMsg = '';
         if (error.message.includes('Failed to fetch') || error.message.includes('Load failed')) {
-          errorMsg += 'ネットワークエラー: サーバーに接続できません。\n';
-          errorMsg += 'インターネット接続を確認してください。\n\n';
-          errorMsg += `送信先: ${GAS_BASE_URL.substring(0, 50)}...`;
+          errorMsg = '申し訳ございません。\n\n通信エラーが発生しました。\nインターネット接続をご確認の上、\nもう一度お試しください。';
+        } else if (error.message.startsWith('入力エラー')) {
+          // バリデーションエラーはそのまま表示
+          errorMsg = error.message;
         } else {
-          errorMsg += `エラー: ${error.message}`;
+          errorMsg = `申し訳ございません。\n\n${error.message}\n\nお手数ですが、もう一度お試しいただくか、\nお電話にてお問い合わせください。`;
         }
 
-        alert(errorMsg);
+        showModal(errorMsg);
         submitBtn.disabled = false;
         submitBtn.textContent = '予約を確定する';
       }
