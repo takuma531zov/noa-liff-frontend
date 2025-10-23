@@ -449,6 +449,31 @@
           const initDuration = Date.now() - initStartTime;
           addDebugLog(`❌ LIFF初期化エラー（${initDuration}ms）: ${err}`);
           addDebugLog(`エラー詳細: ${JSON.stringify(err)}`);
+
+          // code_verifierエラーの場合は認証フローをリセット
+          if (err && (err.message?.includes('code_verifier') || err.code === 'invalid_grant')) {
+            addDebugLog('認証エラー検出 - URLパラメータをクリアして再ログイン');
+
+            // URLパラメータをクリア（code, state等）
+            const cleanUrl = window.location.origin + window.location.pathname;
+
+            // sessionStorageをクリア（LIFF認証情報をリセット）
+            try {
+              sessionStorage.clear();
+              addDebugLog('sessionStorageクリア完了');
+            } catch (e) {
+              addDebugLog('sessionStorageクリア失敗: ' + e.message);
+            }
+
+            // 3秒後にクリーンなURLで再読み込み
+            setTimeout(() => {
+              addDebugLog('ページを再読み込みします...');
+              window.location.href = cleanUrl;
+            }, 3000);
+
+            throw new Error('認証エラーが発生しました。ページを再読み込みしています...');
+          }
+
           throw err;
         });
 
