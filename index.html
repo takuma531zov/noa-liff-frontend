@@ -331,7 +331,7 @@
     let menuList = [];
 
     // デバッグ情報表示用（本番環境では無効化）
-    const DEBUG_MODE = false; // trueでデバッグログ表示
+    const DEBUG_MODE = true; // trueでデバッグログ表示
 
     function addDebugLog(message) {
       console.log(message); // コンソールには常に出力
@@ -595,6 +595,8 @@
         };
 
         console.log('予約リクエスト送信:', payload);
+        console.log('送信先URL:', GAS_BASE_URL);
+        addDebugLog(`予約送信開始: ${GAS_BASE_URL}`);
 
         const response = await fetch(GAS_BASE_URL, {
           method: 'POST',
@@ -605,6 +607,7 @@
         });
 
         console.log('レスポンスステータス:', response.status);
+        addDebugLog(`レスポンス受信: ${response.status}`);
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -624,12 +627,19 @@
 
       } catch (error) {
         console.error('予約エラー:', error);
+        console.error('エラー詳細:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
+        addDebugLog(`❌ 予約エラー: ${error.message}`);
 
         // 詳細なエラーメッセージ
         let errorMsg = '予約の送信に失敗しました。\n\n';
         if (error.message.includes('Failed to fetch') || error.message.includes('Load failed')) {
           errorMsg += 'ネットワークエラー: サーバーに接続できません。\n';
-          errorMsg += 'インターネット接続を確認してください。';
+          errorMsg += 'インターネット接続を確認してください。\n\n';
+          errorMsg += `送信先: ${GAS_BASE_URL.substring(0, 50)}...`;
         } else {
           errorMsg += `エラー: ${error.message}`;
         }
