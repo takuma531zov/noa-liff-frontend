@@ -518,18 +518,13 @@
           document.getElementById('loading').style.display = 'none';
           document.getElementById('reservationForm').style.display = 'block';
 
-          // 日付入力の最小値を明日に設定（過去日・当日を選択不可に）
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          const minDate = tomorrow.toISOString().split('T')[0];
-          document.getElementById('reservationDate').setAttribute('min', minDate);
-
           // 時間選択肢を生成（初期状態）
           generateTimeOptions();
 
           // スタッフ・日付・メニュー変更時に利用可能時間を更新
+          // inputイベントを使用して即座に反映
           document.getElementById('staffId').addEventListener('change', updateAvailableTimeSlots);
-          document.getElementById('reservationDate').addEventListener('change', updateAvailableTimeSlots);
+          document.getElementById('reservationDate').addEventListener('input', updateAvailableTimeSlots);
           document.querySelectorAll('input[name="menuIds"]').forEach(checkbox => {
             checkbox.addEventListener('change', updateAvailableTimeSlots);
           });
