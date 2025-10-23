@@ -207,7 +207,7 @@
       font-size: 15px;
       line-height: 1.8;
       margin-bottom: 20px;
-      white-space: pre-line;
+      white-space: normal;
     }
 
     .modal-btn {
@@ -409,7 +409,8 @@
       const modalMessage = document.getElementById('modalMessage');
       const modalBtn = document.getElementById('modalBtn');
 
-      modalMessage.textContent = message;
+      // 改行コードを<br>に変換
+      modalMessage.innerHTML = message.replace(/\n/g, '<br>');
       modal.classList.add('show');
 
       modalBtn.onclick = () => {
