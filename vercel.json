@@ -1,5 +1,3 @@
 {
-  "version": 2,
-  "buildCommand": "bash build.sh",
-  "outputDirectory": "."
+  "buildCommand": "bash build.sh"
 }
