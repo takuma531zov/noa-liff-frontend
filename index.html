@@ -297,26 +297,6 @@
         <div class="error-message" id="store-error"></div>
       </div>
 
-      <!-- 日付選択 -->
-      <div class="form-group">
-        <label class="form-label" for="reservationDate">
-          ご希望日<span class="required">*</span>
-        </label>
-        <input type="date" id="reservationDate" name="reservationDate" class="form-control" required>
-        <div class="error-message" id="reservationDate-error"></div>
-      </div>
-
-      <!-- 時間選択 -->
-      <div class="form-group">
-        <label class="form-label" for="reservationTime">
-          ご希望時間<span class="required">*</span>
-        </label>
-        <select id="reservationTime" name="reservationTime" class="form-select" required>
-          <option value="">選択してください</option>
-        </select>
-        <div class="error-message" id="reservationTime-error"></div>
-      </div>
-
       <!-- スタッフ選択 -->
       <div class="form-group">
         <label class="form-label" for="staffId">
@@ -337,6 +317,26 @@
           <!-- 動的に生成 -->
         </div>
         <div class="error-message" id="menuIds-error"></div>
+      </div>
+
+      <!-- 日付選択 -->
+      <div class="form-group">
+        <label class="form-label" for="reservationDate">
+          ご希望日<span class="required">*</span>
+        </label>
+        <input type="date" id="reservationDate" name="reservationDate" class="form-control" required>
+        <div class="error-message" id="reservationDate-error"></div>
+      </div>
+
+      <!-- 時間選択 -->
+      <div class="form-group">
+        <label class="form-label" for="reservationTime">
+          ご希望時間<span class="required">*</span>
+        </label>
+        <select id="reservationTime" name="reservationTime" class="form-select" required>
+          <option value="">スタッフ・メニュー・日付を選択してください</option>
+        </select>
+        <div class="error-message" id="reservationTime-error"></div>
       </div>
 
       <!-- お名前 -->
@@ -522,9 +522,8 @@
           generateTimeOptions();
 
           // スタッフ・日付・メニュー変更時に利用可能時間を更新
-          // inputイベントを使用して即座に反映
           document.getElementById('staffId').addEventListener('change', updateAvailableTimeSlots);
-          document.getElementById('reservationDate').addEventListener('input', updateAvailableTimeSlots);
+          document.getElementById('reservationDate').addEventListener('change', updateAvailableTimeSlots);
           document.querySelectorAll('input[name="menuIds"]').forEach(checkbox => {
             checkbox.addEventListener('change', updateAvailableTimeSlots);
           });
