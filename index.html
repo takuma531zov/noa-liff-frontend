@@ -601,7 +601,7 @@
         const response = await fetch(GAS_BASE_URL, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'text/plain', // CORS preflight回避のためtext/plainを使用
           },
           body: JSON.stringify(payload)
         });
