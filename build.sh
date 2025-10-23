@@ -9,3 +9,12 @@ CONFIGEOF
 
 echo "config.js generated with environment variables"
 cat config.js
+
+# Vercel Build Output API v3に対応
+mkdir -p .vercel/output/static
+cp index.html .vercel/output/static/
+cp config.js .vercel/output/static/
+echo '{"version": 3}' > .vercel/output/config.json
+
+echo "Files copied to .vercel/output/static"
+ls -la .vercel/output/static
