@@ -269,13 +269,29 @@
       font-size: 12px;
       color: #8a7a6a;
     }
+
+    .change-link {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .change-link:hover {
+      opacity: 0.7;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
+    <div class="header" style="position: relative;">
+      <a class="change-link" id="changeLinkBtn" style="display: none;">予約の変更はこちら</a>
       <h1>Noa</h1>
-      <p>ご予約フォーム</p>
+      <p id="headerSubtitle">ご予約フォーム</p>
     </div>
 
     <div id="loading" class="loading">
@@ -375,6 +391,56 @@
         予約を確定する
       </button>
     </form>
+
+    <!-- 予約変更画面 -->
+    <div id="changeScreen" class="form-content" style="display: none;">
+      <!-- 予約内容表示 -->
+      <div id="reservationDetails" style="display: none;">
+        <h3 style="font-size: 18px; color: #5a4a3a; margin-bottom: 20px; text-align: center;">現在のご予約内容</h3>
+
+        <div style="background: #faf8f5; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+          <div style="margin-bottom: 12px;">
+            <span style="font-size: 13px; color: #8a7a6a;">予約日時</span>
+            <p id="detailDateTime" style="font-size: 16px; color: #3a3a3a; margin-top: 4px; font-weight: 600;"></p>
+          </div>
+          <div style="margin-bottom: 12px;">
+            <span style="font-size: 13px; color: #8a7a6a;">担当スタッフ</span>
+            <p id="detailStaff" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
+          </div>
+          <div style="margin-bottom: 12px;">
+            <span style="font-size: 13px; color: #8a7a6a;">メニュー</span>
+            <p id="detailMenu" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
+          </div>
+          <div>
+            <span style="font-size: 13px; color: #8a7a6a;">店舗</span>
+            <p id="detailStore" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
+          </div>
+        </div>
+
+        <button type="button" class="submit-btn" id="editReservationBtn" style="margin-bottom: 12px;">
+          内容を変更する
+        </button>
+
+        <button type="button" class="submit-btn" id="cancelReservationBtn"
+                style="background: #999; border-color: #999;">
+          予約をキャンセルする
+        </button>
+
+        <button type="button" class="submit-btn" id="backToNewBtn"
+                style="background: transparent; color: #8a7a6a; border: 2px solid #e8dfd5; margin-top: 12px;">
+          新規予約画面に戻る
+        </button>
+      </div>
+
+      <!-- 予約なしメッセージ -->
+      <div id="noReservationMessage" style="display: none; text-align: center; padding: 40px 20px;">
+        <p style="color: #8a7a6a; margin-bottom: 20px;">現在、確定済みの予約はありません。</p>
+        <button type="button" class="submit-btn" id="backToNewBtn2"
+                style="background: transparent; color: #8a7a6a; border: 2px solid #e8dfd5;">
+          新規予約画面に戻る
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- カスタムモーダル -->
@@ -389,6 +455,7 @@
     let lineUserId = '';
     let staffList = [];
     let menuList = [];
+    let currentReservation = null; // 変更対象の予約情報
 
     // デバッグ情報表示用（本番環境では無効化）
     const DEBUG_MODE = true; // trueでデバッグログ表示
@@ -418,6 +485,63 @@
         modal.classList.remove('show');
         if (onClose) onClose();
       };
+    }
+
+    // 画面切り替え関数
+    function showNewReservationScreen() {
+      document.getElementById('reservationForm').style.display = 'block';
+      document.getElementById('changeScreen').style.display = 'none';
+      document.getElementById('changeLinkBtn').style.display = 'block';
+      document.getElementById('headerSubtitle').textContent = 'ご予約フォーム';
+      // フォームをリセット
+      document.getElementById('reservationForm').reset();
+      generateTimeOptions();
+    }
+
+    function showChangeScreen() {
+      document.getElementById('reservationForm').style.display = 'none';
+      document.getElementById('changeScreen').style.display = 'block';
+      document.getElementById('changeLinkBtn').style.display = 'none';
+      document.getElementById('headerSubtitle').textContent = 'ご予約の変更';
+      // 最新予約を取得して表示
+      loadMyReservation();
+    }
+
+    // 最新予約を取得
+    async function loadMyReservation() {
+      try {
+        document.getElementById('reservationDetails').style.display = 'none';
+        document.getElementById('noReservationMessage').style.display = 'none';
+
+        const response = await fetch(`${GAS_BASE_URL}?path=myReservation&lineUserId=${lineUserId}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'text/plain' }
+        });
+
+        const data = await response.json();
+
+        if (!data.reservation) {
+          // 予約なし
+          document.getElementById('noReservationMessage').style.display = 'block';
+          return;
+        }
+
+        // 予約情報を保存して表示
+        currentReservation = data.reservation;
+        displayReservationDetails(currentReservation);
+        document.getElementById('reservationDetails').style.display = 'block';
+      } catch (error) {
+        console.error('予約取得エラー:', error);
+        showModal('予約情報の取得に失敗しました。');
+      }
+    }
+
+    // 予約詳細を表示
+    function displayReservationDetails(reservation) {
+      document.getElementById('detailDateTime').textContent = `${reservation.date} ${reservation.time}`;
+      document.getElementById('detailStaff').textContent = `${reservation.staffName}様`;
+      document.getElementById('detailMenu').textContent = reservation.menu;
+      document.getElementById('detailStore').textContent = reservation.store;
     }
 
     // LIFF初期化
@@ -517,6 +641,7 @@
           addDebugLog('フォーム表示');
           document.getElementById('loading').style.display = 'none';
           document.getElementById('reservationForm').style.display = 'block';
+          document.getElementById('changeLinkBtn').style.display = 'block';
 
           // 時間選択肢を生成（初期状態）
           generateTimeOptions();
@@ -733,8 +858,12 @@
           throw new Error('メニューを選択してください');
         }
 
+        // 変更モードかどうかを判定
+        const isUpdateMode = currentReservation !== null;
+
         const payload = {
-          action: 'createReservation',
+          action: isUpdateMode ? 'updateReservation' : 'createReservation',
+          ...(isUpdateMode && { reservationId: currentReservation.reservationId }),
           payload: {
             store: document.getElementById('store').value,
             reservationDate: document.getElementById('reservationDate').value,
@@ -776,7 +905,14 @@
         console.log('レスポンス結果:', result);
 
         if (result.success) {
-          showModal('ご予約を承りました。\n\n次回のご来店を心よりお待ちしております！', () => {
+          const successMessage = isUpdateMode
+            ? 'ご予約内容を変更いたしました。\n\n次回のご来店を心よりお待ちしております！'
+            : 'ご予約を承りました。\n\n次回のご来店を心よりお待ちしております！';
+
+          showModal(successMessage, () => {
+            // 変更モードをリセット
+            currentReservation = null;
+            document.getElementById('submitBtn').textContent = '予約を確定する';
             liff.closeWindow();
           });
         } else {
@@ -808,6 +944,73 @@
         submitBtn.textContent = '予約を確定する';
       }
     });
+
+    // イベントリスナー設定
+    document.getElementById('changeLinkBtn').addEventListener('click', showChangeScreen);
+    document.getElementById('backToNewBtn').addEventListener('click', showNewReservationScreen);
+    document.getElementById('backToNewBtn2').addEventListener('click', showNewReservationScreen);
+
+    // 予約変更ボタン
+    document.getElementById('editReservationBtn').addEventListener('click', () => {
+      if (!currentReservation) return;
+
+      // フォームに既存の予約情報をセット
+      document.getElementById('store').value = currentReservation.store;
+      document.getElementById('staffId').value = currentReservation.staffId;
+      document.getElementById('reservationDate').value = currentReservation.date.replace(/\//g, '-');
+      document.getElementById('reservationTime').value = currentReservation.time;
+      document.getElementById('customerName').value = currentReservation.customerName;
+      document.getElementById('customerPhone').value = currentReservation.phone;
+
+      // メニューはmenu文字列から復元（簡略化のため、ここではスキップ）
+      // TODO: menuIds配列がReservation型にあれば復元可能
+
+      // 新規予約画面に切り替え（変更モード）
+      showNewReservationScreen();
+
+      // 送信ボタンのテキストを変更
+      document.getElementById('submitBtn').textContent = '変更を確定する';
+    });
+
+    // キャンセルボタン
+    document.getElementById('cancelReservationBtn').addEventListener('click', () => {
+      if (!currentReservation) return;
+
+      showModal(
+        `以下のご予約をキャンセルします。\nよろしいですか?\n\n予約日時: ${currentReservation.date} ${currentReservation.time}\n担当: ${currentReservation.staffName}様\nメニュー: ${currentReservation.menu}`,
+        () => {
+          // キャンセル実行
+          cancelReservation();
+        }
+      );
+    });
+
+    // キャンセル実行関数
+    async function cancelReservation() {
+      try {
+        const response = await fetch(GAS_BASE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            action: 'cancelReservation',
+            reservationId: currentReservation.reservationId
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showModal('ご予約をキャンセルいたしました。\n\nまたのご利用をお待ちしております。', () => {
+            showNewReservationScreen();
+          });
+        } else {
+          throw new Error(result.message || 'キャンセルに失敗しました');
+        }
+      } catch (error) {
+        console.error('キャンセルエラー:', error);
+        showModal('申し訳ございません。\nキャンセル処理中にエラーが発生しました。\n\nお手数ですが、お電話にてお問い合わせください。');
+      }
+    }
 
     // 初期化実行
     initializeLiff();
