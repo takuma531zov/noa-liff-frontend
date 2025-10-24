@@ -196,19 +196,20 @@
     .modal-content {
       background: white;
       border-radius: 12px;
-      padding: 30px;
-      max-width: 320px;
-      width: 90%;
+      padding: 30px 24px;
+      max-width: 400px;
+      width: 92%;
       text-align: center;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
 
     .modal-message {
       color: #4a4a4a;
-      font-size: 15px;
-      line-height: 1.8;
+      font-size: 14px;
+      line-height: 1.7;
       margin-bottom: 20px;
       white-space: normal;
+      word-break: keep-all;
     }
 
     .modal-btn {
@@ -931,8 +932,8 @@
 
         if (result.success) {
           const successMessage = isUpdateMode
-            ? 'ご予約内容を変更いたしました。\nご来店お待ちしております！'
-            : 'ご予約を承りました。\nご来店お待ちしております！';
+            ? 'ご予約内容を変更いたしました。\n次回のご来店を心よりお待ちしております！'
+            : 'ご予約を承りました。\n次回のご来店を心よりお待ちしております！';
 
           showModal(successMessage, () => {
             // 変更モードをリセット
@@ -1062,7 +1063,7 @@
         const result = await response.json();
 
         if (result.success) {
-          showModal('ご予約をキャンセルいたしました。\nまたのご利用お待ちしております。', () => {
+          showModal('ご予約をキャンセルいたしました。\nまたのご利用をお待ちしております。', () => {
             liff.closeWindow();
           });
         } else {
