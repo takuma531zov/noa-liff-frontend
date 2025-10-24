@@ -931,8 +931,8 @@
 
         if (result.success) {
           const successMessage = isUpdateMode
-            ? 'ご予約内容を変更いたしました。\nスタッフ一同心よりお待ちしております！'
-            : 'ご予約を承りました。\nスタッフ一同心よりお待ちしております！';
+            ? 'ご予約内容を変更いたしました。\nご来店お待ちしております！'
+            : 'ご予約を承りました。\nご来店お待ちしております！';
 
           showModal(successMessage, () => {
             // 変更モードをリセット
@@ -1062,7 +1062,7 @@
         const result = await response.json();
 
         if (result.success) {
-          showModal('ご予約をキャンセルいたしました。\nまたのご利用をお待ちしております。', () => {
+          showModal('ご予約をキャンセルいたしました。\nまたのご利用お待ちしております。', () => {
             liff.closeWindow();
           });
         } else {
