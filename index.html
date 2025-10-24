@@ -1049,6 +1049,12 @@
 
     // キャンセル実行関数
     async function cancelReservation() {
+      const cancelBtn = document.getElementById('cancelReservationBtn');
+      const originalText = cancelBtn.textContent;
+
+      cancelBtn.disabled = true;
+      cancelBtn.textContent = '送信中...';
+
       try {
         const response = await fetch(GAS_BASE_URL, {
           method: 'POST',
@@ -1071,6 +1077,10 @@
       } catch (error) {
         console.error('キャンセルエラー:', error);
         showModal('申し訳ございません。\nキャンセル処理中にエラーが発生しました。\n\nお手数ですが、お電話にてお問い合わせください。');
+
+        // エラー時はボタンを元に戻す
+        cancelBtn.disabled = false;
+        cancelBtn.textContent = originalText;
       }
     }
 
