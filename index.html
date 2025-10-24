@@ -991,11 +991,6 @@
 
     // 編集モードでフォームを表示
     function showEditReservationForm() {
-      // まず入力フィールドをすべてクリア
-      document.querySelectorAll('input[name="menuIds"]').forEach(cb => cb.checked = false);
-      document.getElementById('reservationDate').value = '';
-      document.getElementById('reservationTime').value = '';
-
       // フォームを表示
       document.getElementById('reservationForm').style.display = 'block';
       document.getElementById('noReservationMessage').style.display = 'none';
@@ -1022,12 +1017,17 @@
       document.querySelector('#customerPhone').closest('.form-group').style.display = 'none';
       document.querySelector('#consent').closest('.form-group').style.display = 'none';
 
-      // フォームに既存値をセット（店舗・スタッフ・顧客情報のみ）
+      // フォームに既存値をセット
       document.getElementById('store').value = currentReservation.store;
       document.getElementById('staffId').value = currentReservation.staffId;
+      document.getElementById('reservationDate').value = currentReservation.date.replace(/\//g, '-');
+      document.getElementById('reservationTime').value = currentReservation.time;
       document.getElementById('customerName').value = currentReservation.customerName;
       document.getElementById('customerPhone').value = currentReservation.phone;
       document.getElementById('consent').checked = true;
+
+      // メニューはクリア（ユーザーに再選択してもらう）
+      document.querySelectorAll('input[name="menuIds"]').forEach(cb => cb.checked = false);
 
       // 送信ボタンとキャンセルボタンを表示
       document.getElementById('submitBtn').textContent = '変更を確定する';
