@@ -1063,7 +1063,7 @@
 
         if (result.success) {
           showModal('ご予約をキャンセルいたしました。\n\nまたのご利用をお待ちしております。', () => {
-            showNewReservationScreen();
+            liff.closeWindow();
           });
         } else {
           throw new Error(result.message || 'キャンセルに失敗しました');
