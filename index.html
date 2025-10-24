@@ -447,56 +447,17 @@
       <button type="submit" class="submit-btn" id="submitBtn">
         予約を確定する
       </button>
+
+      <!-- キャンセルボタン（編集モード時のみ表示） -->
+      <button type="button" class="submit-btn" id="cancelReservationBtn"
+              style="display: none; background: #999; border-color: #999; margin-top: 12px;">
+        予約をキャンセルする
+      </button>
     </form>
 
-    <!-- 予約変更画面 -->
-    <div id="changeScreen" class="form-content" style="display: none;">
-      <!-- 予約内容表示 -->
-      <div id="reservationDetails" style="display: none;">
-        <h3 style="font-size: 18px; color: #5a4a3a; margin-bottom: 20px; text-align: center;">現在のご予約内容</h3>
-
-        <div style="background: #faf8f5; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
-          <div style="margin-bottom: 12px;">
-            <span style="font-size: 13px; color: #8a7a6a;">予約日時</span>
-            <p id="detailDateTime" style="font-size: 16px; color: #3a3a3a; margin-top: 4px; font-weight: 600;"></p>
-          </div>
-          <div style="margin-bottom: 12px;">
-            <span style="font-size: 13px; color: #8a7a6a;">担当スタッフ</span>
-            <p id="detailStaff" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
-          </div>
-          <div style="margin-bottom: 12px;">
-            <span style="font-size: 13px; color: #8a7a6a;">メニュー</span>
-            <p id="detailMenu" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
-          </div>
-          <div>
-            <span style="font-size: 13px; color: #8a7a6a;">店舗</span>
-            <p id="detailStore" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
-          </div>
-        </div>
-
-        <button type="button" class="submit-btn" id="editReservationBtn" style="margin-bottom: 12px;">
-          内容を変更する
-        </button>
-
-        <button type="button" class="submit-btn" id="cancelReservationBtn"
-                style="background: #999; border-color: #999;">
-          予約をキャンセルする
-        </button>
-
-        <button type="button" class="submit-btn" id="backToNewBtn"
-                style="background: transparent; color: #8a7a6a; border: 2px solid #e8dfd5; margin-top: 12px;">
-          新規予約画面に戻る
-        </button>
-      </div>
-
-      <!-- 予約なしメッセージ -->
-      <div id="noReservationMessage" style="display: none; text-align: center; padding: 40px 20px;">
-        <p style="color: #8a7a6a; margin-bottom: 20px;">現在、確定済みの予約はありません。</p>
-        <button type="button" class="submit-btn" id="backToNewBtn2"
-                style="background: transparent; color: #8a7a6a; border: 2px solid #e8dfd5;">
-          新規予約画面に戻る
-        </button>
-      </div>
+    <!-- 予約なしメッセージ -->
+    <div id="noReservationMessage" class="form-content" style="display: none; text-align: center; padding: 40px 20px;">
+      <p style="color: #8a7a6a; margin-bottom: 20px;">現在、確定済みの予約はありません。</p>
     </div>
   </div>
 
@@ -572,24 +533,18 @@
       // フォームをリセット
       document.getElementById('reservationForm').reset();
       document.getElementById('submitBtn').textContent = '予約を確定する';
+      document.getElementById('cancelReservationBtn').style.display = 'none';
       generateTimeOptions();
     }
 
-    function showChangeScreen() {
+    async function showChangeScreen() {
+      // ローディング表示
       document.getElementById('reservationForm').style.display = 'none';
-      document.getElementById('changeScreen').style.display = 'block';
-      document.getElementById('changeLinkBtn').style.display = 'none';
-      document.getElementById('headerSubtitle').textContent = 'ご予約の変更';
-      // 最新予約を取得して表示
-      loadMyReservation();
-    }
+      document.getElementById('noReservationMessage').style.display = 'none';
+      document.getElementById('loading').style.display = 'block';
 
-    // 最新予約を取得
-    async function loadMyReservation() {
       try {
-        document.getElementById('reservationDetails').style.display = 'none';
-        document.getElementById('noReservationMessage').style.display = 'none';
-
+        // 最新予約を取得
         const response = await fetch(`${GAS_BASE_URL}?path=myReservation&lineUserId=${lineUserId}`, {
           method: 'GET',
           headers: { 'Content-Type': 'text/plain' }
@@ -597,28 +552,26 @@
 
         const data = await response.json();
 
+        // ローディング非表示
+        document.getElementById('loading').style.display = 'none';
+
         if (!data.reservation) {
-          // 予約なし
+          // 予約なし → メッセージ表示
           document.getElementById('noReservationMessage').style.display = 'block';
+          document.getElementById('changeLinkBtn').style.display = 'block';
+          document.getElementById('changeLinkBtn').textContent = '新規予約に戻る';
+          document.getElementById('headerSubtitle').textContent = 'ご予約の変更';
           return;
         }
 
-        // 予約情報を保存して表示
+        // 予約情報を保存して編集フォームを表示
         currentReservation = data.reservation;
-        displayReservationDetails(currentReservation);
-        document.getElementById('reservationDetails').style.display = 'block';
+        showEditReservationForm();
       } catch (error) {
         console.error('予約取得エラー:', error);
+        document.getElementById('loading').style.display = 'none';
         showModal('予約情報の取得に失敗しました。');
       }
-    }
-
-    // 予約詳細を表示
-    function displayReservationDetails(reservation) {
-      document.getElementById('detailDateTime').textContent = `${reservation.date} ${reservation.time}`;
-      document.getElementById('detailStaff').textContent = reservation.staffName;
-      document.getElementById('detailMenu').textContent = reservation.menu;
-      document.getElementById('detailStore').textContent = reservation.store;
     }
 
     // LIFF初期化
@@ -983,8 +936,8 @@
 
         if (result.success) {
           const successMessage = isUpdateMode
-            ? 'ご予約内容を変更いたしました。\n\n次回のご来店を心よりお待ちしております！'
-            : 'ご予約を承りました。\n\n次回のご来店を心よりお待ちしております！';
+            ? 'ご予約内容を変更いたしました。\n次回のご来店を心よりお待ちしております！'
+            : 'ご予約を承りました。\n次回のご来店を心よりお待ちしております！';
 
           showModal(successMessage, () => {
             // 変更モードをリセット
@@ -1023,25 +976,24 @@
     });
 
     // イベントリスナー設定
-    document.getElementById('changeLinkBtn').addEventListener('click', showChangeScreen);
-    document.getElementById('backToNewBtn').addEventListener('click', showNewReservationScreen);
-    document.getElementById('backToNewBtn2').addEventListener('click', showNewReservationScreen);
-
-    // 予約変更ボタン
-    document.getElementById('editReservationBtn').addEventListener('click', () => {
-      if (!currentReservation) return;
-      showEditReservationForm();
+    document.getElementById('changeLinkBtn').addEventListener('click', () => {
+      // リンクのテキストに応じて動作を切り替え
+      if (document.getElementById('changeLinkBtn').textContent === '予約の変更はこちら') {
+        showChangeScreen();
+      } else {
+        showNewReservationScreen();
+      }
     });
 
     // 編集モードでフォームを表示
     function showEditReservationForm() {
-      // 変更画面を非表示
-      document.getElementById('changeScreen').style.display = 'none';
+      // フォームを表示
       document.getElementById('reservationForm').style.display = 'block';
+      document.getElementById('noReservationMessage').style.display = 'none';
 
-      // ヘッダー更新
+      // ヘッダー更新（右上リンクを「新規予約に戻る」に変更）
       document.getElementById('headerSubtitle').textContent = 'ご予約内容の変更';
-      document.getElementById('changeLinkBtn').style.display = 'none';
+      document.getElementById('changeLinkBtn').style.display = 'block';
       document.getElementById('changeLinkBtn').textContent = '新規予約に戻る';
 
       // 現在の予約情報ボックスを表示
@@ -1061,7 +1013,7 @@
       document.querySelector('#customerPhone').closest('.form-group').style.display = 'none';
       document.querySelector('#consent').closest('.form-group').style.display = 'none';
 
-      // フォームに既存値をセット（内部的に必要）
+      // フォームに既存値をセット
       document.getElementById('store').value = currentReservation.store;
       document.getElementById('staffId').value = currentReservation.staffId;
       document.getElementById('reservationDate').value = currentReservation.date.replace(/\//g, '-');
@@ -1070,10 +1022,12 @@
       document.getElementById('customerPhone').value = currentReservation.phone;
       document.getElementById('consent').checked = true;
 
-      // メニューは手動で選択してもらう（TODO: menuIds配列があれば自動選択可能）
+      // メニューはクリア（ユーザーに再選択してもらう）
+      document.querySelectorAll('input[name="menuIds"]').forEach(cb => cb.checked = false);
 
-      // 送信ボタンのテキストを変更
+      // 送信ボタンとキャンセルボタンを表示
       document.getElementById('submitBtn').textContent = '変更を確定する';
+      document.getElementById('cancelReservationBtn').style.display = 'block';
     }
 
     // キャンセルボタン
