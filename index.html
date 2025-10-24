@@ -976,11 +976,14 @@
     });
 
     // イベントリスナー設定
-    document.getElementById('changeLinkBtn').addEventListener('click', () => {
-      // リンクのテキストに応じて動作を切り替え
-      if (document.getElementById('changeLinkBtn').textContent === '予約の変更はこちら') {
+    document.getElementById('changeLinkBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      // currentReservationの状態に応じて動作を切り替え
+      if (currentReservation === null) {
+        // 新規予約画面 → 予約変更画面
         showChangeScreen();
       } else {
+        // 予約変更画面 → 新規予約画面
         showNewReservationScreen();
       }
     });
