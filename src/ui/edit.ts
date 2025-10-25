@@ -73,6 +73,12 @@ export const showEditReservationForm = (
     cb.checked = false
   }
 
+  // 希望時間フィールドを初期無効化（メニュー選択後に有効化される）
+  if (reservationTime) {
+    reservationTime.disabled = true
+    reservationTime.innerHTML = '<option value="">選択してください</option>'
+  }
+
   // 送信ボタンとキャンセルボタンを表示
   const submitBtn = getElementById('submitBtn')
   const cancelBtn = getElementById('cancelReservationBtn')
