@@ -20,19 +20,23 @@ export const updateAvailableTimeSlots = async (
     ),
   ).map((cb) => cb.value)
 
-  if (!staffId || !date || menuIds.length === 0) {
-    return
-  }
-
   const select = getElementById<HTMLSelectElement>('reservationTime')
   if (!select) return
+
+  // 日付変更時は必ず読み込み中表示
+  if (!staffId || !date || menuIds.length === 0) {
+    select.disabled = true
+    select.innerHTML = '<option value="">選択してください</option>'
+    return
+  }
 
   select.disabled = true
   select.innerHTML = '<option value="">読み込み中...</option>'
 
   try {
     const totalDuration = calculateTotalDuration(state.menuList, menuIds)
-    const bookedSlots = await fetchBookedSlots(staffId, date)
+    const excludeReservationId = state.currentReservation?.reservationId
+    const bookedSlots = await fetchBookedSlots(staffId, date, excludeReservationId)
     const availableSlots = calculateAvailableSlots(bookedSlots, totalDuration)
 
     select.disabled = false
@@ -71,9 +75,9 @@ export const setupAvailabilityListeners = (
     'change',
     updateHandler,
   )
-  document
-    .querySelectorAll('input[name="menuIds"]')
-    .forEach((checkbox) => {
-      checkbox.addEventListener('change', updateHandler)
-    })
+  for (const checkbox of Array.from(
+    document.querySelectorAll<HTMLInputElement>('input[name="menuIds"]'),
+  )) {
+    checkbox.addEventListener('change', updateHandler)
+  }
 }

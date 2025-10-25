@@ -17,10 +17,13 @@ type TimeSlot = {
 export const fetchBookedSlots = async (
   staffId: string,
   date: string,
+  excludeReservationId?: string,
 ): Promise<BookedSlot[]> => {
-  const response = await fetch(
-    `${getGasBaseUrl()}?path=bookedSlots&staffId=${staffId}&date=${date}`,
-  )
+  let url = `${getGasBaseUrl()}?path=bookedSlots&staffId=${staffId}&date=${date}`
+  if (excludeReservationId) {
+    url += `&excludeReservationId=${excludeReservationId}`
+  }
+  const response = await fetch(url)
   return response.json()
 }
 
