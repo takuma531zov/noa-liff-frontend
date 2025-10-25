@@ -67,10 +67,14 @@ export const updateAvailableTimeSlots = async (
   }
 }
 
-// メニュー選択状態に応じて希望日・希望時間の有効/無効を切り替え
+// 必要項目に応じて希望時間の有効/無効を切り替え
 export const toggleDateTimeFieldsBasedOnMenu = (
   state: AppState,
 ): void => {
+  const staffId =
+    getElementById<HTMLSelectElement>('staffId')?.value ?? ''
+  const date =
+    getElementById<HTMLInputElement>('reservationDate')?.value ?? ''
   const menuIds = Array.from(
     document.querySelectorAll<HTMLInputElement>(
       'input[name="menuIds"]:checked',
@@ -83,22 +87,14 @@ export const toggleDateTimeFieldsBasedOnMenu = (
     ? state.currentReservation?.menuIds ?? []
     : menuIds
 
-  const hasMenuSelected = effectiveMenuIds.length > 0
-  const dateField = getElementById<HTMLInputElement>('reservationDate')
+  // 必要項目が揃っているかチェック
+  const hasRequiredFields = staffId && date && effectiveMenuIds.length > 0
   const timeField = getElementById<HTMLSelectElement>('reservationTime')
 
-  if (dateField) {
-    dateField.disabled = !hasMenuSelected
-    if (!hasMenuSelected) {
-      dateField.placeholder = 'メニューを選択してください'
-    } else {
-      dateField.placeholder = ''
-    }
-  }
   if (timeField) {
-    timeField.disabled = !hasMenuSelected
-    if (!hasMenuSelected) {
-      timeField.innerHTML = '<option value="">メニューを選択してください</option>'
+    timeField.disabled = !hasRequiredFields
+    if (!hasRequiredFields) {
+      timeField.innerHTML = '<option value="">選択してください</option>'
     }
   }
 }
