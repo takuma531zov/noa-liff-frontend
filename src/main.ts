@@ -74,19 +74,18 @@ const setupEventListeners = (): void => {
   const form = getElementById<HTMLFormElement>('reservationForm')
   form?.addEventListener('submit', withErrorHandling((e: Event) => handleReservationSubmit(e, state)))
 
-  // 画面切り替え
-  getElementById('changeLinkBtn')?.addEventListener('click', () =>
-    withErrorHandling(() => handleLoadMyReservation(state))(),
-  )
-
-  getElementById('backToNewBtn')?.addEventListener(
-    'click',
-    showNewReservationScreen,
-  )
-  getElementById('backToNewBtn2')?.addEventListener(
-    'click',
-    showNewReservationScreen,
-  )
+  // 画面切り替え（予約変更 ⇔ 新規予約）
+  getElementById('changeLinkBtn')?.addEventListener('click', (e) => {
+    e.preventDefault()
+    if (state.currentReservation === null) {
+      // 新規予約画面 → 予約変更画面
+      withErrorHandling(() => handleLoadMyReservation(state))()
+    } else {
+      // 予約変更画面 → 新規予約画面
+      state.currentReservation = null
+      showNewReservationScreen()
+    }
+  })
 
   // 予約キャンセル
   getElementById('cancelReservationBtn')?.addEventListener(

@@ -5,6 +5,7 @@ import { getElementById, setDisplay } from '../utils/dom'
 export const showEditReservationForm = (
   reservation: Reservation,
 ): void => {
+  setDisplay('loading', 'none')
   setDisplay('reservationForm', 'block')
   setDisplay('noReservationMessage', 'none')
 
@@ -66,11 +67,11 @@ export const showEditReservationForm = (
   if (consent) consent.checked = true
 
   // メニューはクリア（ユーザーに再選択してもらう）
-  document
-    .querySelectorAll<HTMLInputElement>('input[name="menuIds"]')
-    .forEach((cb) => {
-      cb.checked = false
-    })
+  for (const cb of Array.from(
+    document.querySelectorAll<HTMLInputElement>('input[name="menuIds"]'),
+  )) {
+    cb.checked = false
+  }
 
   // 送信ボタンとキャンセルボタンを表示
   const submitBtn = getElementById('submitBtn')

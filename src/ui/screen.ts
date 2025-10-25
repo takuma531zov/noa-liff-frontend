@@ -9,7 +9,6 @@ export { generateTimeOptions }
 // 画面切り替え：新規予約
 export const showNewReservationScreen = (): void => {
   setDisplay('reservationForm', 'block')
-  setDisplay('changeScreen', 'none')
   setDisplay('noReservationMessage', 'none')
   setDisplay('loading', 'none')
 
@@ -52,7 +51,6 @@ export const showNewReservationScreen = (): void => {
 // 画面切り替え：予約変更（ローディング表示）
 export const showChangeScreenLoading = (): void => {
   setDisplay('reservationForm', 'none')
-  setDisplay('changeScreen', 'none')
   setDisplay('noReservationMessage', 'none')
   setDisplay('loading', 'block')
 }
@@ -60,6 +58,7 @@ export const showChangeScreenLoading = (): void => {
 // 画面切り替え：予約変更（予約なし）
 export const showChangeScreenNoReservation = (): void => {
   setDisplay('loading', 'none')
+  setDisplay('reservationForm', 'none')
   setDisplay('noReservationMessage', 'block')
 
   const changeLinkBtn = getElementById('changeLinkBtn')

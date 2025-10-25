@@ -449,56 +449,16 @@
         予約を確定する
       </button>
 
+      <!-- キャンセルボタン（編集モード時のみ表示） -->
+      <button type="button" class="submit-btn" id="cancelReservationBtn"
+              style="display: none; background: #999; border-color: #999; margin-top: 12px;">
+        予約をキャンセルする
+      </button>
     </form>
 
-    <!-- 予約変更画面 -->
-    <div id="changeScreen" class="form-content" style="display: none;">
-      <!-- 予約内容表示 -->
-      <div id="reservationDetails" style="display: none;">
-        <h3 style="font-size: 18px; color: #5a4a3a; margin-bottom: 20px; text-align: center;">現在のご予約内容</h3>
-
-        <div style="background: #faf8f5; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
-          <div style="margin-bottom: 12px;">
-            <span style="font-size: 13px; color: #8a7a6a;">予約日時</span>
-            <p id="detailDateTime" style="font-size: 16px; color: #3a3a3a; margin-top: 4px; font-weight: 600;"></p>
-          </div>
-          <div style="margin-bottom: 12px;">
-            <span style="font-size: 13px; color: #8a7a6a;">担当スタッフ</span>
-            <p id="detailStaff" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
-          </div>
-          <div style="margin-bottom: 12px;">
-            <span style="font-size: 13px; color: #8a7a6a;">メニュー</span>
-            <p id="detailMenu" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
-          </div>
-          <div>
-            <span style="font-size: 13px; color: #8a7a6a;">店舗</span>
-            <p id="detailStore" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
-          </div>
-        </div>
-
-        <button type="button" class="submit-btn" id="editReservationBtn" style="margin-bottom: 12px;">
-          内容を変更する
-        </button>
-
-        <button type="button" class="submit-btn" id="cancelReservationBtn"
-                style="background: #999; border-color: #999;">
-          予約をキャンセルする
-        </button>
-
-        <button type="button" class="submit-btn" id="backToNewBtn"
-                style="background: transparent; color: #8a7a6a; border: 2px solid #e8dfd5; margin-top: 12px;">
-          新規予約画面に戻る
-        </button>
-      </div>
-
-      <!-- 予約なしメッセージ -->
-      <div id="noReservationMessage" style="display: none; text-align: center; padding: 40px 20px;">
-        <p style="color: #8a7a6a; margin-bottom: 20px;">現在、確定済みの予約はありません。</p>
-        <button type="button" class="submit-btn" id="backToNewBtn2"
-                style="background: transparent; color: #8a7a6a; border: 2px solid #e8dfd5;">
-          新規予約画面に戻る
-        </button>
-      </div>
+    <!-- 予約なしメッセージ -->
+    <div id="noReservationMessage" class="form-content" style="display: none; text-align: center; padding: 40px 20px;">
+      <p style="color: #8a7a6a; margin-bottom: 20px;">現在、確定済みの予約はありません。</p>
     </div>
   </div>
 
