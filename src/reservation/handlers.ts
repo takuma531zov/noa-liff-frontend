@@ -1,7 +1,7 @@
 import liff from '@line/liff'
 import type { AppState } from '../types'
 import { addDebugLog } from '../utils/debug'
-import { showModal } from '../utils/modal'
+import { showModal, showConfirm } from '../utils/modal'
 import { clearErrorMessages } from '../utils/dom'
 import { getSelectedMenuIds } from '../ui/form'
 import {
@@ -124,7 +124,7 @@ export const handleCancelReservation = async (
 
   const { date, time, staffName, menu, reservationId } = reservation
 
-  showModal(
+  showConfirm(
     `以下のご予約をキャンセルします。\nよろしいですか?\n\n予約日時: ${date} ${time}\n担当: ${staffName}様\nメニュー: ${menu}`,
     async () => {
       const result = await sendReservationRequest({

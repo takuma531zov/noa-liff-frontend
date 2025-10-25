@@ -67,11 +67,42 @@ export const updateAvailableTimeSlots = async (
   }
 }
 
+// メニュー選択状態に応じて希望日・希望時間の有効/無効を切り替え
+export const toggleDateTimeFieldsBasedOnMenu = (
+  state: AppState,
+): void => {
+  const menuIds = Array.from(
+    document.querySelectorAll<HTMLInputElement>(
+      'input[name="menuIds"]:checked',
+    ),
+  ).map((cb) => cb.value)
+
+  // 予約変更モード時は既存予約のメニュー情報を使用
+  const isEditMode = state.currentReservation !== null
+  const effectiveMenuIds = isEditMode && menuIds.length === 0
+    ? state.currentReservation?.menuIds ?? []
+    : menuIds
+
+  const hasMenuSelected = effectiveMenuIds.length > 0
+  const dateField = getElementById<HTMLInputElement>('reservationDate')
+  const timeField = getElementById<HTMLSelectElement>('reservationTime')
+
+  if (dateField) {
+    dateField.disabled = !hasMenuSelected
+  }
+  if (timeField) {
+    timeField.disabled = !hasMenuSelected
+  }
+}
+
 // イベントリスナーを設定
 export const setupAvailabilityListeners = (
   state: AppState,
 ): void => {
-  const updateHandler = () => updateAvailableTimeSlots(state)
+  const updateHandler = () => {
+    toggleDateTimeFieldsBasedOnMenu(state)
+    updateAvailableTimeSlots(state)
+  }
 
   getElementById('staffId')?.addEventListener('change', updateHandler)
   getElementById('reservationDate')?.addEventListener(
@@ -83,4 +114,7 @@ export const setupAvailabilityListeners = (
   )) {
     checkbox.addEventListener('change', updateHandler)
   }
+
+  // 初期状態を設定
+  toggleDateTimeFieldsBasedOnMenu(state)
 }
