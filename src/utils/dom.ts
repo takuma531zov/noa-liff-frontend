@@ -16,7 +16,7 @@ export const setDisplay = (
 
 // エラーメッセージをすべてクリア
 export const clearErrorMessages = (): void => {
-  document
-    .querySelectorAll('.error-message')
-    .forEach((el) => el.classList.remove('show'))
+  for (const el of Array.from(document.querySelectorAll('.error-message'))) {
+    el.classList.remove('show')
+  }
 }
