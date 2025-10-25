@@ -89,9 +89,17 @@ export const toggleDateTimeFieldsBasedOnMenu = (
 
   if (dateField) {
     dateField.disabled = !hasMenuSelected
+    if (!hasMenuSelected) {
+      dateField.placeholder = 'メニューを選択してください'
+    } else {
+      dateField.placeholder = ''
+    }
   }
   if (timeField) {
     timeField.disabled = !hasMenuSelected
+    if (!hasMenuSelected) {
+      timeField.innerHTML = '<option value="">メニューを選択してください</option>'
+    }
   }
 }
 
