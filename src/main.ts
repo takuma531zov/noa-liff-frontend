@@ -4,11 +4,11 @@ import { showModal } from './utils/modal'
 import { getElementById } from './utils/dom'
 import { generateTimeOptions } from './utils/time'
 import { initializeLiff, handleAuthError } from './liff/init'
-import { showChangeScreen, showNewReservationScreen } from './ui/screen'
+import { showNewReservationScreen } from './ui/screen'
+import { setupAvailabilityListeners } from './ui/availability'
 import {
   handleReservationSubmit,
   handleLoadMyReservation,
-  handleEditReservation,
   handleCancelReservation,
 } from './reservation/handlers'
 
@@ -60,6 +60,7 @@ const initializeApp = async (): Promise<void> => {
   try {
     await initializeLiff(state)
     generateTimeOptions()
+    setupAvailabilityListeners(state)
   } catch (error) {
     const err = error as Error
     console.error('LIFF初期化エラー:', err)
@@ -74,10 +75,9 @@ const setupEventListeners = (): void => {
   form?.addEventListener('submit', withErrorHandling((e: Event) => handleReservationSubmit(e, state)))
 
   // 画面切り替え
-  getElementById('changeLinkBtn')?.addEventListener('click', () => {
-    showChangeScreen()
-    withErrorHandling(() => handleLoadMyReservation(state))()
-  })
+  getElementById('changeLinkBtn')?.addEventListener('click', () =>
+    withErrorHandling(() => handleLoadMyReservation(state))(),
+  )
 
   getElementById('backToNewBtn')?.addEventListener(
     'click',
@@ -86,11 +86,6 @@ const setupEventListeners = (): void => {
   getElementById('backToNewBtn2')?.addEventListener(
     'click',
     showNewReservationScreen,
-  )
-
-  // 予約編集
-  getElementById('editReservationBtn')?.addEventListener('click', () =>
-    handleEditReservation(state),
   )
 
   // 予約キャンセル

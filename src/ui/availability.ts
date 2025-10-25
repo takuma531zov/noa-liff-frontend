@@ -1,0 +1,79 @@
+import type { AppState } from '../types'
+import { getElementById } from '../utils/dom'
+import {
+  fetchBookedSlots,
+  calculateAvailableSlots,
+  calculateTotalDuration,
+} from '../api/availability'
+
+// 利用可能時間枠のみ表示（予約済みを除外）
+export const updateAvailableTimeSlots = async (
+  state: AppState,
+): Promise<void> => {
+  const staffId =
+    getElementById<HTMLSelectElement>('staffId')?.value ?? ''
+  const date =
+    getElementById<HTMLInputElement>('reservationDate')?.value ?? ''
+  const menuIds = Array.from(
+    document.querySelectorAll<HTMLInputElement>(
+      'input[name="menuIds"]:checked',
+    ),
+  ).map((cb) => cb.value)
+
+  if (!staffId || !date || menuIds.length === 0) {
+    return
+  }
+
+  const select = getElementById<HTMLSelectElement>('reservationTime')
+  if (!select) return
+
+  select.disabled = true
+  select.innerHTML = '<option value="">読み込み中...</option>'
+
+  try {
+    const totalDuration = calculateTotalDuration(state.menuList, menuIds)
+    const bookedSlots = await fetchBookedSlots(staffId, date)
+    const availableSlots = calculateAvailableSlots(bookedSlots, totalDuration)
+
+    select.disabled = false
+    select.innerHTML = '<option value="">選択してください</option>'
+
+    if (availableSlots.length === 0) {
+      const option = document.createElement('option')
+      option.value = ''
+      option.textContent = '予約可能な時間がありません'
+      option.disabled = true
+      select.appendChild(option)
+    } else {
+      for (const slot of availableSlots) {
+        const time = `${String(slot.hour).padStart(2, '0')}:${String(slot.min).padStart(2, '0')}`
+        const option = document.createElement('option')
+        option.value = time
+        option.textContent = time
+        select.appendChild(option)
+      }
+    }
+  } catch (error) {
+    console.error('利用可能時間の取得エラー:', error)
+    select.disabled = false
+    select.innerHTML = '<option value="">時間枠の取得に失敗しました</option>'
+  }
+}
+
+// イベントリスナーを設定
+export const setupAvailabilityListeners = (
+  state: AppState,
+): void => {
+  const updateHandler = () => updateAvailableTimeSlots(state)
+
+  getElementById('staffId')?.addEventListener('change', updateHandler)
+  getElementById('reservationDate')?.addEventListener(
+    'change',
+    updateHandler,
+  )
+  document
+    .querySelectorAll('input[name="menuIds"]')
+    .forEach((checkbox) => {
+      checkbox.addEventListener('change', updateHandler)
+    })
+}

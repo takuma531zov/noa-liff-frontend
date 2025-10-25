@@ -3,19 +3,15 @@ import type { AppState } from '../types'
 import { addDebugLog } from '../utils/debug'
 import { showModal } from '../utils/modal'
 import { clearErrorMessages } from '../utils/dom'
-import {
-  getSelectedMenuIds,
-  setFormValues,
-} from '../ui/form'
+import { getSelectedMenuIds } from '../ui/form'
 import {
   setSubmitButtonDisabled,
   setSubmitButtonText,
   showNewReservationScreen,
-  displayReservationDetails,
-  showReservationDetails,
-  showNoReservationMessage,
-  generateTimeOptions,
+  showChangeScreenLoading,
+  showChangeScreenNoReservation,
 } from '../ui/screen'
+import { showEditReservationForm } from '../ui/edit'
 import {
   sendReservationRequest,
   fetchMyReservation,
@@ -104,28 +100,20 @@ export const handleReservationSubmit = async (
 export const handleLoadMyReservation = async (
   state: AppState,
 ): Promise<void> => {
-  showNoReservationMessage()
+  showChangeScreenLoading()
 
   const data = await fetchMyReservation(state.lineUserId)
 
   if (!data.reservation) {
-    showNoReservationMessage()
+    showChangeScreenNoReservation()
     return
   }
 
   state.currentReservation = data.reservation
-  displayReservationDetails(state.currentReservation)
-  showReservationDetails()
+  showEditReservationForm(state.currentReservation)
 }
 
-// 予約編集ハンドラ
-export const handleEditReservation = (state: AppState): void => {
-  if (!state.currentReservation) return
-
-  setFormValues(state.currentReservation)
-  showNewReservationScreen()
-  setSubmitButtonText('変更を確定する')
-}
+// 予約編集ハンドラ（削除 - showEditReservationFormに統合）
 
 // 予約キャンセルハンドラ
 export const handleCancelReservation = async (
