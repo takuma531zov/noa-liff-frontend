@@ -3,7 +3,7 @@ import type { AppState } from '../types'
 import { getLiffId, getGasBaseUrl, validateConfig } from '../config'
 import { TIMEOUTS } from '../constants'
 import { addDebugLog } from '../utils/debug'
-import { testGasConnection, fetchStaffList, fetchMenuList } from '../api/reservation'
+import { fetchStaffList, fetchMenuList } from '../api/reservation'
 import { populateMenuCheckboxes, populateStaffSelect } from '../ui/form'
 import { showForm } from '../ui/screen'
 import { generateTimeOptions } from '../utils/time'
@@ -19,13 +19,6 @@ export const initializeLiff = async (state: AppState): Promise<void> => {
   if (!validation.isValid) {
     throw new Error(validation.errors.join(', '))
   }
-
-  // GAS接続テスト
-  addDebugLog('GASエンドポイント接続テスト中...')
-  const isGasConnected = await testGasConnection()
-  addDebugLog(
-    `GAS接続テスト: ${isGasConnected ? '✅成功' : '❌失敗'}`,
-  )
 
   // LIFF初期化
   addDebugLog('liff.init()呼び出し中...')
@@ -66,10 +59,14 @@ export const initializeLiff = async (state: AppState): Promise<void> => {
   state.lineUserId = profile.userId
   addDebugLog(`✅ LINE userId取得成功: ${state.lineUserId.substring(0, 10)}...`)
 
-  // スタッフとメニューのデータ取得
+  // スタッフとメニューのデータ取得（並列化）
   addDebugLog('マスタデータ取得中...')
-  state.staffList = await fetchStaffList()
-  state.menuList = await fetchMenuList()
+  const [staffList, menuList] = await Promise.all([
+    fetchStaffList(),
+    fetchMenuList(),
+  ])
+  state.staffList = staffList
+  state.menuList = menuList
   addDebugLog('✅ マスタデータ取得成功')
 
   // UIに反映

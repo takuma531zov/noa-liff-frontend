@@ -20,7 +20,13 @@ export const updateAvailableTimeSlots = async (
     ),
   ).map((cb) => cb.value)
 
-  if (!staffId || !date || menuIds.length === 0) {
+  // 予約変更モード時は既存予約のメニュー情報を使用
+  const isEditMode = state.currentReservation !== null
+  const effectiveMenuIds = isEditMode && menuIds.length === 0
+    ? state.currentReservation?.menuIds ?? []
+    : menuIds
+
+  if (!staffId || !date || effectiveMenuIds.length === 0) {
     return
   }
 
@@ -31,7 +37,7 @@ export const updateAvailableTimeSlots = async (
   select.innerHTML = '<option value="">読み込み中...</option>'
 
   try {
-    const totalDuration = calculateTotalDuration(state.menuList, menuIds)
+    const totalDuration = calculateTotalDuration(state.menuList, effectiveMenuIds)
     const excludeReservationId = state.currentReservation?.reservationId
     const bookedSlots = await fetchBookedSlots(staffId, date, excludeReservationId)
     const availableSlots = calculateAvailableSlots(bookedSlots, totalDuration)

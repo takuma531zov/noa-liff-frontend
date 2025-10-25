@@ -50,12 +50,3 @@ export const sendReservationRequest = async (
 
   return response.json()
 }
-
-// GAS エンドポイント接続テスト
-export const testGasConnection = async (): Promise<boolean> => {
-  const response = await fetch(`${getGasBaseUrl()}?path=staff`, {
-    method: 'GET',
-    mode: 'cors',
-  })
-  return response.ok
-}
