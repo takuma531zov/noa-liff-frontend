@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Noa ご予約フォーム</title>
-  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
   <script src="config.js"></script>
+  <script src="dist/bundle.js" type="module"></script>
   <style>
     * {
       margin: 0;
@@ -449,16 +449,56 @@
         予約を確定する
       </button>
 
-      <!-- キャンセルボタン（編集モード時のみ表示） -->
-      <button type="button" class="submit-btn" id="cancelReservationBtn"
-              style="display: none; background: #999; border-color: #999; margin-top: 12px;">
-        予約をキャンセルする
-      </button>
     </form>
 
-    <!-- 予約なしメッセージ -->
-    <div id="noReservationMessage" class="form-content" style="display: none; text-align: center; padding: 40px 20px;">
-      <p style="color: #8a7a6a; margin-bottom: 20px;">現在、確定済みの予約はありません。</p>
+    <!-- 予約変更画面 -->
+    <div id="changeScreen" class="form-content" style="display: none;">
+      <!-- 予約内容表示 -->
+      <div id="reservationDetails" style="display: none;">
+        <h3 style="font-size: 18px; color: #5a4a3a; margin-bottom: 20px; text-align: center;">現在のご予約内容</h3>
+
+        <div style="background: #faf8f5; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+          <div style="margin-bottom: 12px;">
+            <span style="font-size: 13px; color: #8a7a6a;">予約日時</span>
+            <p id="detailDateTime" style="font-size: 16px; color: #3a3a3a; margin-top: 4px; font-weight: 600;"></p>
+          </div>
+          <div style="margin-bottom: 12px;">
+            <span style="font-size: 13px; color: #8a7a6a;">担当スタッフ</span>
+            <p id="detailStaff" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
+          </div>
+          <div style="margin-bottom: 12px;">
+            <span style="font-size: 13px; color: #8a7a6a;">メニュー</span>
+            <p id="detailMenu" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
+          </div>
+          <div>
+            <span style="font-size: 13px; color: #8a7a6a;">店舗</span>
+            <p id="detailStore" style="font-size: 16px; color: #3a3a3a; margin-top: 4px;"></p>
+          </div>
+        </div>
+
+        <button type="button" class="submit-btn" id="editReservationBtn" style="margin-bottom: 12px;">
+          内容を変更する
+        </button>
+
+        <button type="button" class="submit-btn" id="cancelReservationBtn"
+                style="background: #999; border-color: #999;">
+          予約をキャンセルする
+        </button>
+
+        <button type="button" class="submit-btn" id="backToNewBtn"
+                style="background: transparent; color: #8a7a6a; border: 2px solid #e8dfd5; margin-top: 12px;">
+          新規予約画面に戻る
+        </button>
+      </div>
+
+      <!-- 予約なしメッセージ -->
+      <div id="noReservationMessage" style="display: none; text-align: center; padding: 40px 20px;">
+        <p style="color: #8a7a6a; margin-bottom: 20px;">現在、確定済みの予約はありません。</p>
+        <button type="button" class="submit-btn" id="backToNewBtn2"
+                style="background: transparent; color: #8a7a6a; border: 2px solid #e8dfd5;">
+          新規予約画面に戻る
+        </button>
+      </div>
     </div>
   </div>
 
@@ -470,625 +510,5 @@
     </div>
   </div>
 
-  <script>
-    let lineUserId = '';
-    let staffList = [];
-    let menuList = [];
-    let currentReservation = null; // 変更対象の予約情報
-
-    // デバッグ情報表示用（本番環境では無効化）
-    const DEBUG_MODE = true; // trueでデバッグログ表示
-
-    function addDebugLog(message) {
-      console.log(message); // コンソールには常に出力
-
-      if (!DEBUG_MODE) return; // 本番環境では画面表示しない
-
-      const debugDiv = document.getElementById('debugInfo');
-      debugDiv.style.display = 'block';
-      const timestamp = new Date().toLocaleTimeString('ja-JP');
-      debugDiv.innerHTML += `[${timestamp}] ${message}<br>`;
-    }
-
-    // カスタムモーダル表示関数
-    function showModal(message, onClose) {
-      const modal = document.getElementById('customModal');
-      const modalMessage = document.getElementById('modalMessage');
-      const modalBtn = document.getElementById('modalBtn');
-
-      // 改行コードを<br>に変換
-      modalMessage.innerHTML = message.replace(/\n/g, '<br>');
-      modal.classList.add('show');
-
-      modalBtn.onclick = () => {
-        modal.classList.remove('show');
-        if (onClose) onClose();
-      };
-    }
-
-    // 画面切り替え関数
-    function showNewReservationScreen() {
-      // 予約変更モードをリセット
-      currentReservation = null;
-
-      // 画面表示切り替え
-      document.getElementById('reservationForm').style.display = 'block';
-      document.getElementById('noReservationMessage').style.display = 'none';
-      document.getElementById('loading').style.display = 'none';
-
-      // ヘッダー更新
-      document.getElementById('changeLinkBtn').style.display = 'block';
-      document.getElementById('changeLinkBtn').textContent = '予約の変更はこちら';
-      document.getElementById('headerSubtitle').textContent = 'ご予約フォーム';
-
-      // 編集モード用要素を非表示
-      document.getElementById('currentReservationInfo').style.display = 'none';
-      document.getElementById('editModeTitle').style.display = 'none';
-
-      // 全フォームグループを表示に戻す
-      document.querySelector('#store').closest('.form-group').style.display = 'block';
-      document.querySelector('#staffId').closest('.form-group').style.display = 'block';
-      document.querySelector('#customerName').closest('.form-group').style.display = 'block';
-      document.querySelector('#customerPhone').closest('.form-group').style.display = 'block';
-      document.querySelector('#consent').closest('.form-group').style.display = 'block';
-
-      // フォームをリセット
-      document.getElementById('reservationForm').reset();
-      document.getElementById('submitBtn').textContent = '予約を確定する';
-      document.getElementById('cancelReservationBtn').style.display = 'none';
-      generateTimeOptions();
-    }
-
-    async function showChangeScreen() {
-      // ローディング表示
-      document.getElementById('reservationForm').style.display = 'none';
-      document.getElementById('noReservationMessage').style.display = 'none';
-      document.getElementById('loading').style.display = 'block';
-
-      try {
-        // 最新予約を取得
-        const response = await fetch(`${GAS_BASE_URL}?path=myReservation&lineUserId=${lineUserId}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'text/plain' }
-        });
-
-        const data = await response.json();
-
-        // ローディング非表示
-        document.getElementById('loading').style.display = 'none';
-
-        if (!data.reservation) {
-          // 予約なし → メッセージ表示
-          document.getElementById('noReservationMessage').style.display = 'block';
-          document.getElementById('changeLinkBtn').style.display = 'block';
-          document.getElementById('changeLinkBtn').textContent = '新規予約に戻る';
-          document.getElementById('headerSubtitle').textContent = 'ご予約の変更';
-          return;
-        }
-
-        // 予約情報を保存して編集フォームを表示
-        currentReservation = data.reservation;
-        showEditReservationForm();
-      } catch (error) {
-        console.error('予約取得エラー:', error);
-        document.getElementById('loading').style.display = 'none';
-        showModal('予約情報の取得に失敗しました。');
-      }
-    }
-
-    // LIFF初期化
-    async function initializeLiff() {
-      try {
-        addDebugLog('LIFF初期化開始');
-        addDebugLog(`LIFF_ID: ${LIFF_ID}`);
-        addDebugLog(`LIFF_ID length: ${LIFF_ID.length}`);
-        addDebugLog(`LIFF_ID type: ${typeof LIFF_ID}`);
-        addDebugLog(`GAS_URL: ${GAS_BASE_URL}`);
-        addDebugLog(`GAS_URL length: ${GAS_BASE_URL.length}`);
-
-        // シンプルなチェック
-        const liffIdValid = LIFF_ID && LIFF_ID.length > 10 && !LIFF_ID.includes('{{');
-        const gasUrlValid = GAS_BASE_URL && GAS_BASE_URL.startsWith('https://') && !GAS_BASE_URL.includes('{{');
-
-        addDebugLog(`LIFF_ID valid: ${liffIdValid}`);
-        addDebugLog(`GAS_URL valid: ${gasUrlValid}`);
-
-        if (!liffIdValid) {
-          throw new Error(`LIFF ID無効（値: "${LIFF_ID}", length: ${LIFF_ID.length}）`);
-        }
-
-        if (!gasUrlValid) {
-          throw new Error(`GAS URL無効（値: "${GAS_BASE_URL}", length: ${GAS_BASE_URL.length}）`);
-        }
-
-        // LIFF初期化（成功事例のシンプルなパターン）
-        addDebugLog('liff.init()呼び出し中...');
-        addDebugLog(`LIFF SDK version: ${liff.getVersion ? liff.getVersion() : '不明'}`);
-
-        const initStartTime = Date.now();
-        addDebugLog('liff.init()実行開始...');
-
-        // タイムアウト検出（30秒）
-        const timeoutId = setTimeout(() => {
-          addDebugLog('⚠️ liff.init()が30秒経過しても完了しません');
-          addDebugLog('LIFFのEndpoint URL設定を再確認してください');
-        }, 30000);
-
-        // 端末や環境でサイレント認証が詰まる場合のフォールバックとして
-        // withLoginOnExternalBrowser を有効化（LIFF v2.19+）。
-        // これにより LINE アプリ内で認証が完了できない場合、外部ブラウザでのログインにフォールバックします。
-        liff.init({
-          liffId: LIFF_ID,
-          withLoginOnExternalBrowser: true
-        }).then(() => {
-          clearTimeout(timeoutId);
-          const initDuration = Date.now() - initStartTime;
-          addDebugLog(`✅ LIFF初期化成功（${initDuration}ms）`);
-
-          const isLoggedIn = liff.isLoggedIn();
-          const isInClient = liff.isInClient();
-          addDebugLog(`ログイン状態: ${isLoggedIn}`);
-          addDebugLog(`LINEアプリ内: ${isInClient}`);
-
-          // ログインチェック
-          if (!isLoggedIn) {
-            addDebugLog('未ログイン状態 - ログインが必要です');
-            if (!isInClient) {
-              // 外部ブラウザからアクセス - ログインページにリダイレクト
-              addDebugLog('外部ブラウザからのアクセス - ログインリダイレクト');
-              liff.login({ redirectUri: window.location.href });
-              throw new Error('ログインが必要です');
-            }
-            throw new Error('LINEアプリ内ですがログインできていません');
-          }
-
-          // LINE userId取得
-          addDebugLog('liff.getProfile()呼び出し中...');
-          return liff.getProfile();
-
-        }).then((profile) => {
-          lineUserId = profile.userId;
-          addDebugLog(`✅ LINE userId取得成功: ${lineUserId.substring(0, 10)}...`);
-
-          // スタッフとメニューのデータ取得
-          addDebugLog('マスタデータ取得中...');
-          return loadMasterData();
-
-        }).then(() => {
-          addDebugLog('✅ マスタデータ取得成功');
-
-          // フォーム表示
-          addDebugLog('フォーム表示');
-          document.getElementById('loading').style.display = 'none';
-          document.getElementById('reservationForm').style.display = 'block';
-          document.getElementById('changeLinkBtn').style.display = 'block';
-
-          // 時間選択肢を生成（初期状態）
-          generateTimeOptions();
-
-          // スタッフ・日付・メニュー変更時に利用可能時間を更新
-          document.getElementById('staffId').addEventListener('change', updateAvailableTimeSlots);
-          document.getElementById('reservationDate').addEventListener('change', updateAvailableTimeSlots);
-          document.querySelectorAll('input[name="menuIds"]').forEach(checkbox => {
-            checkbox.addEventListener('change', updateAvailableTimeSlots);
-          });
-
-        }).catch((err) => {
-          const initDuration = Date.now() - initStartTime;
-          addDebugLog(`❌ LIFF初期化エラー（${initDuration}ms）: ${err}`);
-          addDebugLog(`エラー詳細: ${JSON.stringify(err)}`);
-
-          // code_verifierエラーの場合は認証フローをリセット
-          if (err && (err.message?.includes('code_verifier') || err.code === 'invalid_grant')) {
-            addDebugLog('認証エラー検出 - URLパラメータをクリアして再ログイン');
-
-            // URLパラメータをクリア（code, state等）
-            const cleanUrl = window.location.origin + window.location.pathname;
-
-            // sessionStorageをクリア（LIFF認証情報をリセット）
-            try {
-              sessionStorage.clear();
-              addDebugLog('sessionStorageクリア完了');
-            } catch (e) {
-              addDebugLog('sessionStorageクリア失敗: ' + e.message);
-            }
-
-            // 3秒後にクリーンなURLで再読み込み
-            setTimeout(() => {
-              addDebugLog('ページを再読み込みします...');
-              window.location.href = cleanUrl;
-            }, 3000);
-
-            throw new Error('認証エラーが発生しました。ページを再読み込みしています...');
-          }
-
-          throw err;
-        });
-
-      } catch (error) {
-        console.error('LIFF初期化エラー:', error);
-        addDebugLog(`❌ エラー: ${error.message}`);
-        document.getElementById('loading').innerHTML = `<p style="color: #c67b5c;">初期化に失敗しました。<br>${error.message}</p>` + document.getElementById('debugInfo').outerHTML;
-      }
-    }
-
-    // マスターデータ取得
-    async function loadMasterData() {
-      const baseUrl = GAS_BASE_URL;
-
-      try {
-        // スタッフとメニューを並列取得
-        const [staffResponse, menuResponse] = await Promise.all([
-          fetch(`${baseUrl}?path=staff`),
-          fetch(`${baseUrl}?path=menus`)
-        ]);
-
-        // レスポンスのJSON解析も並列化
-        [staffList, menuList] = await Promise.all([
-          staffResponse.json(),
-          menuResponse.json()
-        ]);
-
-        // DOM操作
-        populateStaffSelect();
-        populateMenuCheckboxes();
-
-      } catch (error) {
-        console.error('データ取得エラー:', error);
-        alert('データの取得に失敗しました');
-      }
-    }
-
-    // スタッフ選択肢を生成
-    function populateStaffSelect() {
-      const select = document.getElementById('staffId');
-      staffList.forEach(staff => {
-        const option = document.createElement('option');
-        option.value = staff.staffId;
-        option.textContent = staff.staffName;
-        select.appendChild(option);
-      });
-    }
-
-    // メニューチェックボックスを生成
-    function populateMenuCheckboxes() {
-      const container = document.getElementById('menuCheckboxes');
-      menuList.forEach(menu => {
-        const div = document.createElement('div');
-        div.className = 'menu-checkbox-item';
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = `menu-${menu.menuId}`;
-        checkbox.name = 'menuIds';
-        checkbox.value = menu.menuId;
-
-        const label = document.createElement('label');
-        label.htmlFor = `menu-${menu.menuId}`;
-        label.innerHTML = `
-          <span>${menu.menuName}</span>
-          <span class="menu-duration">${menu.durationMin}分</span>
-        `;
-
-        div.appendChild(checkbox);
-        div.appendChild(label);
-        container.appendChild(div);
-      });
-    }
-
-    // 時間選択肢を生成（9:00〜20:00、30分刻み）
-    function generateTimeOptions() {
-      const select = document.getElementById('reservationTime');
-      for (let hour = 9; hour < 20; hour++) {
-        for (let min of ['00', '30']) {
-          const time = `${String(hour).padStart(2, '0')}:${min}`;
-          const option = document.createElement('option');
-          option.value = time;
-          option.textContent = time;
-          select.appendChild(option);
-        }
-      }
-    }
-
-    // 利用可能時間枠のみ表示（予約済みを除外）
-    async function updateAvailableTimeSlots() {
-      const staffId = document.getElementById('staffId').value;
-      const date = document.getElementById('reservationDate').value;
-      const menuIds = Array.from(document.querySelectorAll('input[name="menuIds"]:checked')).map(cb => cb.value);
-
-      if (!staffId || !date || menuIds.length === 0) {
-        return; // 必要な選択がまだされていない
-      }
-
-      // 時間枠を無効化＋ローディング表示
-      const select = document.getElementById('reservationTime');
-      select.disabled = true;
-      select.innerHTML = '<option value="">読み込み中...</option>';
-
-      try {
-        // 選択メニューの合計所要時間を計算
-        const selectedMenus = menuList.filter(m => menuIds.includes(m.menuId));
-        const totalDuration = selectedMenus.reduce((sum, m) => sum + m.durationMin, 0);
-
-        // 予約済み時間枠を取得
-        const response = await fetch(`${GAS_BASE_URL}?path=bookedSlots&staffId=${staffId}&date=${date}`);
-        const bookedSlots = await response.json();
-
-        // 全時間枠を生成
-        const allSlots = [];
-        for (let hour = 9; hour < 20; hour++) {
-          for (let min of [0, 30]) {
-            allSlots.push({ hour, min });
-          }
-        }
-
-        // 利用可能な時間枠をフィルタリング
-        const availableSlots = allSlots.filter(slot => {
-          const slotStartMinutes = slot.hour * 60 + slot.min;
-          const slotEndMinutes = slotStartMinutes + totalDuration;
-
-          // 営業時間内チェック（20:00まで）
-          if (slotEndMinutes > 20 * 60) return false;
-
-          // 既存予約との重複チェック
-          for (const booked of bookedSlots) {
-            const [bookedHour, bookedMin] = booked.startTime.split(':').map(Number);
-            const bookedStartMinutes = bookedHour * 60 + bookedMin;
-            const bookedEndMinutes = bookedStartMinutes + booked.durationMin;
-
-            // 重複判定
-            if (slotStartMinutes < bookedEndMinutes && slotEndMinutes > bookedStartMinutes) {
-              return false; // 重複
-            }
-          }
-
-          return true; // 利用可能
-        });
-
-        // セレクトボックスを更新＋有効化
-        select.disabled = false;
-        select.innerHTML = '<option value="">選択してください</option>';
-
-        if (availableSlots.length === 0) {
-          const option = document.createElement('option');
-          option.value = '';
-          option.textContent = '予約可能な時間がありません';
-          option.disabled = true;
-          select.appendChild(option);
-        } else {
-          availableSlots.forEach(slot => {
-            const time = `${String(slot.hour).padStart(2, '0')}:${String(slot.min).padStart(2, '0')}`;
-            const option = document.createElement('option');
-            option.value = time;
-            option.textContent = time;
-            select.appendChild(option);
-          });
-        }
-      } catch (error) {
-        console.error('利用可能時間の取得エラー:', error);
-        // エラー時も有効化してエラーメッセージを表示
-        select.disabled = false;
-        select.innerHTML = '<option value="">時間枠の取得に失敗しました</option>';
-      }
-    }
-
-    // フォーム送信
-    document.getElementById('reservationForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      // エラーメッセージクリア
-      document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
-
-      const submitBtn = document.getElementById('submitBtn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = '送信中...';
-
-      try {
-        // メニューID取得
-        const menuIds = Array.from(document.querySelectorAll('input[name="menuIds"]:checked'))
-          .map(cb => cb.value);
-
-        if (menuIds.length === 0) {
-          throw new Error('メニューを選択してください');
-        }
-
-        // 変更モードかどうかを判定
-        const isUpdateMode = currentReservation !== null;
-
-        const payload = {
-          action: isUpdateMode ? 'updateReservation' : 'createReservation',
-          ...(isUpdateMode && { reservationId: currentReservation.reservationId }),
-          payload: {
-            store: document.getElementById('store').value,
-            reservationDate: document.getElementById('reservationDate').value,
-            reservationTime: document.getElementById('reservationTime').value,
-            staffId: document.getElementById('staffId').value,
-            menuIds: menuIds,
-            customer: {
-              fullName: document.getElementById('customerName').value,
-              phone: document.getElementById('customerPhone').value,
-              lineUserId: lineUserId,
-              consent: document.getElementById('consent').checked
-            },
-            idempotencyKey: `liff-${Date.now()}-${lineUserId}`
-          }
-        };
-
-        console.log('予約リクエスト送信:', payload);
-        console.log('送信先URL:', GAS_BASE_URL);
-        addDebugLog(`予約送信開始: ${GAS_BASE_URL}`);
-
-        const response = await fetch(GAS_BASE_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain', // CORS preflight回避のためtext/plainを使用
-          },
-          body: JSON.stringify(payload)
-        });
-
-        console.log('レスポンスステータス:', response.status);
-        addDebugLog(`レスポンス受信: ${response.status}`);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('レスポンスエラー:', errorText);
-          throw new Error(`サーバーエラー (${response.status}): ${errorText.substring(0, 100)}`);
-        }
-
-        const result = await response.json();
-        console.log('レスポンス結果:', result);
-
-        if (result.success) {
-          const successMessage = isUpdateMode
-            ? 'ご予約内容を変更いたしました。\n次回のご来店を心よりお待ちしております！'
-            : 'ご予約を承りました。\n次回のご来店を心よりお待ちしております！';
-
-          showModal(successMessage, () => {
-            // 変更モードをリセット
-            currentReservation = null;
-            document.getElementById('submitBtn').textContent = '予約を確定する';
-            liff.closeWindow();
-          });
-        } else {
-          throw new Error(result.message || '予約に失敗しました');
-        }
-
-      } catch (error) {
-        console.error('予約エラー:', error);
-        console.error('エラー詳細:', {
-          name: error.name,
-          message: error.message,
-          stack: error.stack
-        });
-        addDebugLog(`❌ 予約エラー: ${error.message}`);
-
-        // カスタマー向けエラーメッセージ
-        let errorMsg = '';
-        if (error.message.includes('Failed to fetch') || error.message.includes('Load failed')) {
-          errorMsg = '申し訳ございません。\n\n通信エラーが発生しました。\nインターネット接続をご確認の上、\nもう一度お試しください。';
-        } else if (error.message.startsWith('入力エラー')) {
-          // バリデーションエラーはそのまま表示
-          errorMsg = error.message;
-        } else {
-          errorMsg = `申し訳ございません。\n\n${error.message}\n\nお手数ですが、もう一度お試しいただくか、\nお電話にてお問い合わせください。`;
-        }
-
-        showModal(errorMsg);
-        submitBtn.disabled = false;
-        submitBtn.textContent = '予約を確定する';
-      }
-    });
-
-    // イベントリスナー設定
-    document.getElementById('changeLinkBtn').addEventListener('click', (e) => {
-      e.preventDefault();
-      // currentReservationの状態に応じて動作を切り替え
-      if (currentReservation === null) {
-        // 新規予約画面 → 予約変更画面
-        showChangeScreen();
-      } else {
-        // 予約変更画面 → 新規予約画面
-        showNewReservationScreen();
-      }
-    });
-
-    // 編集モードでフォームを表示
-    function showEditReservationForm() {
-      // フォームを表示
-      document.getElementById('reservationForm').style.display = 'block';
-      document.getElementById('noReservationMessage').style.display = 'none';
-
-      // ヘッダー更新（右上リンクを「新規予約に戻る」に変更）
-      document.getElementById('headerSubtitle').textContent = 'ご予約内容の変更';
-      document.getElementById('changeLinkBtn').style.display = 'block';
-      document.getElementById('changeLinkBtn').textContent = '新規予約に戻る';
-
-      // 現在の予約情報ボックスを表示
-      document.getElementById('currentReservationInfo').style.display = 'block';
-      document.getElementById('editModeTitle').style.display = 'block';
-      document.getElementById('infoStore').textContent = currentReservation.store;
-      document.getElementById('infoStaff').textContent = currentReservation.staffName;
-      document.getElementById('infoMenu').textContent = currentReservation.menu;
-      document.getElementById('infoDateTime').textContent = `${currentReservation.date} ${currentReservation.time}`;
-
-      // 店舗・スタッフを非表示（変更不可）
-      document.querySelector('#store').closest('.form-group').style.display = 'none';
-      document.querySelector('#staffId').closest('.form-group').style.display = 'none';
-
-      // お名前・電話・同意を非表示
-      document.querySelector('#customerName').closest('.form-group').style.display = 'none';
-      document.querySelector('#customerPhone').closest('.form-group').style.display = 'none';
-      document.querySelector('#consent').closest('.form-group').style.display = 'none';
-
-      // フォームに既存値をセット
-      document.getElementById('store').value = currentReservation.store;
-      document.getElementById('staffId').value = currentReservation.staffId;
-      document.getElementById('reservationDate').value = currentReservation.date.replace(/\//g, '-');
-      document.getElementById('reservationTime').value = currentReservation.time;
-      document.getElementById('customerName').value = currentReservation.customerName;
-      document.getElementById('customerPhone').value = currentReservation.phone;
-      document.getElementById('consent').checked = true;
-
-      // メニューはクリア（ユーザーに再選択してもらう）
-      document.querySelectorAll('input[name="menuIds"]').forEach(cb => cb.checked = false);
-
-      // 送信ボタンとキャンセルボタンを表示
-      document.getElementById('submitBtn').textContent = '変更を確定する';
-      document.getElementById('cancelReservationBtn').style.display = 'block';
-    }
-
-    // キャンセルボタン
-    document.getElementById('cancelReservationBtn').addEventListener('click', () => {
-      if (!currentReservation) return;
-
-      showModal(
-        `以下のご予約をキャンセルします。\nよろしいですか?\n\n予約日時: ${currentReservation.date} ${currentReservation.time}\n担当: ${currentReservation.staffName}\nメニュー: ${currentReservation.menu}`,
-        () => {
-          // キャンセル実行
-          cancelReservation();
-        }
-      );
-    });
-
-    // キャンセル実行関数
-    async function cancelReservation() {
-      const cancelBtn = document.getElementById('cancelReservationBtn');
-      const originalText = cancelBtn.textContent;
-
-      cancelBtn.disabled = true;
-      cancelBtn.textContent = '送信中...';
-
-      try {
-        const response = await fetch(GAS_BASE_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({
-            action: 'cancelReservation',
-            reservationId: currentReservation.reservationId
-          })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          showModal('ご予約をキャンセルいたしました。\nまたのご利用をお待ちしております。', () => {
-            liff.closeWindow();
-          });
-        } else {
-          throw new Error(result.message || 'キャンセルに失敗しました');
-        }
-      } catch (error) {
-        console.error('キャンセルエラー:', error);
-        showModal('申し訳ございません。\nキャンセル処理中にエラーが発生しました。\n\nお手数ですが、お電話にてお問い合わせください。');
-
-        // エラー時はボタンを元に戻す
-        cancelBtn.disabled = false;
-        cancelBtn.textContent = originalText;
-      }
-    }
-
-    // 初期化実行
-    initializeLiff();
-  </script>
 </body>
 </html>
