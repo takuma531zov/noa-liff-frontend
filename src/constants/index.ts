@@ -1,5 +1,5 @@
 // デバッグモードフラグ
-export const DEBUG_MODE = true
+export const DEBUG_MODE = false
 
 // 時間選択肢の設定
 export const TIME_RANGE = {
