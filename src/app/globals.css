@@ -338,6 +338,11 @@ body {
   display: none;
 }
 
+/* Modal utilities */
+.max-h-\[90vh\] {
+  max-height: 90vh;
+}
+
 /* Mobile-first responsive classes */
 @media (min-width: 640px) {
   .sm\:flex-row {

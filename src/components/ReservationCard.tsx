@@ -3,9 +3,15 @@ import type { Reservation } from '@/lib/supabase/types'
 // 予約カードコンポーネント
 type ReservationCardProps = {
   reservation: Reservation
+  onEdit: (reservation: Reservation) => void
+  onCancel: (reservation: Reservation) => void
 }
 
-export const ReservationCard = ({ reservation }: ReservationCardProps) => {
+export const ReservationCard = ({
+  reservation,
+  onEdit,
+  onCancel,
+}: ReservationCardProps) => {
   // ステータスに応じたスタイル
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -38,16 +44,15 @@ export const ReservationCard = ({ reservation }: ReservationCardProps) => {
 
   return (
     <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-      <div className="flex flex-col gap-3">
-        {/* ヘッダー: 日時とステータス */}
+      <div className="flex flex-col gap-2">
+        {/* ヘッダー: 店舗・時間・ステータス */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-gray-800">
-              {formatDate(reservation.reservation_date)}{' '}
-              {reservation.reservation_time.slice(0, 5)}
-            </span>
-            <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+          <div className="flex items-center gap-3">
+            <span className="text-gray-800 font-medium">
               {reservation.store}
+            </span>
+            <span className="text-lg font-bold text-gray-800">
+              {reservation.reservation_time.slice(0, 5)}
             </span>
           </div>
           <span
@@ -59,26 +64,21 @@ export const ReservationCard = ({ reservation }: ReservationCardProps) => {
 
         {/* 予約詳細 */}
         <div className="flex flex-col gap-1 text-sm">
-          <div className="flex gap-2">
-            <span className="text-gray-600">担当:</span>
-            <span className="font-medium text-gray-800">
-              {reservation.staff_name}
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <span className="text-gray-600">メニュー:</span>
-            <span className="text-gray-800">{reservation.menu}</span>
-          </div>
-        </div>
-
-        {/* 顧客情報 */}
-        <div className="flex flex-col gap-1 text-sm border-t border-gray-200 pt-3">
-          {reservation.customer_name && (
+          {reservation.customer_name ? (
             <div className="flex gap-2">
               <span className="text-gray-600">顧客名:</span>
               <span className="text-gray-800">{reservation.customer_name}</span>
             </div>
+          ) : (
+            <div className="flex gap-2">
+              <span className="text-gray-600">顧客名:</span>
+              <span className="text-gray-400">未登録</span>
+            </div>
           )}
+          <div className="flex gap-2">
+            <span className="text-gray-600">メニュー:</span>
+            <span className="text-gray-800">{reservation.menu}</span>
+          </div>
           {reservation.line_display_name && (
             <div className="flex gap-2">
               <span className="text-gray-600">LINE名:</span>
@@ -87,10 +87,27 @@ export const ReservationCard = ({ reservation }: ReservationCardProps) => {
               </span>
             </div>
           )}
-          {!reservation.customer_name && !reservation.line_display_name && (
-            <span className="text-gray-400 text-xs">顧客情報未登録</span>
-          )}
         </div>
+
+        {/* アクションボタン */}
+        {reservation.status !== 'cancelled' && (
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => onEdit(reservation)}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              予約内容変更
+            </button>
+            <button
+              type="button"
+              onClick={() => onCancel(reservation)}
+              className="flex-1 px-4 py-2 bg-white text-red-600 text-sm font-medium border border-red-600 rounded-lg hover:bg-red-50 transition-colors"
+            >
+              キャンセル
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

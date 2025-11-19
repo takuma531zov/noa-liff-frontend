@@ -148,7 +148,6 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="">選択してください</option>
-          {formData.store && <option value="指名無し">指名無し</option>}
           {staffList
             .filter((staff) =>
               formData.store ? staff.stores.includes(formData.store) : true,
@@ -158,6 +157,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
                 {staff.name}
               </option>
             ))}
+          {formData.store && <option value="指名無し">指名無し</option>}
         </select>
         {formData.store === '' && (
           <p className="text-xs text-gray-500 mt-1">
