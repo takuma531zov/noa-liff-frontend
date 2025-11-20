@@ -55,7 +55,7 @@ export async function POST(request: Request) {
 
   // 同意リンクURLを生成
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-  const consentUrl = `${baseUrl}/consent?token=${consentToken}`
+  const consentUrl = `${baseUrl}/liff/consent?token=${consentToken}`
 
   return NextResponse.json({
     success: true,
