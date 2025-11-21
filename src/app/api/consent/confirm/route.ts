@@ -1,3 +1,7 @@
+import {
+  createReservationConfirmMessage,
+  sendLineMessage,
+} from '@/lib/line/messaging'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
@@ -58,6 +62,26 @@ export async function POST(request: Request) {
       { status: 500 },
     )
   }
+
+  // LINEで予約確認メッセージを送信
+  const messageText = createReservationConfirmMessage({
+    displayName: lineDisplayName,
+    store: reservation.store,
+    reservationDate: reservation.reservation_date,
+    reservationTime: reservation.reservation_time,
+    staffName: reservation.staff_name,
+    menu: reservation.menu,
+  })
+
+  await sendLineMessage({
+    to: lineUserId,
+    messages: [
+      {
+        type: 'text',
+        text: messageText,
+      },
+    ],
+  })
 
   return NextResponse.json({
     success: true,
