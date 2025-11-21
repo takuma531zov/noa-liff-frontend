@@ -16,6 +16,7 @@ const ConsentPageContent = () => {
   const [error, setError] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [isAgreed, setIsAgreed] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   // LIFF初期化
   useEffect(() => {
@@ -104,8 +105,14 @@ const ConsentPageContent = () => {
       return
     }
 
-    alert('予約の同意が完了しました。リマインダーを送信いたします。')
-    liff.closeWindow()
+    // 成功画面を表示
+    setIsSuccess(true)
+    setIsProcessing(false)
+
+    // 2秒後にLIFFウィンドウを閉じる
+    setTimeout(() => {
+      liff.closeWindow()
+    }, 2000)
   }
 
   // 日付フォーマット
@@ -149,6 +156,22 @@ const ConsentPageContent = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="bg-white p-8 rounded-lg shadow text-center">
           <p className="text-gray-600">予約情報が見つかりません</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 同意完了画面
+  if (isSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white p-8 rounded-lg shadow text-center">
+          <div className="text-6xl mb-4">✓</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">同意完了</h2>
+          <p className="text-gray-600">予約の同意が完了しました。</p>
+          <p className="text-gray-600 mt-2">
+            予約日の1週間前と前日にリマインダーを送信いたします。
+          </p>
         </div>
       </div>
     )
