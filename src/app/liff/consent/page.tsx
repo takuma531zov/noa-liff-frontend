@@ -31,7 +31,8 @@ const ConsentPageContent = () => {
       setIsLiffReady(true)
 
       if (!liff.isLoggedIn()) {
-        liff.login()
+        // ログイン時に現在のURLをリダイレクト先として指定
+        liff.login({ redirectUri: window.location.href })
         return
       }
     }
