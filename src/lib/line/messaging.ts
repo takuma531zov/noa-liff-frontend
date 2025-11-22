@@ -34,6 +34,20 @@ export const sendLineMessage = async (params: SendMessageParams) => {
   return response.json()
 }
 
+// 日付を "M月D日(曜)" にフォーマット
+const formatDateWithWeekday = (dateStr: string) => {
+  const date = new Date(dateStr)
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土']
+  const w = weekdays[date.getDay()]
+  return `${date.getMonth() + 1}月${date.getDate()}日(${w})`
+}
+
+// 時刻を "HH:00" にフォーマット（分は常に00で表示）
+const formatHourOnly = (timeStr: string) => {
+  const hour = (timeStr || '').split(':')[0]?.padStart(2, '0') || '00'
+  return `${hour}:00`
+}
+
 // 予約確認メッセージを生成
 export const createReservationConfirmMessage = (params: {
   displayName: string
@@ -52,10 +66,9 @@ export const createReservationConfirmMessage = (params: {
     menu,
   } = params
 
-  // 日付フォーマット
-  const date = new Date(reservationDate)
-  const formattedDate = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
-  const formattedTime = reservationTime.slice(0, 5)
+  // 指定のフォーマットに統一
+  const formattedDate = formatDateWithWeekday(reservationDate)
+  const formattedTime = formatHourOnly(reservationTime)
 
   return `${displayName}様
 
@@ -63,7 +76,7 @@ export const createReservationConfirmMessage = (params: {
 
 【予約内容】
 店舗：${store}
-日時：${formattedDate} ${formattedTime}～
+日時：${formattedDate} ${formattedTime}
 担当：${staffName}
 メニュー：${menu}
 
@@ -91,16 +104,10 @@ export const createReservationChangeMessage = (params: {
 }) => {
   const { displayName, before, after } = params
 
-  // 日付フォーマット関数
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr)
-    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
-  }
-
-  const beforeDate = formatDate(before.reservationDate)
-  const afterDate = formatDate(after.reservationDate)
-  const beforeTime = before.reservationTime.slice(0, 5)
-  const afterTime = after.reservationTime.slice(0, 5)
+  const beforeDate = formatDateWithWeekday(before.reservationDate)
+  const afterDate = formatDateWithWeekday(after.reservationDate)
+  const beforeTime = formatHourOnly(before.reservationTime)
+  const afterTime = formatHourOnly(after.reservationTime)
 
   // 差分が分かるように変更前→変更後を併記
   return `${displayName}様
@@ -109,13 +116,13 @@ export const createReservationChangeMessage = (params: {
 
 【変更前】
 店舗：${before.store}
-日時：${beforeDate} ${beforeTime}～
+日時：${beforeDate} ${beforeTime}
 担当：${before.staffName}
 メニュー：${before.menu}
 
 【変更後】
 店舗：${after.store}
-日時：${afterDate} ${afterTime}～
+日時：${afterDate} ${afterTime}
 担当：${after.staffName}
 メニュー：${after.menu}
 

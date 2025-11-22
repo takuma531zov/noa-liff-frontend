@@ -101,27 +101,6 @@ export async function PATCH(
         },
       ],
     })
-  } else {
-    // 簡易デバッグログ（送信されない理由の可視化）
-    console.log('[reservation-notify-skip]', {
-      id,
-      canNotify,
-      hasDiff,
-      before: {
-        store: before.store,
-        staff_name: before.staff_name,
-        menu: before.menu,
-        reservation_date: before.reservation_date,
-        reservation_time: normalizeTime(before.reservation_time),
-      },
-      after: {
-        store: data.store,
-        staff_name: data.staff_name,
-        menu: data.menu,
-        reservation_date: data.reservation_date,
-        reservation_time: normalizeTime(data.reservation_time),
-      },
-    })
   }
 
   return NextResponse.json({
