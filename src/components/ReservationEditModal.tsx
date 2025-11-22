@@ -79,6 +79,15 @@ export const ReservationEditModal = ({
     }
   }, [])
 
+  // 画面幅に応じてモバイル判定（< 640px をモバイルとする）
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const update = () => setIsMobile(window.innerWidth < 640)
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
   // フォーム入力ハンドラ
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -112,21 +121,29 @@ export const ReservationEditModal = ({
     onSuccess()
   }
 
-  // 背景クリックハンドラ
-  const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose()
-    }
-  }
-
   return (
-    // biome-ignore lint/a11y/useKeyWithClickEvents: Background click to close modal
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900 bg-opacity-50 p-4"
-      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
-      onClick={handleBackgroundClick}
+      className="fixed inset-0 z-[9999] p-4"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(17, 24, 39, 0.6)', // グレーアウト（gray-900相当の半透明）
+      }}
     >
-      <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col">
+      <div
+        className={
+          isMobile
+            ? 'bg-white shadow-lg w-full h-full max-w-none rounded-none flex flex-col'
+            : 'bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col'
+        }
+        style={isMobile ? undefined : { minHeight: '60vh' }}
+      >
         {/* モーダルヘッダー */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-2xl font-bold">予約内容変更</h2>
@@ -281,19 +298,11 @@ export const ReservationEditModal = ({
           </div>
 
           {/* ボタン */}
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              戻る
-            </button>
+          <div className="pt-4">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? '更新中...' : '更新する'}
             </button>
