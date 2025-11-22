@@ -58,13 +58,18 @@ export async function PATCH(
   // 変更通知の送信条件を満たす場合のみ送信
   const canNotify = Boolean(before.consent && before.line_user_id)
 
-  // 実質的な変更（通知対象フィールド）があるか判定
+  // 時刻比較のためにHH:MMへ正規化
+  const normalizeTime = (t: string | null | undefined) =>
+    (t ?? '').slice(0, 5)
+
+  // 実質的な変更（通知対象フィールド）があるか判定（時間は正規化して比較）
   const hasDiff =
     before.store !== data.store ||
     before.staff_name !== data.staff_name ||
     before.menu !== data.menu ||
     before.reservation_date !== data.reservation_date ||
-    before.reservation_time !== data.reservation_time
+    normalizeTime(before.reservation_time) !==
+      normalizeTime(data.reservation_time)
 
   if (canNotify && hasDiff) {
     const displayName = data.line_display_name || 'お客様'
@@ -95,6 +100,27 @@ export async function PATCH(
           text: messageText,
         },
       ],
+    })
+  } else {
+    // 簡易デバッグログ（送信されない理由の可視化）
+    console.log('[reservation-notify-skip]', {
+      id,
+      canNotify,
+      hasDiff,
+      before: {
+        store: before.store,
+        staff_name: before.staff_name,
+        menu: before.menu,
+        reservation_date: before.reservation_date,
+        reservation_time: normalizeTime(before.reservation_time),
+      },
+      after: {
+        store: data.store,
+        staff_name: data.staff_name,
+        menu: data.menu,
+        reservation_date: data.reservation_date,
+        reservation_time: normalizeTime(data.reservation_time),
+      },
     })
   }
 
