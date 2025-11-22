@@ -11,6 +11,7 @@ export default function ReservationsPage() {
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [staffList, setStaffList] = useState<Staff[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [filterStore, setFilterStore] = useState('') // 店舗フィルター（任意）
   const [filterStaff, setFilterStaff] = useState('')
   const [filterDate, setFilterDate] = useState('')
   const [editingReservation, setEditingReservation] =
@@ -137,6 +138,24 @@ export default function ReservationsPage() {
         {/* フィルターエリア */}
         <div className="bg-white p-6 rounded-lg shadow mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
+            {/* 店舗選択（任意） */}
+            <div className="flex-1">
+              <div className="block text-sm font-semibold mb-2">店舗</div>
+              <select
+                value={filterStore}
+                onChange={(e) => {
+                  setFilterStore(e.target.value)
+                  // 店舗変更時は担当者選択をクリア
+                  setFilterStaff('')
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">選択してください（任意）</option>
+                <option value="大宮店">大宮店</option>
+                <option value="北浦和店">北浦和店</option>
+              </select>
+            </div>
+
             {/* 担当スタッフ選択 */}
             <div className="flex-1">
               <div className="block text-sm font-semibold mb-2">担当者</div>
@@ -148,13 +167,20 @@ export default function ReservationsPage() {
                 <option value="" disabled>
                   担当スタッフを選択
                 </option>
-                {staffList.map((staff) => (
+                {staffList
+                  .filter((staff) =>
+                    filterStore ? staff.stores.includes(filterStore) : true,
+                  )
+                  .map((staff) => (
                   <option key={staff.id} value={staff.name}>
                     {staff.name}
                   </option>
                 ))}
                 <option value="指名無し">指名無し</option>
               </select>
+              <p className="text-xs text-gray-500 mt-1">
+                ※先に店舗を選択すると絞り込めます
+              </p>
             </div>
 
             {/* 予約日選択 */}
