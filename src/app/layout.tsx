@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: '美容室予約リマインダー',
+  title: 'Noa次回予約通知',
   description: '美容室Noaの予約管理・自動リマインド送信システム',
 }
 

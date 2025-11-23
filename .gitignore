@@ -37,3 +37,6 @@ next-env.d.ts
 
 # backup
 *.backup
+
+# Supabase Edge Functions temp files
+supabase/.temp/
