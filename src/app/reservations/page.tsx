@@ -172,10 +172,10 @@ export default function ReservationsPage() {
                     filterStore ? staff.stores.includes(filterStore) : true,
                   )
                   .map((staff) => (
-                  <option key={staff.id} value={staff.name}>
-                    {staff.name}
-                  </option>
-                ))}
+                    <option key={staff.id} value={staff.name}>
+                      {staff.name}
+                    </option>
+                  ))}
                 <option value="指名無し">指名無し</option>
               </select>
               <p className="text-xs text-gray-500 mt-1">

@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
 import {
   createReservationChangeMessage,
   sendLineMessage,
 } from '@/lib/line/messaging'
+import { createClient } from '@/lib/supabase/server'
 import type { UpdateReservationInput } from '@/lib/supabase/types'
 import { NextResponse } from 'next/server'
 
@@ -59,8 +59,7 @@ export async function PATCH(
   const canNotify = Boolean(before.consent && before.line_user_id)
 
   // 時刻比較のためにHH:MMへ正規化
-  const normalizeTime = (t: string | null | undefined) =>
-    (t ?? '').slice(0, 5)
+  const normalizeTime = (t: string | null | undefined) => (t ?? '').slice(0, 5)
 
   // 実質的な変更（通知対象フィールド）があるか判定（時間は正規化して比較）
   const hasDiff =

@@ -3,16 +3,19 @@
 // - 5分おきのスケジュールで実行想定
 // - reservations.status = 'confirmed' かつ line_user_id があるもののみ送信
 
-// deno-lint-ignore-file no-explicit-any
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 // 環境変数（Supabaseダッシュボードで設定）
 // SUPABASE_URL はプラットフォームが自動注入（Secrets登録は不要）
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') as string
 // Service Role: プラットフォームが SUPABASE_SERVICE_ROLE_KEY を注入
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get(
+  'SUPABASE_SERVICE_ROLE_KEY',
+) as string
 // LINE アクセストークンも Secrets で管理
-const LINE_CHANNEL_ACCESS_TOKEN = Deno.env.get('LINE_CHANNEL_ACCESS_TOKEN') as string
+const LINE_CHANNEL_ACCESS_TOKEN = Deno.env.get(
+  'LINE_CHANNEL_ACCESS_TOKEN',
+) as string
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
@@ -39,7 +42,15 @@ const createReminderMessage = (params: {
   staffName: string
   menu: string
 }) => {
-  const { type, displayName, store, reservationDate, reservationTime, staffName, menu } = params
+  const {
+    type,
+    displayName,
+    store,
+    reservationDate,
+    reservationTime,
+    staffName,
+    menu,
+  } = params
   const dateText = `${formatDateWithWeekday(reservationDate)} ${formatHourOnly(reservationTime)}`
 
   if (type === '7days_before') {
@@ -84,36 +95,105 @@ const sendLineMessage = async (to: string, text: string) => {
   }
 }
 
-const run = async () => {
-  // 期限到来のpendingジョブを取得（バッチサイズを小さく）
-  const nowIso = new Date().toISOString()
-  const { data: jobs, error: jobsError } = await supabase
-    .from('reminder_jobs')
-    .select('*')
-    .eq('status', 'pending')
-    .lte('scheduled_at', nowIso)
-    .order('scheduled_at', { ascending: true })
-    .limit(50)
+// JSTの日付(YYYY-MM-DD)を取得
+const toJstYmd = (d: Date) => {
+  const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000)
+  const y = jst.getUTCFullYear()
+  const m = String(jst.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(jst.getUTCDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
 
-  if (jobsError) return new Response(jobsError.message, { status: 500 })
-  if (!jobs || jobs.length === 0) return new Response('no-jobs')
+const addDays = (ymd: string, days: number) => {
+  const [y, m, d] = ymd.split('-').map((v) => Number(v))
+  const dt = new Date(Date.UTC(y, m - 1, d))
+  dt.setUTCDate(dt.getUTCDate() + days)
+  const yy = dt.getUTCFullYear()
+  const mm = String(dt.getUTCMonth() + 1).padStart(2, '0')
+  const dd = String(dt.getUTCDate()).padStart(2, '0')
+  return `${yy}-${mm}-${dd}`
+}
+
+const run = async () => {
+  // 日次モード: JSTの今日から +1日 と +7日 を対象にする
+  const jstToday = toJstYmd(new Date())
+  const target1 = addDays(jstToday, 1)
+  const target7 = addDays(jstToday, 7)
+
+  // 対象予約を先に取得（confirmed かつ line_user_id あり）
+  const { data: reservations, error: resErr } = await supabase
+    .from('reservations')
+    .select(
+      'id, line_user_id, line_display_name, store, reservation_date, reservation_time, staff_name, menu, status',
+    )
+    .in('reservation_date', [target1, target7])
+    .eq('status', 'confirmed')
+    .not('line_user_id', 'is', null)
+
+  if (resErr) return new Response(resErr.message, { status: 500 })
+  if (!reservations || reservations.length === 0)
+    return new Response('no-target-reservations')
+
+  type ReservationRow = {
+    id: string
+    line_user_id: string
+    line_display_name: string | null
+    store: string
+    reservation_date: string
+    reservation_time: string
+    staff_name: string
+    menu: string
+    status: string
+  }
+
+  const mapById = new Map<string, ReservationRow>()
+  const ids1: string[] = []
+  const ids7: string[] = []
+  for (const r of reservations) {
+    mapById.set(r.id, r)
+    if (r.reservation_date === target1) ids1.push(r.id)
+    if (r.reservation_date === target7) ids7.push(r.id)
+  }
+
+  // 対象ジョブ（pending）のみ取得
+  type Job = {
+    id: string
+    reservation_id: string
+    remind_type: '1day_before' | '7days_before'
+    status: 'pending' | 'sent' | 'failed' | 'cancelled'
+    scheduled_at?: string
+    sent_at?: string | null
+    error_message?: string | null
+  }
+  const jobs: Job[] = []
+  if (ids1.length > 0) {
+    const { data: j1, error: j1err } = await supabase
+      .from('reminder_jobs')
+      .select('*')
+      .eq('status', 'pending')
+      .eq('remind_type', '1day_before')
+      .in('reservation_id', ids1)
+      .limit(500)
+    if (j1err) return new Response(j1err.message, { status: 500 })
+    if (j1) jobs.push(...j1)
+  }
+  if (ids7.length > 0) {
+    const { data: j7, error: j7err } = await supabase
+      .from('reminder_jobs')
+      .select('*')
+      .eq('status', 'pending')
+      .eq('remind_type', '7days_before')
+      .in('reservation_id', ids7)
+      .limit(500)
+    if (j7err) return new Response(j7err.message, { status: 500 })
+    if (j7) jobs.push(...j7)
+  }
+
+  if (jobs.length === 0) return new Response('no-jobs')
 
   for (const job of jobs) {
-    // 関連予約を取得
-    const { data: resv } = await supabase
-      .from('reservations')
-      .select('*')
-      .eq('id', job.reservation_id)
-      .single()
-
-    if (!resv || resv.status !== 'confirmed' || !resv.line_user_id) {
-      // 条件を満たさない場合はスキップ
-      await supabase
-        .from('reminder_jobs')
-        .update({ status: 'cancelled' })
-        .eq('id', job.id)
-      continue
-    }
+    const resv = mapById.get(job.reservation_id)
+    if (!resv) continue
 
     const text = createReminderMessage({
       type: job.remind_type,
@@ -129,7 +209,11 @@ const run = async () => {
       .then(async () => {
         await supabase
           .from('reminder_jobs')
-          .update({ status: 'sent', sent_at: new Date().toISOString(), error_message: null })
+          .update({
+            status: 'sent',
+            sent_at: new Date().toISOString(),
+            error_message: null,
+          })
           .eq('id', job.id)
       })
       .catch(async (e) => {
@@ -144,6 +228,7 @@ const run = async () => {
 }
 
 Deno.serve(async (req) => {
-  if (req.method !== 'POST') return new Response('method not allowed', { status: 405 })
+  if (req.method !== 'POST')
+    return new Response('method not allowed', { status: 405 })
   return run()
 })
