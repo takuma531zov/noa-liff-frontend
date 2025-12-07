@@ -1,12 +1,14 @@
 // LINE Messaging API ユーティリティ
 
 // メッセージ送信型
+// 送信パラメータ（担当者公式LINEリンクは任意で指定）
 type SendMessageParams = {
   to: string
   messages: Array<{
     type: 'text'
     text: string
   }>
+  staffOfficialLineUrl?: string | null
 }
 
 // LINE Messaging APIでプッシュメッセージを送信
@@ -17,13 +19,23 @@ export const sendLineMessage = async (params: SendMessageParams) => {
     throw new Error('LINE_CHANNEL_ACCESS_TOKEN が設定されていません')
   }
 
+  // 担当者公式LINEリンクのフッターを1通あたり最初のテキストメッセージだけに付与
+  const footer = params.staffOfficialLineUrl
+    ? `\n\nご予約の変更などのご相談はこちらまで\n${params.staffOfficialLineUrl}`
+    : ''
+
+  const messages =
+    footer && params.messages.length > 0 && params.messages[0]?.type === 'text'
+      ? [{ type: 'text', text: `${params.messages[0].text}${footer}` as const }, ...params.messages.slice(1)]
+      : params.messages
+
   const response = await fetch('https://api.line.me/v2/bot/message/push', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${channelAccessToken}`,
     },
-    body: JSON.stringify(params),
+    body: JSON.stringify({ to: params.to, messages }),
   })
 
   if (!response.ok) {

@@ -12,6 +12,7 @@ export default function ReservationsPage() {
   const [staffList, setStaffList] = useState<Staff[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [filterStore, setFilterStore] = useState('') // 店舗フィルター（任意）
+  // フィルタ: 担当スタッフは staff_id、指名無しは空文字
   const [filterStaff, setFilterStaff] = useState('')
   const [filterDate, setFilterDate] = useState('')
   const [editingReservation, setEditingReservation] =
@@ -52,12 +53,15 @@ export default function ReservationsPage() {
     const fetchReservations = async () => {
       setIsLoading(true)
       const supabase = createClient()
-      const { data, error } = await supabase
+      const base = supabase
         .from('reservations')
         .select('*')
-        .eq('staff_name', filterStaff)
         .eq('reservation_date', filterDate)
         .order('reservation_time', { ascending: true })
+
+      const { data, error } = await (filterStaff
+        ? base.eq('staff_id', filterStaff)
+        : base.is('staff_id', null))
 
       if (error) {
         console.error('予約取得エラー:', error)
@@ -80,12 +84,15 @@ export default function ReservationsPage() {
 
     setIsLoading(true)
     const supabase = createClient()
-    const { data, error } = await supabase
+    const base = supabase
       .from('reservations')
       .select('*')
-      .eq('staff_name', filterStaff)
       .eq('reservation_date', filterDate)
       .order('reservation_time', { ascending: true })
+
+    const { data, error } = await (filterStaff
+      ? base.eq('staff_id', filterStaff)
+      : base.is('staff_id', null))
 
     if (error) {
       console.error('予約取得エラー:', error)
@@ -172,11 +179,9 @@ export default function ReservationsPage() {
                     filterStore ? staff.stores.includes(filterStore) : true,
                   )
                   .map((staff) => (
-                    <option key={staff.id} value={staff.name}>
-                      {staff.name}
-                    </option>
+                    <option key={staff.id} value={staff.id}>{staff.name}</option>
                   ))}
-                <option value="指名無し">指名無し</option>
+                <option value="">指名無し</option>
               </select>
               <p className="text-xs text-gray-500 mt-1">
                 ※先に店舗を選択すると絞り込めます

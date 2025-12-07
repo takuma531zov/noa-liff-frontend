@@ -69,9 +69,19 @@ export async function POST(request: Request) {
     store: reservation.store,
     reservationDate: reservation.reservation_date,
     reservationTime: reservation.reservation_time,
-    staffName: reservation.staff_name,
+    staffName: reservation.staff_name_snapshot,
     menu: reservation.menu,
   })
+
+  // 担当者公式LINEリンクを取得（staff_idがある場合のみ）
+  const { data: staff, error: staffErr } = reservation.staff_id
+    ? await supabase
+        .from('staff')
+        .select('official_line_url')
+        .eq('id', reservation.staff_id)
+        .eq('is_active', true)
+        .single()
+    : { data: null, error: null }
 
   await sendLineMessage({
     to: lineUserId,
@@ -81,6 +91,7 @@ export async function POST(request: Request) {
         text: messageText,
       },
     ],
+    staffOfficialLineUrl: staffErr ? undefined : staff?.official_line_url ?? undefined,
   })
 
   return NextResponse.json({

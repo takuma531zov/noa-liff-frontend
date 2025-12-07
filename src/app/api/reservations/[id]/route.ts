@@ -33,11 +33,31 @@ export async function PATCH(
   }
 
   // 予約を更新
+  // staff_id の変更がある場合はスナップショットを更新
+  const willChangeStaffId = Object.prototype.hasOwnProperty.call(
+    body,
+    'staff_id',
+  )
+  const nextStaffId = willChangeStaffId ? (body.staff_id ?? null) : before.staff_id
+  const nextStaffNameSnapshot = willChangeStaffId
+    ? (nextStaffId
+        ? (
+            await supabase
+              .from('staff')
+              .select('name')
+              .eq('id', nextStaffId)
+              .eq('is_active', true)
+              .single()
+          ).data?.name || '指名無し'
+        : '指名無し')
+    : before.staff_name_snapshot
+
   const { data, error } = await supabase
     .from('reservations')
     .update({
       store: body.store,
-      staff_name: body.staff_name,
+      staff_id: nextStaffId,
+      staff_name_snapshot: nextStaffNameSnapshot,
       menu: body.menu,
       reservation_date: body.reservation_date,
       reservation_time: body.reservation_time,
@@ -64,11 +84,10 @@ export async function PATCH(
   // 実質的な変更（通知対象フィールド）があるか判定（時間は正規化して比較）
   const hasDiff =
     before.store !== data.store ||
-    before.staff_name !== data.staff_name ||
+    before.staff_name_snapshot !== data.staff_name_snapshot ||
     before.menu !== data.menu ||
     before.reservation_date !== data.reservation_date ||
-    normalizeTime(before.reservation_time) !==
-      normalizeTime(data.reservation_time)
+    normalizeTime(before.reservation_time) !== normalizeTime(data.reservation_time)
 
   if (canNotify && hasDiff) {
     const displayName = data.line_display_name || 'お客様'
@@ -79,17 +98,27 @@ export async function PATCH(
         store: before.store,
         reservationDate: before.reservation_date,
         reservationTime: before.reservation_time,
-        staffName: before.staff_name,
+        staffName: before.staff_name_snapshot,
         menu: before.menu,
       },
       after: {
         store: data.store,
         reservationDate: data.reservation_date,
         reservationTime: data.reservation_time,
-        staffName: data.staff_name,
+        staffName: data.staff_name_snapshot,
         menu: data.menu,
       },
     })
+
+    // 担当者公式LINEリンク（変更後の担当者IDで取得）
+    const { data: staff, error: staffErr } = data.staff_id
+      ? await supabase
+          .from('staff')
+          .select('official_line_url')
+          .eq('id', data.staff_id)
+          .eq('is_active', true)
+          .single()
+      : { data: null, error: null }
 
     await sendLineMessage({
       to: before.line_user_id as string,
@@ -99,6 +128,7 @@ export async function PATCH(
           text: messageText,
         },
       ],
+      staffOfficialLineUrl: staffErr ? undefined : staff?.official_line_url ?? undefined,
     })
   }
 

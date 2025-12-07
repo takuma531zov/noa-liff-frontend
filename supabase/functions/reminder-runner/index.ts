@@ -41,6 +41,7 @@ const createReminderMessage = (params: {
   reservationTime: string
   staffName: string
   menu: string
+  staffOfficialLineUrl?: string | null
 }) => {
   const {
     type,
@@ -50,8 +51,12 @@ const createReminderMessage = (params: {
     reservationTime,
     staffName,
     menu,
+    staffOfficialLineUrl,
   } = params
   const dateText = `${formatDateWithWeekday(reservationDate)} ${formatHourOnly(reservationTime)}`
+  const footer = staffOfficialLineUrl
+    ? `\n\nご予約の変更などのご相談はこちらまで\n${staffOfficialLineUrl}`
+    : ''
 
   if (type === '7days_before') {
     return `${displayName}様
@@ -64,7 +69,7 @@ const createReminderMessage = (params: {
 担当：${staffName}
 メニュー：${menu}
 
-ご来店をお待ちしております。`
+ご来店をお待ちしております。${footer}`
   }
 
   return `${displayName}様
@@ -77,7 +82,7 @@ const createReminderMessage = (params: {
 担当：${staffName}
 メニュー：${menu}
 
-ご来店をお待ちしております。`
+ご来店をお待ちしております。${footer}`
 }
 
 const sendLineMessage = async (to: string, text: string) => {
@@ -124,7 +129,7 @@ const run = async () => {
   const { data: reservations, error: resErr } = await supabase
     .from('reservations')
     .select(
-      'id, line_user_id, line_display_name, store, reservation_date, reservation_time, staff_name, menu, status',
+      'id, line_user_id, line_display_name, store, reservation_date, reservation_time, staff_id, staff_name_snapshot, menu, status',
     )
     .in('reservation_date', [target1, target7])
     .eq('status', 'confirmed')
@@ -141,7 +146,8 @@ const run = async () => {
     store: string
     reservation_date: string
     reservation_time: string
-    staff_name: string
+    staff_id: string | null
+    staff_name_snapshot: string
     menu: string
     status: string
   }
@@ -191,6 +197,26 @@ const run = async () => {
 
   if (jobs.length === 0) return new Response('no-jobs')
 
+  // 担当者IDから公式LINEリンクをまとめて解決
+  const staffIds = Array.from(
+    new Set((reservations || []).map((r: ReservationRow) => r.staff_id).filter(Boolean)),
+  ) as string[]
+  const staffUrlMap = new Map<string, string | null>()
+  if (staffIds.length > 0) {
+    const { data: staffRows } = await supabase
+      .from('staff')
+      .select('id, official_line_url, is_active')
+      .in('id', staffIds)
+      .eq('is_active', true)
+    for (const s of staffRows || []) {
+      // 型アサーションで文字列化してキー化
+      staffUrlMap.set(
+        String((s as { id: string }).id),
+        (s as { official_line_url: string | null }).official_line_url || null,
+      )
+    }
+  }
+
   for (const job of jobs) {
     const resv = mapById.get(job.reservation_id)
     if (!resv) continue
@@ -201,8 +227,9 @@ const run = async () => {
       store: resv.store,
       reservationDate: resv.reservation_date,
       reservationTime: resv.reservation_time,
-      staffName: resv.staff_name,
+      staffName: resv.staff_name_snapshot,
       menu: resv.menu,
+      staffOfficialLineUrl: resv.staff_id ? staffUrlMap.get(resv.staff_id) || null : null,
     })
 
     await sendLineMessage(resv.line_user_id, text)

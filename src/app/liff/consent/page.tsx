@@ -205,7 +205,7 @@ const ConsentPageContent = () => {
             <div className="flex flex-col gap-2">
               <div className="text-sm text-gray-600">担当スタッフ</div>
               <div className="text-lg font-medium text-gray-800">
-                {reservation.staff_name}
+                {reservation.staff_name_snapshot}
               </div>
             </div>
 

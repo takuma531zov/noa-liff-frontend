@@ -11,8 +11,11 @@ export default function StaffPage() {
   const [newStaff, setNewStaff] = useState({
     name: '',
     stores: [] as string[],
+    officialLineUrl: '',
   })
   const [isAdding, setIsAdding] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingOfficialUrl, setEditingOfficialUrl] = useState('')
 
   // スタッフ一覧を取得
   const fetchStaff = useCallback(async () => {
@@ -48,6 +51,7 @@ export default function StaffPage() {
       {
         name: newStaff.name,
         stores: newStaff.stores,
+        official_line_url: newStaff.officialLineUrl || null,
         is_active: true,
       },
     ])
@@ -56,11 +60,29 @@ export default function StaffPage() {
       console.error('スタッフ追加エラー:', error)
       alert('スタッフの追加に失敗しました')
     } else {
-      setNewStaff({ name: '', stores: [] })
+      setNewStaff({ name: '', stores: [], officialLineUrl: '' })
       fetchStaff()
     }
 
     setIsAdding(false)
+  }
+
+  // スタッフ更新（公式LINEリンクのみ）
+  const handleUpdateOfficialUrl = async (id: string) => {
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('staff')
+      .update({ official_line_url: editingOfficialUrl || null })
+      .eq('id', id)
+
+    if (error) {
+      console.error('スタッフ更新エラー:', error)
+      alert('更新に失敗しました')
+      return
+    }
+    setEditingId(null)
+    setEditingOfficialUrl('')
+    fetchStaff()
   }
 
   // スタッフ削除（論理削除）
@@ -115,6 +137,20 @@ export default function StaffPage() {
             >
               {isAdding ? '追加中...' : '追加'}
             </button>
+          </div>
+          <div>
+            <input
+              type="url"
+              value={newStaff.officialLineUrl}
+              onChange={(e) =>
+                setNewStaff((prev) => ({
+                  ...prev,
+                  officialLineUrl: e.target.value,
+                }))
+              }
+              placeholder="公式LINEリンク（任意）"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
           <div>
             <div className="block text-sm font-semibold mb-2">
@@ -199,6 +235,57 @@ export default function StaffPage() {
                     )}
                   </div>
                 </div>
+                {editingId === staff.id ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <input
+                      type="url"
+                      placeholder="公式LINEリンク"
+                      defaultValue={staff.official_line_url || ''}
+                      onChange={(e) => setEditingOfficialUrl(e.target.value)}
+                      className="flex-1 px-2 py-1 border border-gray-300 rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateOfficialUrl(staff.id)}
+                      className="px-2 py-1 text-xs bg-blue-600 text-white rounded"
+                    >
+                      保存
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingId(null)
+                        setEditingOfficialUrl('')
+                      }}
+                      className="px-2 py-1 text-xs text-gray-700 border rounded"
+                    >
+                      キャンセル
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    {staff.official_line_url ? (
+                      <a
+                        href={staff.official_line_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-blue-600 underline truncate max-w-[220px]"
+                        title={staff.official_line_url}
+                      >
+                        公式LINE
+                      </a>
+                    ) : (
+                      <span className="text-xs text-gray-400">公式LINE未設定</span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setEditingId(staff.id)}
+                      className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    >
+                      編集
+                    </button>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => handleDeleteStaff(staff.id, staff.name)}

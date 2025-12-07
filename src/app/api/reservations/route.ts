@@ -10,13 +10,7 @@ export async function POST(request: Request) {
   const body = (await request.json()) as CreateReservationInput
 
   // バリデーション
-  if (
-    !body.store ||
-    !body.staff_name ||
-    !body.menu ||
-    !body.reservation_date ||
-    !body.reservation_time
-  ) {
+  if (!body.store || !body.menu || !body.reservation_date || !body.reservation_time) {
     return NextResponse.json(
       { error: '必須項目が不足しています' },
       { status: 400 },
@@ -27,12 +21,26 @@ export async function POST(request: Request) {
   const consentToken = crypto.randomUUID()
 
   // 予約データを保存
+  // 担当者スナップショット名を解決（指名無しは固定文字列）
+  const staffId = body.staff_id ?? null
+  const staffNameSnapshot = staffId
+    ? (
+        await supabase
+          .from('staff')
+          .select('name')
+          .eq('id', staffId)
+          .eq('is_active', true)
+          .single()
+      ).data?.name || '指名無し'
+    : '指名無し'
+
   const { data, error } = await supabase
     .from('reservations')
     .insert([
       {
         store: body.store,
-        staff_name: body.staff_name,
+        staff_id: staffId,
+        staff_name_snapshot: staffNameSnapshot,
         menu: body.menu,
         reservation_date: body.reservation_date,
         reservation_time: body.reservation_time,

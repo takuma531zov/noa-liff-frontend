@@ -1,11 +1,7 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import type {
-  Reservation,
-  Staff,
-  UpdateReservationInput,
-} from '@/lib/supabase/types'
+import type { Reservation, Staff, UpdateReservationInput } from '@/lib/supabase/types'
 import { useEffect, useState } from 'react'
 
 // 30分刻みの時間オプションを生成（9:00~20:00）
@@ -33,14 +29,17 @@ export const ReservationEditModal = ({
   onClose,
   onSuccess,
 }: ReservationEditModalProps) => {
-  const [formData, setFormData] = useState<UpdateReservationInput>({
-    store: reservation.store,
-    staff_name: reservation.staff_name,
-    menu: reservation.menu,
-    reservation_date: reservation.reservation_date,
-    reservation_time: reservation.reservation_time.slice(0, 5),
-    customer_name: reservation.customer_name || '',
-  })
+  // 編集フォーム状態（担当者は staff_id、指名無しは空文字）
+  const [formData, setFormData] = useState<UpdateReservationInput & { staff_id?: string }>(
+    {
+      store: reservation.store,
+      staff_id: reservation.staff_id || '',
+      menu: reservation.menu,
+      reservation_date: reservation.reservation_date,
+      reservation_time: reservation.reservation_time.slice(0, 5),
+      customer_name: reservation.customer_name || '',
+    },
+  )
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [staffList, setStaffList] = useState<Staff[]>([])
@@ -101,12 +100,22 @@ export const ReservationEditModal = ({
     e.preventDefault()
     setIsSubmitting(true)
 
+    // 更新ペイロード（空文字の staff_id は送信しない）
+    const payload: UpdateReservationInput = {
+      store: formData.store,
+      menu: formData.menu,
+      reservation_date: formData.reservation_date,
+      reservation_time: formData.reservation_time,
+      customer_name: formData.customer_name || undefined,
+      ...(formData.staff_id ? { staff_id: formData.staff_id } : {}),
+    }
+
     const response = await fetch(`/api/reservations/${reservation.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(payload),
     })
 
     if (!response.ok) {
@@ -180,20 +189,19 @@ export const ReservationEditModal = ({
             </select>
           </div>
 
-          {/* 担当スタッフ名 */}
+          {/* 担当スタッフ */}
           <div>
             <label
-              htmlFor="staff_name"
+              htmlFor="staff_id"
               className="block text-sm font-semibold mb-2"
             >
               担当スタッフ <span className="text-red-500">*</span>
             </label>
             <select
-              id="staff_name"
-              name="staff_name"
-              value={formData.staff_name}
+              id="staff_id"
+              name="staff_id"
+              value={formData.staff_id}
               onChange={handleChange}
-              required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">選択してください</option>
@@ -202,11 +210,9 @@ export const ReservationEditModal = ({
                   formData.store ? staff.stores.includes(formData.store) : true,
                 )
                 .map((staff) => (
-                  <option key={staff.id} value={staff.name}>
-                    {staff.name}
-                  </option>
+                  <option key={staff.id} value={staff.id}>{staff.name}</option>
                 ))}
-              {formData.store && <option value="指名無し">指名無し</option>}
+              {formData.store && <option value="">指名無し</option>}
             </select>
             {formData.store === '' && (
               <p className="text-xs text-gray-500 mt-1">

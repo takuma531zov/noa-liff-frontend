@@ -5,6 +5,7 @@ export type Staff = {
   id: string
   name: string
   stores: string[] // 複数店舗対応（配列）
+  official_line_url: string | null
   is_active: boolean
   created_at: string
   updated_at: string
@@ -23,7 +24,8 @@ export type RemindType = '7days_before' | '1day_before'
 export type Reservation = {
   id: string
   store: string
-  staff_name: string
+  staff_id: string | null
+  staff_name_snapshot: string
   menu: string
   reservation_date: string
   reservation_time: string
@@ -53,7 +55,8 @@ export type ReminderJob = {
 // 予約登録リクエスト
 export type CreateReservationInput = {
   store: string
-  staff_name: string
+  // 指名無しの場合は null または未指定
+  staff_id?: string | null
   menu: string
   reservation_date: string
   reservation_time: string

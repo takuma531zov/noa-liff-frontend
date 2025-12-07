@@ -1,11 +1,7 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import type {
-  CreateReservationInput,
-  CreateReservationResponse,
-  Staff,
-} from '@/lib/supabase/types'
+import type { CreateReservationResponse, Staff } from '@/lib/supabase/types'
 import { useEffect, useState } from 'react'
 
 // 30分刻みの時間オプションを生成（9:00~20:00）
@@ -28,9 +24,10 @@ type ReservationFormProps = {
 }
 
 export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
-  const [formData, setFormData] = useState<CreateReservationInput>({
+  // 予約登録フォーム状態（担当者は staff_id を保持、指名無しは空文字）
+  const [formData, setFormData] = useState({
     store: '',
-    staff_name: '',
+    staff_id: '',
     menu: '',
     reservation_date: '',
     reservation_time: '',
@@ -83,7 +80,11 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(formData),
+      // staff_id は空文字の場合は送らない（サーバ側で指名無し処理）
+      body: JSON.stringify({
+        ...formData,
+        staff_id: formData.staff_id || undefined,
+      }),
     })
 
     if (!response.ok) {
@@ -99,7 +100,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
     // フォームをリセット
     setFormData({
       store: '',
-      staff_name: '',
+      staff_id: '',
       menu: '',
       reservation_date: '',
       reservation_time: '',
@@ -131,20 +132,19 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
         </select>
       </div>
 
-      {/* 担当スタッフ名 */}
+      {/* 担当スタッフ */}
       <div>
         <label
-          htmlFor="staff_name"
+          htmlFor="staff_id"
           className="block text-sm font-semibold mb-2"
         >
           担当スタッフ <span className="text-red-500">*</span>
         </label>
         <select
-          id="staff_name"
-          name="staff_name"
-          value={formData.staff_name}
+          id="staff_id"
+          name="staff_id"
+          value={formData.staff_id}
           onChange={handleChange}
-          required
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="">選択してください</option>
@@ -153,11 +153,9 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
               formData.store ? staff.stores.includes(formData.store) : true,
             )
             .map((staff) => (
-              <option key={staff.id} value={staff.name}>
-                {staff.name}
-              </option>
+              <option key={staff.id} value={staff.id}>{staff.name}</option>
             ))}
-          {formData.store && <option value="指名無し">指名無し</option>}
+          {formData.store && <option value="">指名無し</option>}
         </select>
         {formData.store === '' && (
           <p className="text-xs text-gray-500 mt-1">
