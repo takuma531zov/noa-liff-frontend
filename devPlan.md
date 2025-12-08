@@ -62,7 +62,8 @@
 ```sql
 - id (uuid, primary key)
 - store (text) -- 店舗名（大宮店/北浦和店）
-- staff_name (text) -- 担当スタッフ名
+- staff_id (uuid, nullable) -- 担当スタッフ参照（NULLは指名無し）
+- staff_name_snapshot (text) -- 予約時点の担当者名スナップショット（指名無しを含む）
 - menu (text) -- メニュー（自由入力テキスト）
 - reservation_date (date) -- 予約日
 - reservation_time (time) -- 予約時間（開始時間のみ）
@@ -99,6 +100,7 @@
   - 1週間前のジョブ（remind_type: '7days_before'）
   - 前日のジョブ（remind_type: '1day_before'）
 - [ ] 予約更新時に既存のreminder_jobsをキャンセル（status='cancelled'）し、新規ジョブを生成するトリガー関数
+  - キャンセル済み予約（status='cancelled'）の場合は新規生成しない
 
 ---
 
@@ -111,7 +113,7 @@
 
 #### 3-2. 予約登録フォーム（ミニマム構成）
 - [ ] 店舗選択（大宮店/北浦和店 - ドロップダウン）
-- [ ] 担当スタッフ名入力（テキスト入力）
+- [ ] 担当スタッフ選択（staff.id を value、指名無しは未選択）
 - [ ] メニュー入力（テキスト自由入力）
 - [ ] 予約日選択（date picker）
 - [ ] 予約時間選択（time picker - 開始時間のみ）

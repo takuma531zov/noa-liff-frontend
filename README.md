@@ -79,6 +79,10 @@ vercel
 
 設定手順（概要）
 1. Supabase SQL Editor で SQL を順に実行（既に実装済みなら不要）
+   - `supabase/sql/04_alter_reservations_staff_id_snapshot.sql`
+     - reservations に `staff_id (uuid, nullable)` と `staff_name_snapshot (text not null default '指名無し')` を追加し、旧 `staff_name` を削除します。
+   - `supabase/sql/05_create_reminder_jobs_and_triggers.sql`
+     - `reminder_jobs` テーブルと、reservations 追加/更新時にジョブを生成・再生成するトリガーを作成します。
 2. Edge Function をデプロイ（Supabase CLI またはダッシュボード）
    - ランタイム環境変数（Secrets）を設定:
      - `LINE_CHANNEL_ACCESS_TOKEN`: LINE チャネルアクセストークン（必須）
@@ -96,3 +100,4 @@ vercel
   - 「ご予約の変更などのご相談はこちらまで」
   - 「{担当者公式LINEリンクURL}」
   - 対象: リマインダー（Supabase Edge Function）および Next.js 側のプッシュ送信。
+ - 「担当：」の表示は予約作成時のスナップショット名（`reservations.staff_name_snapshot`）を使用します。リンク解決は `reservations.staff_id` 経由で最新の `staff.official_line_url` を参照します。
