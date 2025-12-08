@@ -1,5 +1,3 @@
-import { Footer } from '@/components/Footer'
-import { Header } from '@/components/Header'
 import type { Metadata } from 'next'
 import './globals.css'
 
@@ -15,11 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
