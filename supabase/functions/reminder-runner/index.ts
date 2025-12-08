@@ -55,34 +55,30 @@ const createReminderMessage = (params: {
   } = params
   const dateText = `${formatDateWithWeekday(reservationDate)} ${formatHourOnly(reservationTime)}`
   const footer = staffOfficialLineUrl
-    ? `\n\nご予約の変更などのご相談はこちらまで\n${staffOfficialLineUrl}`
+    ? `\n\nご予約の変更などのご相談はこちらまで⬇️\n${staffOfficialLineUrl}`
     : ''
 
   if (type === '7days_before') {
     return `${displayName}様
 
-来週のご予約日が近づいております。
-
+ご予約1週間前となりました。
 【予約内容】
 店舗：${store}
 日時：${dateText}
 担当：${staffName}
 メニュー：${menu}
-
-ご来店をお待ちしております。${footer}`
+お会いできるのを楽しみにしています。${footer}`
   }
 
   return `${displayName}様
 
-明日のご予約のご案内です。
-
+ご予約前日となりました。ご来店を心よりお待ちしております。
 【予約内容】
 店舗：${store}
 日時：${dateText}
 担当：${staffName}
 メニュー：${menu}
-
-ご来店をお待ちしております。${footer}`
+道中お気をつけてお越しくださいませ。${footer}`
 }
 
 const sendLineMessage = async (to: string, text: string) => {

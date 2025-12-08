@@ -90,10 +90,43 @@ vercel
 3. スケジュール実行を設定（5分おき推奨）
    - Supabase ダッシュボード → Edge Functions → `reminder-runner` → Schedule
 
-メッセージ文面（雛形）
-- 7日前: 「{displayName}様、来週のご予約日が近づいております。日時：m月d日(曜) hh:00」
-- 前日: 「{displayName}様、明日のご予約のご案内です。日時：m月d日(曜) hh:00」
-  - いずれも【店舗 / 日時 / 担当 / メニュー】を記載（文面は `supabase/functions/reminder-runner/index.ts` 内で編集可能）
+メッセージ文面（採用候補A）
+- 予約確定（同意後）
+  - {displayName}様
+    ご予約が確定しました。
+    【店舗】{store}
+    【日時】{m月d日(曜) hh:00}
+    【担当】{staffName}
+    【メニュー】{menu}
+    ご来店を心よりお待ちしております。
+- 予約変更通知
+  - {displayName}様
+    ご予約内容を下記のとおり変更しました。
+    【変更後】
+    店舗：{after.store}
+    日時：{afterDate} {afterTime}
+    担当：{after.staffName}
+    メニュー：{after.menu}
+    ご来店を心よりお待ちしております。
+- リマインド（7日前）
+  - {displayName}様
+    ご予約1週間前となりました。
+    【予約内容】
+    店舗：{store}
+    日時：{m月d日(曜) hh:00}
+    担当：{staffName}
+    メニュー：{menu}
+    お会いできるのを楽しみにしています。
+- リマインド（前日）
+  - {displayName}様
+    ご予約前日となりました。ご来店を心よりお待ちしております。
+    【予約内容】
+    店舗：{store}
+    日時：{m月d日(曜) hh:00}
+    担当：{staffName}
+    メニュー：{menu}
+    道中お気をつけてお越しくださいませ。
+  - いずれも【店舗 / 日時 / 担当 / メニュー】を記載（文面は `supabase/functions/reminder-runner/index.ts` および `src/lib/line/messaging.ts` 内で編集可能）
 
 補足
 - 担当スタッフに「公式LINEリンク」が設定されている場合、送信メッセージ末尾に以下のフッターが自動追記されます（未設定時は追記なし）。

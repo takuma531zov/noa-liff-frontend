@@ -21,7 +21,7 @@ export const sendLineMessage = async (params: SendMessageParams) => {
 
   // 担当者公式LINEリンクのフッターを1通あたり最初のテキストメッセージだけに付与
   const footer = params.staffOfficialLineUrl
-    ? `\n\nご予約の変更などのご相談はこちらまで\n${params.staffOfficialLineUrl}`
+    ? `\n\nご予約の変更などのご相談はこちらまで⬇️\n${params.staffOfficialLineUrl}`
     : ''
 
   const messages =
@@ -84,22 +84,19 @@ export const createReservationConfirmMessage = (params: {
     menu,
   } = params
 
-  // 指定のフォーマットに統一
+  // 表示用日付・時刻
   const formattedDate = formatDateWithWeekday(reservationDate)
   const formattedTime = formatHourOnly(reservationTime)
+  const dateText = `${formattedDate} ${formattedTime}`
 
   return `${displayName}様
 
-ご予約の同意ありがとうございます。
-
-【予約内容】
-店舗：${store}
-日時：${formattedDate} ${formattedTime}
-担当：${staffName}
-メニュー：${menu}
-
-予約日の1週間前と前日にリマインダーをお送りいたします。
-ご来店をお待ちしております。`
+ご予約が確定しました。
+【店舗】${store}
+【日時】${dateText}
+【担当】${staffName}
+【メニュー】${menu}
+ご来店を心よりお待ちしております。`
 }
 
 // 予約変更通知メッセージを生成
@@ -127,22 +124,14 @@ export const createReservationChangeMessage = (params: {
   const beforeTime = formatHourOnly(before.reservationTime)
   const afterTime = formatHourOnly(after.reservationTime)
 
-  // 差分が分かるように変更前→変更後を併記
+  // 採用候補A: 変更後のみ案内（温かみ）
   return `${displayName}様
 
-ご予約内容の変更をお知らせします。
-
-【変更前】
-店舗：${before.store}
-日時：${beforeDate} ${beforeTime}
-担当：${before.staffName}
-メニュー：${before.menu}
-
+ご予約内容を下記のとおり変更しました。
 【変更後】
 店舗：${after.store}
 日時：${afterDate} ${afterTime}
 担当：${after.staffName}
 メニュー：${after.menu}
-
-ご確認をお願いいたします。`
+ご来店を心よりお待ちしております。`
 }
