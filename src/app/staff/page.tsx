@@ -16,6 +16,8 @@ export default function StaffPage() {
   const [isAdding, setIsAdding] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingOfficialUrl, setEditingOfficialUrl] = useState('')
+  const [editingName, setEditingName] = useState('')
+  const [editingStores, setEditingStores] = useState<string[]>([])
 
   // スタッフ一覧を取得
   const fetchStaff = useCallback(async () => {
@@ -67,12 +69,16 @@ export default function StaffPage() {
     setIsAdding(false)
   }
 
-  // スタッフ更新（公式LINEリンクのみ）
-  const handleUpdateOfficialUrl = async (id: string) => {
+  // スタッフ更新（名前・店舗・公式LINE）
+  const handleUpdateStaff = async (id: string) => {
     const supabase = createClient()
     const { error } = await supabase
       .from('staff')
-      .update({ official_line_url: editingOfficialUrl || null })
+      .update({
+        name: editingName,
+        stores: editingStores,
+        official_line_url: editingOfficialUrl || null,
+      })
       .eq('id', id)
 
     if (error) {
@@ -82,6 +88,8 @@ export default function StaffPage() {
     }
     setEditingId(null)
     setEditingOfficialUrl('')
+    setEditingName('')
+    setEditingStores([])
     fetchStaff()
   }
 
@@ -208,91 +216,132 @@ export default function StaffPage() {
       <div className="bg-white rounded-lg shadow">
         <div className="p-6">
           <h2 className="text-xl font-semibold mb-4">スタッフ一覧</h2>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {staffList.map((staff) => (
-              <div
-                key={staff.id}
-                className="flex items-center justify-between gap-2 p-3 border border-gray-200 rounded-lg"
-              >
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <span className="font-medium text-sm flex-shrink-0">
-                    {staff.name}
-                  </span>
-                  <div className="flex gap-1">
-                    {staff.stores.length > 1 ? (
-                      <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 whitespace-nowrap">
-                        兼任
-                      </span>
-                    ) : (
-                      staff.stores.map((store) => (
-                        <span
-                          key={store}
-                          className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 whitespace-nowrap"
-                        >
-                          {store}
+              <div key={staff.id} className="p-3 border border-gray-200 rounded-lg">
+                {/* 上段: モバイル縦積み、SM以上で横並び */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <span className="font-medium text-sm flex-shrink-0">
+                      {editingId === staff.id ? (
+                        <input
+                          type="text"
+                          defaultValue={staff.name}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          className="px-2 py-1 border border-gray-300 rounded w-40"
+                        />
+                      ) : (
+                        staff.name
+                      )}
+                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      {editingId === staff.id ? (
+                        ['大宮店', '北浦和店'].map((store) => (
+                          <label key={store} className="flex items-center gap-1 p-1 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              defaultChecked={staff.stores.includes(store)}
+                              onChange={(e) =>
+                                setEditingStores((prev) =>
+                                  e.target.checked
+                                    ? [...new Set([...prev, store])]
+                                    : prev.filter((s) => s !== store),
+                                )
+                              }
+                              className="w-4 h-4"
+                            />
+                            <span className="text-xs">{store}</span>
+                          </label>
+                        ))
+                      ) : staff.stores.length > 1 ? (
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 whitespace-nowrap">
+                          兼任
                         </span>
-                      ))
+                      ) : (
+                        staff.stores.map((store) => (
+                          <span
+                            key={store}
+                            className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 whitespace-nowrap"
+                          >
+                            {store}
+                          </span>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                    {editingId === staff.id ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateStaff(staff.id)}
+                          className="px-2 py-1 text-xs bg-blue-600 text-white rounded"
+                        >
+                          保存
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingId(null)
+                            setEditingOfficialUrl('')
+                            setEditingName('')
+                            setEditingStores([])
+                          }}
+                          className="px-2 py-1 text-xs text-gray-700 border rounded"
+                        >
+                          キャンセル
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingId(staff.id)
+                            setEditingOfficialUrl(staff.official_line_url || '')
+                            setEditingName(staff.name)
+                            setEditingStores(staff.stores)
+                          }}
+                          className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        >
+                          編集
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteStaff(staff.id, staff.name)}
+                          className="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded transition-colors"
+                        >
+                          削除
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
-                {editingId === staff.id ? (
-                  <div className="flex items-center gap-2 flex-1">
+
+                {/* 下段: 公式LINEリンク（常に店舗の下に表示） */}
+                <div className="mt-2">
+                  {editingId === staff.id ? (
                     <input
                       type="url"
-                      placeholder="公式LINEリンク"
+                      placeholder="公式LINEリンク（任意）"
                       defaultValue={staff.official_line_url || ''}
                       onChange={(e) => setEditingOfficialUrl(e.target.value)}
-                      className="flex-1 px-2 py-1 border border-gray-300 rounded"
+                      className="w-full px-2 py-1 border border-gray-300 rounded"
                     />
-                    <button
-                      type="button"
-                      onClick={() => handleUpdateOfficialUrl(staff.id)}
-                      className="px-2 py-1 text-xs bg-blue-600 text-white rounded"
+                  ) : staff.official_line_url ? (
+                    <a
+                      href={staff.official_line_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-blue-600 underline break-all"
                     >
-                      保存
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingId(null)
-                        setEditingOfficialUrl('')
-                      }}
-                      className="px-2 py-1 text-xs text-gray-700 border rounded"
-                    >
-                      キャンセル
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    {staff.official_line_url ? (
-                      <a
-                        href={staff.official_line_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs text-blue-600 underline truncate max-w-[220px]"
-                        title={staff.official_line_url}
-                      >
-                        公式LINE
-                      </a>
-                    ) : (
-                      <span className="text-xs text-gray-400">公式LINE未設定</span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(staff.id)}
-                      className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                    >
-                      編集
-                    </button>
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onClick={() => handleDeleteStaff(staff.id, staff.name)}
-                  className="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
-                >
-                  削除
-                </button>
+                      {staff.official_line_url}
+                    </a>
+                  ) : (
+                    <span className="text-xs text-gray-400">公式LINE未設定</span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
