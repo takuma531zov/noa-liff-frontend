@@ -127,7 +127,8 @@ export default function StaffPage() {
       <div className="bg-white p-6 rounded-lg shadow mb-6">
         <h2 className="text-xl font-semibold mb-4">スタッフ追加</h2>
         <form onSubmit={handleAddStaff} className="space-y-4">
-          <div className="flex gap-2">
+          {/* スタッフ名 */}
+          <div>
             <input
               type="text"
               value={newStaff.name}
@@ -136,35 +137,13 @@ export default function StaffPage() {
               }
               placeholder="スタッフ名"
               required
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <button
-              type="submit"
-              disabled={isAdding || newStaff.stores.length === 0}
-              className="flex-shrink-0 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
-            >
-              {isAdding ? '追加中...' : '追加'}
-            </button>
-          </div>
-          <div>
-            <input
-              type="url"
-              value={newStaff.officialLineUrl}
-              onChange={(e) =>
-                setNewStaff((prev) => ({
-                  ...prev,
-                  officialLineUrl: e.target.value,
-                }))
-              }
-              placeholder="公式LINEリンク（任意）"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+          {/* 店舗（複数選択） */}
           <div>
-            <div className="block text-sm font-semibold mb-2">
-              担当店舗（複数選択可）
-            </div>
-            <div className="flex gap-4">
+            <div className="block text-sm font-semibold mb-2">担当店舗（複数選択可）</div>
+            <div className="flex gap-4 flex-wrap">
               <label className="flex items-center gap-3 p-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -209,6 +188,31 @@ export default function StaffPage() {
               </label>
             </div>
           </div>
+          {/* 公式LINEリンク */}
+          <div>
+            <input
+              type="url"
+              value={newStaff.officialLineUrl}
+              onChange={(e) =>
+                setNewStaff((prev) => ({
+                  ...prev,
+                  officialLineUrl: e.target.value,
+                }))
+              }
+              placeholder="公式LINEリンク（任意）"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          {/* 追加ボタン */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isAdding || newStaff.stores.length === 0 || !newStaff.name}
+              className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+            >
+              {isAdding ? '追加中...' : '追加'}
+            </button>
+          </div>
         </form>
       </div>
 
@@ -228,7 +232,7 @@ export default function StaffPage() {
                           type="text"
                           defaultValue={staff.name}
                           onChange={(e) => setEditingName(e.target.value)}
-                          className="px-2 py-1 border border-gray-300 rounded w-40"
+                          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-60 text-sm"
                         />
                       ) : (
                         staff.name
@@ -327,7 +331,7 @@ export default function StaffPage() {
                       placeholder="公式LINEリンク（任意）"
                       defaultValue={staff.official_line_url || ''}
                       onChange={(e) => setEditingOfficialUrl(e.target.value)}
-                      className="w-full px-2 py-1 border border-gray-300 rounded"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     />
                   ) : staff.official_line_url ? (
                     <a
