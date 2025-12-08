@@ -124,7 +124,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           value={formData.store}
           onChange={handleChange}
           required
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
         >
           <option value="">選択してください</option>
           <option value="大宮店">大宮店</option>
@@ -145,7 +145,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           name="staff_id"
           value={formData.staff_id}
           onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
         >
           <option value="">選択してください</option>
           {staffList
@@ -153,7 +153,9 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
               formData.store ? staff.stores.includes(formData.store) : true,
             )
             .map((staff) => (
-              <option key={staff.id} value={staff.id}>{staff.name}</option>
+              <option key={staff.id} value={staff.id}>
+                {staff.name}
+              </option>
             ))}
           {formData.store && <option value="">指名無し</option>}
         </select>
@@ -178,7 +180,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           onBlur={(e) => e.target.blur()}
           required
           placeholder="例: カット・カラー"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
         />
       </div>
 
@@ -199,7 +201,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           onClick={(e) => e.currentTarget.showPicker()}
           required
           lang="en"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer touch-target"
         />
       </div>
 
@@ -217,7 +219,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           value={formData.reservation_time}
           onChange={handleChange}
           required
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
         >
           <option value="">選択してください</option>
           {timeOptions.map((time) => (
@@ -244,7 +246,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           onChange={handleChange}
           onBlur={(e) => e.target.blur()}
           placeholder="例: 田中 花子"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
         />
         <p className="text-xs text-gray-500 mt-1">
           ※LINE表示名は同意時に自動取得されます
@@ -255,7 +257,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+        className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors touch-target text-base"
       >
         {isSubmitting ? '登録中...' : '予約を登録'}
       </button>

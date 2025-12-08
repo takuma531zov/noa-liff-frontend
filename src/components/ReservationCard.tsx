@@ -95,14 +95,14 @@ export const ReservationCard = ({
             <button
               type="button"
               onClick={() => onEdit(reservation)}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex-1 px-4 py-3 bg-blue-600 text-white text-base font-medium rounded-lg hover:bg-blue-700 transition-colors touch-target"
             >
               予約内容変更
             </button>
             <button
               type="button"
               onClick={() => onCancel(reservation)}
-              className="flex-1 px-4 py-2 bg-white text-red-600 text-sm font-medium border border-red-600 rounded-lg hover:bg-red-50 transition-colors"
+              className="flex-1 px-4 py-3 bg-white text-red-600 text-base font-medium border border-red-600 rounded-lg hover:bg-red-50 transition-colors touch-target"
             >
               キャンセル
             </button>

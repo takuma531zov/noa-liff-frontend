@@ -138,12 +138,14 @@ export default function StaffPage() {
               onBlur={(e) => e.target.blur()}
               placeholder="スタッフ名"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
             />
           </div>
           {/* 店舗（複数選択） */}
           <div>
-            <div className="block text-base font-semibold mb-2">担当店舗（複数選択可）</div>
+            <div className="block text-base font-semibold mb-2">
+              担当店舗（複数選択可）
+            </div>
             <div className="flex gap-4 flex-wrap">
               <label className="flex items-center gap-3 p-3 cursor-pointer">
                 <input
@@ -202,15 +204,17 @@ export default function StaffPage() {
               }
               onBlur={(e) => e.target.blur()}
               placeholder="公式LINEリンク（任意）"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
             />
           </div>
           {/* 追加ボタン */}
           <div className="flex justify-end mt-2 md:mt-4">
             <button
               type="submit"
-              disabled={isAdding || newStaff.stores.length === 0 || !newStaff.name}
-              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+              disabled={
+                isAdding || newStaff.stores.length === 0 || !newStaff.name
+              }
+              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors touch-target text-base"
             >
               {isAdding ? '追加中...' : '追加'}
             </button>
@@ -221,10 +225,15 @@ export default function StaffPage() {
       {/* スタッフ一覧 */}
       <div className="bg-white rounded-lg shadow">
         <div className="p-4 sm:p-6">
-          <h2 className="text-lg sm:text-xl font-semibold mb-4">スタッフ一覧</h2>
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">
+            スタッフ一覧
+          </h2>
           <div className="space-y-3">
             {staffList.map((staff) => (
-              <div key={staff.id} className="p-4 border border-gray-200 rounded-lg">
+              <div
+                key={staff.id}
+                className="p-4 border border-gray-200 rounded-lg"
+              >
                 {/* 上段: モバイル縦積み、SM以上で横並び */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -235,7 +244,7 @@ export default function StaffPage() {
                           defaultValue={staff.name}
                           onChange={(e) => setEditingName(e.target.value)}
                           onBlur={(e) => e.target.blur()}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base touch-target"
                         />
                       ) : (
                         staff.name
@@ -244,7 +253,10 @@ export default function StaffPage() {
                     <div className="flex flex-wrap gap-1">
                       {editingId === staff.id ? (
                         ['大宮店', '北浦和店'].map((store) => (
-                          <label key={store} className="flex items-center gap-1 p-1 cursor-pointer">
+                          <label
+                            key={store}
+                            className="flex items-center gap-1 p-1 cursor-pointer"
+                          >
                             <input
                               type="checkbox"
                               defaultChecked={staff.stores.includes(store)}
@@ -288,14 +300,16 @@ export default function StaffPage() {
                             setEditingName(staff.name)
                             setEditingStores(staff.stores)
                           }}
-                          className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                          className="px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors touch-target"
                         >
                           編集
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDeleteStaff(staff.id, staff.name)}
-                          className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
+                          onClick={() =>
+                            handleDeleteStaff(staff.id, staff.name)
+                          }
+                          className="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded transition-colors touch-target"
                         >
                           削除
                         </button>
@@ -314,14 +328,14 @@ export default function StaffPage() {
                         defaultValue={staff.official_line_url || ''}
                         onChange={(e) => setEditingOfficialUrl(e.target.value)}
                         onBlur={(e) => e.target.blur()}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm touch-target"
                       />
                       {/* 編集アクション（リンク入力の下に配置） */}
                       <div className="mt-3 flex items-center gap-3">
                         <button
                           type="button"
                           onClick={() => handleUpdateStaff(staff.id)}
-                          className="px-6 py-3 text-base bg-blue-600 text-white rounded-full shadow-sm hover:bg-blue-700 active:scale-[0.99]"
+                          className="px-6 py-3 text-base bg-blue-600 text-white rounded-full shadow-sm hover:bg-blue-700 active:scale-[0.99] touch-target"
                         >
                           保存
                         </button>
@@ -333,7 +347,7 @@ export default function StaffPage() {
                             setEditingName('')
                             setEditingStores([])
                           }}
-                          className="px-6 py-3 text-base text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 active:scale-[0.99]"
+                          className="px-6 py-3 text-base text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 active:scale-[0.99] touch-target"
                         >
                           キャンセル
                         </button>
@@ -349,7 +363,9 @@ export default function StaffPage() {
                       {staff.official_line_url}
                     </a>
                   ) : (
-                    <span className="text-sm text-gray-400">公式LINE未設定</span>
+                    <span className="text-sm text-gray-400">
+                      公式LINE未設定
+                    </span>
                   )}
                 </div>
               </div>

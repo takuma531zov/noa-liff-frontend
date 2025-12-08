@@ -10,7 +10,12 @@ export async function POST(request: Request) {
   const body = (await request.json()) as CreateReservationInput
 
   // バリデーション
-  if (!body.store || !body.menu || !body.reservation_date || !body.reservation_time) {
+  if (
+    !body.store ||
+    !body.menu ||
+    !body.reservation_date ||
+    !body.reservation_time
+  ) {
     return NextResponse.json(
       { error: '必須項目が不足しています' },
       { status: 400 },

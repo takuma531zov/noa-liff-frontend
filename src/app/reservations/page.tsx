@@ -155,7 +155,7 @@ export default function ReservationsPage() {
                   // 店舗変更時は担当者選択をクリア
                   setFilterStaff('')
                 }}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
               >
                 <option value="">選択してください（任意）</option>
                 <option value="大宮店">大宮店</option>
@@ -169,7 +169,7 @@ export default function ReservationsPage() {
               <select
                 value={filterStaff}
                 onChange={(e) => setFilterStaff(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
               >
                 <option value="" disabled>
                   担当スタッフを選択
@@ -179,7 +179,9 @@ export default function ReservationsPage() {
                     filterStore ? staff.stores.includes(filterStore) : true,
                   )
                   .map((staff) => (
-                    <option key={staff.id} value={staff.id}>{staff.name}</option>
+                    <option key={staff.id} value={staff.id}>
+                      {staff.name}
+                    </option>
                   ))}
                 <option value="">指名無し</option>
               </select>
@@ -198,7 +200,7 @@ export default function ReservationsPage() {
                 onClick={(e) => e.currentTarget.showPicker()}
                 onBlur={(e) => e.target.blur()}
                 lang="en"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer touch-target"
               />
             </div>
           </div>

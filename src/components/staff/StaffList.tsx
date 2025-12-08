@@ -31,7 +31,9 @@ export const StaffList = ({ staffList, onChanged }: Props) => {
   }
 
   const toggleStore = (store: string, checked: boolean) =>
-    setEditStores((prev) => (checked ? [...prev, store] : prev.filter((s) => s !== store)))
+    setEditStores((prev) =>
+      checked ? [...prev, store] : prev.filter((s) => s !== store),
+    )
 
   const handleUpdate = async (id: string) => {
     const supabase = createClient()
@@ -56,7 +58,10 @@ export const StaffList = ({ staffList, onChanged }: Props) => {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`${name}さんを削除しますか？`)) return
     const supabase = createClient()
-    const { error } = await supabase.from('staff').update({ is_active: false }).eq('id', id)
+    const { error } = await supabase
+      .from('staff')
+      .update({ is_active: false })
+      .eq('id', id)
     if (error) {
       alert('スタッフの削除に失敗しました')
       console.error('スタッフ削除エラー:', error)
@@ -68,17 +73,18 @@ export const StaffList = ({ staffList, onChanged }: Props) => {
   return (
     <div className="space-y-2">
       {staffList.map((staff) => (
-        <div
-          key={staff.id}
-          className="p-3 border border-gray-200 rounded-lg"
-        >
+        <div key={staff.id} className="p-3 border border-gray-200 rounded-lg">
           {/* 上段: 名前 + 店舗バッジ（モバイルで縦積み） */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <span className="font-medium text-sm flex-shrink-0">{staff.name}</span>
+              <span className="font-medium text-sm flex-shrink-0">
+                {staff.name}
+              </span>
               <div className="flex flex-wrap gap-1">
                 {staff.stores.length > 1 ? (
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 whitespace-nowrap">兼任</span>
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 whitespace-nowrap">
+                    兼任
+                  </span>
                 ) : (
                   staff.stores.map((store) => (
                     <span
@@ -154,10 +160,15 @@ export const StaffList = ({ staffList, onChanged }: Props) => {
 
               {/* 店舗選択 */}
               <div>
-                <div className="block text-sm font-semibold mb-2">担当店舗（複数選択可）</div>
+                <div className="block text-sm font-semibold mb-2">
+                  担当店舗（複数選択可）
+                </div>
                 <div className="flex gap-4 flex-wrap">
                   {['大宮店', '北浦和店'].map((store) => (
-                    <label key={store} className="flex items-center gap-3 p-2 cursor-pointer">
+                    <label
+                      key={store}
+                      className="flex items-center gap-3 p-2 cursor-pointer"
+                    >
                       <input
                         type="checkbox"
                         checked={editStores.includes(store)}
@@ -194,4 +205,3 @@ export const StaffList = ({ staffList, onChanged }: Props) => {
     </div>
   )
 }
-

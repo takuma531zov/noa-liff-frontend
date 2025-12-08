@@ -26,7 +26,13 @@ export const sendLineMessage = async (params: SendMessageParams) => {
 
   const messages =
     footer && params.messages.length > 0 && params.messages[0]?.type === 'text'
-      ? [{ type: 'text', text: `${params.messages[0].text}${footer}` as const }, ...params.messages.slice(1)]
+      ? [
+          {
+            type: 'text',
+            text: `${params.messages[0].text}${footer}` as const,
+          },
+          ...params.messages.slice(1),
+        ]
       : params.messages
 
   const response = await fetch('https://api.line.me/v2/bot/message/push', {

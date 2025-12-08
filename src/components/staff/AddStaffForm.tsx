@@ -15,7 +15,9 @@ export const AddStaffForm = ({ onAdded }: Props) => {
   const [isAdding, setIsAdding] = useState(false)
 
   const toggleStore = (store: string, checked: boolean) =>
-    setStores((prev) => (checked ? [...prev, store] : prev.filter((s) => s !== store)))
+    setStores((prev) =>
+      checked ? [...prev, store] : prev.filter((s) => s !== store),
+    )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -71,10 +73,15 @@ export const AddStaffForm = ({ onAdded }: Props) => {
 
       {/* 担当店舗 */}
       <div>
-        <div className="block text-sm font-semibold mb-2">担当店舗（複数選択可）</div>
+        <div className="block text-sm font-semibold mb-2">
+          担当店舗（複数選択可）
+        </div>
         <div className="flex gap-4 flex-wrap">
           {['大宮店', '北浦和店'].map((store) => (
-            <label key={store} className="flex items-center gap-3 p-2 cursor-pointer">
+            <label
+              key={store}
+              className="flex items-center gap-3 p-2 cursor-pointer"
+            >
               <input
                 type="checkbox"
                 checked={stores.includes(store)}
@@ -100,4 +107,3 @@ export const AddStaffForm = ({ onAdded }: Props) => {
     </form>
   )
 }
-

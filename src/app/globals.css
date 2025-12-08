@@ -12,6 +12,20 @@ body {
   line-height: 1.6;
 }
 
+/* モバイル最適化: 共通タップ領域ユーティリティ */
+/* 入力欄・ボタン・セレクト等の最小タップ領域を48pxに統一し可読性を担保する */
+.touch-target {
+  min-height: 48px;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+/* ヘッダータブ用ユーティリティ（下線強調を維持しつつタップ領域拡大） */
+.tab-link {
+  padding: 0.5rem 0.75rem; /* py-2 px-3 */
+  border-radius: 0.375rem; /* rounded-md 相当 */
+}
+
 /* Layout */
 .flex {
   display: flex;

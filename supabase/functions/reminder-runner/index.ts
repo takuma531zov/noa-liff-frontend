@@ -199,7 +199,11 @@ const run = async () => {
 
   // 担当者IDから公式LINEリンクをまとめて解決
   const staffIds = Array.from(
-    new Set((reservations || []).map((r: ReservationRow) => r.staff_id).filter(Boolean)),
+    new Set(
+      (reservations || [])
+        .map((r: ReservationRow) => r.staff_id)
+        .filter(Boolean),
+    ),
   ) as string[]
   const staffUrlMap = new Map<string, string | null>()
   if (staffIds.length > 0) {
@@ -229,7 +233,9 @@ const run = async () => {
       reservationTime: resv.reservation_time,
       staffName: resv.staff_name_snapshot,
       menu: resv.menu,
-      staffOfficialLineUrl: resv.staff_id ? staffUrlMap.get(resv.staff_id) || null : null,
+      staffOfficialLineUrl: resv.staff_id
+        ? staffUrlMap.get(resv.staff_id) || null
+        : null,
     })
 
     await sendLineMessage(resv.line_user_id, text)

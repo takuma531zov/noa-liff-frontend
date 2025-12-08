@@ -38,18 +38,20 @@ export async function PATCH(
     body,
     'staff_id',
   )
-  const nextStaffId = willChangeStaffId ? (body.staff_id ?? null) : before.staff_id
+  const nextStaffId = willChangeStaffId
+    ? (body.staff_id ?? null)
+    : before.staff_id
   const nextStaffNameSnapshot = willChangeStaffId
-    ? (nextStaffId
-        ? (
-            await supabase
-              .from('staff')
-              .select('name')
-              .eq('id', nextStaffId)
-              .eq('is_active', true)
-              .single()
-          ).data?.name || '指名無し'
-        : '指名無し')
+    ? nextStaffId
+      ? (
+          await supabase
+            .from('staff')
+            .select('name')
+            .eq('id', nextStaffId)
+            .eq('is_active', true)
+            .single()
+        ).data?.name || '指名無し'
+      : '指名無し'
     : before.staff_name_snapshot
 
   const { data, error } = await supabase
@@ -87,7 +89,8 @@ export async function PATCH(
     before.staff_name_snapshot !== data.staff_name_snapshot ||
     before.menu !== data.menu ||
     before.reservation_date !== data.reservation_date ||
-    normalizeTime(before.reservation_time) !== normalizeTime(data.reservation_time)
+    normalizeTime(before.reservation_time) !==
+      normalizeTime(data.reservation_time)
 
   if (canNotify && hasDiff) {
     const displayName = data.line_display_name || 'お客様'
@@ -128,7 +131,9 @@ export async function PATCH(
           text: messageText,
         },
       ],
-      staffOfficialLineUrl: staffErr ? undefined : staff?.official_line_url ?? undefined,
+      staffOfficialLineUrl: staffErr
+        ? undefined
+        : (staff?.official_line_url ?? undefined),
     })
   }
 

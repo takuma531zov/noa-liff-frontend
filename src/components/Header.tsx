@@ -22,8 +22,8 @@ export const Header = () => {
               href="/"
               className={
                 pathname === '/'
-                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-2 text-sm sm:text-base'
-                  : 'text-gray-600 hover:text-gray-900 font-medium text-sm sm:text-base'
+                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-2 text-sm sm:text-base tab-link'
+                  : 'text-gray-600 hover:text-gray-900 font-medium text-sm sm:text-base tab-link'
               }
             >
               <span className="sm:hidden">予約</span>
@@ -33,8 +33,8 @@ export const Header = () => {
               href="/reservations"
               className={
                 pathname === '/reservations'
-                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-2 text-sm sm:text-base'
-                  : 'text-gray-600 hover:text-gray-900 font-medium text-sm sm:text-base'
+                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-2 text-sm sm:text-base tab-link'
+                  : 'text-gray-600 hover:text-gray-900 font-medium text-sm sm:text-base tab-link'
               }
             >
               <span className="sm:hidden">一覧</span>
@@ -44,8 +44,8 @@ export const Header = () => {
               href="/staff"
               className={
                 pathname === '/staff'
-                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-2 text-sm sm:text-base'
-                  : 'text-gray-600 hover:text-gray-900 font-medium text-sm sm:text-base'
+                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-2 text-sm sm:text-base tab-link'
+                  : 'text-gray-600 hover:text-gray-900 font-medium text-sm sm:text-base tab-link'
               }
             >
               <span className="sm:hidden">管理</span>

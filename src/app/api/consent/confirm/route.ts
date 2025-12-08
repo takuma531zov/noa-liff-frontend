@@ -91,7 +91,9 @@ export async function POST(request: Request) {
         text: messageText,
       },
     ],
-    staffOfficialLineUrl: staffErr ? undefined : staff?.official_line_url ?? undefined,
+    staffOfficialLineUrl: staffErr
+      ? undefined
+      : (staff?.official_line_url ?? undefined),
   })
 
   return NextResponse.json({
