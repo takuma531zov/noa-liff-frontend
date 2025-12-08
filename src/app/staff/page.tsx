@@ -120,12 +120,12 @@ export default function StaffPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">スタッフ管理</h1>
+    <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6">スタッフ管理</h1>
 
       {/* スタッフ追加フォーム */}
-      <div className="bg-white p-6 rounded-lg shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4">スタッフ追加</h2>
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-6">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4">スタッフ追加</h2>
         <form onSubmit={handleAddStaff} className="space-y-6">
           {/* スタッフ名 */}
           <div>
@@ -135,16 +135,17 @@ export default function StaffPage() {
               onChange={(e) =>
                 setNewStaff((prev) => ({ ...prev, name: e.target.value }))
               }
+              onBlur={(e) => e.target.blur()}
               placeholder="スタッフ名"
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           {/* 店舗（複数選択） */}
           <div>
-            <div className="block text-sm font-semibold mb-2">担当店舗（複数選択可）</div>
+            <div className="block text-base font-semibold mb-2">担当店舗（複数選択可）</div>
             <div className="flex gap-4 flex-wrap">
-              <label className="flex items-center gap-3 p-2 cursor-pointer">
+              <label className="flex items-center gap-3 p-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={newStaff.stores.includes('大宮店')}
@@ -161,11 +162,11 @@ export default function StaffPage() {
                       }))
                     }
                   }}
-                  className="w-5 h-5"
+                  className="w-6 h-6"
                 />
-                <span>大宮店</span>
+                <span className="text-base">大宮店</span>
               </label>
-              <label className="flex items-center gap-3 p-2 cursor-pointer">
+              <label className="flex items-center gap-3 p-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={newStaff.stores.includes('北浦和店')}
@@ -182,9 +183,9 @@ export default function StaffPage() {
                       }))
                     }
                   }}
-                  className="w-5 h-5"
+                  className="w-6 h-6"
                 />
-                <span>北浦和店</span>
+                <span className="text-base">北浦和店</span>
               </label>
             </div>
           </div>
@@ -199,8 +200,9 @@ export default function StaffPage() {
                   officialLineUrl: e.target.value,
                 }))
               }
+              onBlur={(e) => e.target.blur()}
               placeholder="公式LINEリンク（任意）"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           {/* 追加ボタン */}
@@ -208,7 +210,7 @@ export default function StaffPage() {
             <button
               type="submit"
               disabled={isAdding || newStaff.stores.length === 0 || !newStaff.name}
-              className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
             >
               {isAdding ? '追加中...' : '追加'}
             </button>
@@ -218,21 +220,22 @@ export default function StaffPage() {
 
       {/* スタッフ一覧 */}
       <div className="bg-white rounded-lg shadow">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold mb-4">スタッフ一覧</h2>
+        <div className="p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">スタッフ一覧</h2>
           <div className="space-y-3">
             {staffList.map((staff) => (
-              <div key={staff.id} className="p-3 border border-gray-200 rounded-lg">
+              <div key={staff.id} className="p-4 border border-gray-200 rounded-lg">
                 {/* 上段: モバイル縦積み、SM以上で横並び */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <span className="font-medium text-sm truncate">
+                    <span className="font-semibold text-base truncate">
                       {editingId === staff.id ? (
                         <input
                           type="text"
                           defaultValue={staff.name}
                           onChange={(e) => setEditingName(e.target.value)}
-                          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-60 text-sm"
+                          onBlur={(e) => e.target.blur()}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                         />
                       ) : (
                         staff.name
@@ -254,18 +257,18 @@ export default function StaffPage() {
                               }
                               className="w-4 h-4"
                             />
-                            <span className="text-xs">{store}</span>
+                            <span className="text-sm">{store}</span>
                           </label>
                         ))
                       ) : staff.stores.length > 1 ? (
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 whitespace-nowrap">
+                        <span className="px-2 py-0.5 rounded-full text-sm bg-green-100 text-green-800 whitespace-nowrap">
                           兼任
                         </span>
                       ) : (
                         staff.stores.map((store) => (
                           <span
                             key={store}
-                            className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 whitespace-nowrap"
+                            className="px-2 py-0.5 rounded-full text-sm bg-green-100 text-green-800 whitespace-nowrap"
                           >
                             {store}
                           </span>
@@ -285,14 +288,14 @@ export default function StaffPage() {
                             setEditingName(staff.name)
                             setEditingStores(staff.stores)
                           }}
-                          className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                          className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
                         >
                           編集
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDeleteStaff(staff.id, staff.name)}
-                          className="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded transition-colors"
+                          className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
                         >
                           削除
                         </button>
@@ -310,14 +313,15 @@ export default function StaffPage() {
                         placeholder="公式LINEリンク（任意）"
                         defaultValue={staff.official_line_url || ''}
                         onChange={(e) => setEditingOfficialUrl(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        onBlur={(e) => e.target.blur()}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                       {/* 編集アクション（リンク入力の下に配置） */}
                       <div className="mt-3 flex items-center gap-3">
                         <button
                           type="button"
                           onClick={() => handleUpdateStaff(staff.id)}
-                          className="px-4 py-2 text-sm bg-blue-600 text-white rounded-full shadow-sm hover:bg-blue-700 active:scale-[0.99]"
+                          className="px-6 py-3 text-base bg-blue-600 text-white rounded-full shadow-sm hover:bg-blue-700 active:scale-[0.99]"
                         >
                           保存
                         </button>
@@ -329,7 +333,7 @@ export default function StaffPage() {
                             setEditingName('')
                             setEditingStores([])
                           }}
-                          className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 active:scale-[0.99]"
+                          className="px-6 py-3 text-base text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 active:scale-[0.99]"
                         >
                           キャンセル
                         </button>
@@ -340,12 +344,12 @@ export default function StaffPage() {
                       href={staff.official_line_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs text-blue-600 underline break-all"
+                      className="text-sm text-blue-600 underline break-all"
                     >
                       {staff.official_line_url}
                     </a>
                   ) : (
-                    <span className="text-xs text-gray-400">公式LINE未設定</span>
+                    <span className="text-sm text-gray-400">公式LINE未設定</span>
                   )}
                 </div>
               </div>

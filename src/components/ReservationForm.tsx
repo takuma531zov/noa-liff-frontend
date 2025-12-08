@@ -115,7 +115,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* 店舗選択 */}
       <div>
-        <label htmlFor="store" className="block text-sm font-semibold mb-2">
+        <label htmlFor="store" className="block text-base font-semibold mb-2">
           店舗 <span className="text-red-500">*</span>
         </label>
         <select
@@ -124,7 +124,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           value={formData.store}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="">選択してください</option>
           <option value="大宮店">大宮店</option>
@@ -136,7 +136,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
       <div>
         <label
           htmlFor="staff_id"
-          className="block text-sm font-semibold mb-2"
+          className="block text-base font-semibold mb-2"
         >
           担当スタッフ <span className="text-red-500">*</span>
         </label>
@@ -145,7 +145,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           name="staff_id"
           value={formData.staff_id}
           onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="">選択してください</option>
           {staffList
@@ -166,7 +166,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
 
       {/* メニュー */}
       <div>
-        <label htmlFor="menu" className="block text-sm font-semibold mb-2">
+        <label htmlFor="menu" className="block text-base font-semibold mb-2">
           メニュー <span className="text-red-500">*</span>
         </label>
         <input
@@ -175,9 +175,10 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           name="menu"
           value={formData.menu}
           onChange={handleChange}
+          onBlur={(e) => e.target.blur()}
           required
           placeholder="例: カット・カラー"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
       </div>
 
@@ -185,7 +186,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
       <div>
         <label
           htmlFor="reservation_date"
-          className="block text-sm font-semibold mb-2"
+          className="block text-base font-semibold mb-2"
         >
           予約日 <span className="text-red-500">*</span>
         </label>
@@ -198,7 +199,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           onClick={(e) => e.currentTarget.showPicker()}
           required
           lang="en"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
         />
       </div>
 
@@ -206,7 +207,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
       <div>
         <label
           htmlFor="reservation_time"
-          className="block text-sm font-semibold mb-2"
+          className="block text-base font-semibold mb-2"
         >
           予約時間 <span className="text-red-500">*</span>
         </label>
@@ -216,7 +217,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           value={formData.reservation_time}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="">選択してください</option>
           {timeOptions.map((time) => (
@@ -231,7 +232,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
       <div>
         <label
           htmlFor="customer_name"
-          className="block text-sm font-semibold mb-2"
+          className="block text-base font-semibold mb-2"
         >
           顧客名 <span className="text-gray-400 text-xs">(任意)</span>
         </label>
@@ -241,8 +242,9 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           name="customer_name"
           value={formData.customer_name || ''}
           onChange={handleChange}
+          onBlur={(e) => e.target.blur()}
           placeholder="例: 田中 花子"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <p className="text-xs text-gray-500 mt-1">
           ※LINE表示名は同意時に自動取得されます
@@ -253,7 +255,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+        className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
       >
         {isSubmitting ? '登録中...' : '予約を登録'}
       </button>

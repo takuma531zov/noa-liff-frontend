@@ -139,15 +139,15 @@ export default function ReservationsPage() {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-6">予約一覧</h1>
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6">予約一覧</h1>
 
         {/* フィルターエリア */}
-        <div className="bg-white p-6 rounded-lg shadow mb-6">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
             {/* 店舗選択（任意） */}
             <div className="flex-1">
-              <div className="block text-sm font-semibold mb-2">店舗</div>
+              <div className="block text-base font-semibold mb-2">店舗</div>
               <select
                 value={filterStore}
                 onChange={(e) => {
@@ -155,7 +155,7 @@ export default function ReservationsPage() {
                   // 店舗変更時は担当者選択をクリア
                   setFilterStaff('')
                 }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">選択してください（任意）</option>
                 <option value="大宮店">大宮店</option>
@@ -165,11 +165,11 @@ export default function ReservationsPage() {
 
             {/* 担当スタッフ選択 */}
             <div className="flex-1">
-              <div className="block text-sm font-semibold mb-2">担当者</div>
+              <div className="block text-base font-semibold mb-2">担当者</div>
               <select
                 value={filterStaff}
                 onChange={(e) => setFilterStaff(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="" disabled>
                   担当スタッフを選択
@@ -190,14 +190,15 @@ export default function ReservationsPage() {
 
             {/* 予約日選択 */}
             <div className="flex-1">
-              <div className="block text-sm font-semibold mb-2">予約日</div>
+              <div className="block text-base font-semibold mb-2">予約日</div>
               <input
                 type="date"
                 value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
                 onClick={(e) => e.currentTarget.showPicker()}
+                onBlur={(e) => e.target.blur()}
                 lang="en"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               />
             </div>
           </div>
@@ -206,17 +207,17 @@ export default function ReservationsPage() {
         {/* 予約一覧 */}
         <div className="space-y-4">
           {isLoading ? (
-            <div className="bg-white p-8 rounded-lg shadow text-center">
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow text-center">
               <p className="text-gray-600">読み込み中...</p>
             </div>
           ) : !filterStaff || !filterDate ? (
-            <div className="bg-white p-8 rounded-lg shadow text-center">
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow text-center">
               <p className="text-gray-600">
                 担当スタッフと予約日を選択してください
               </p>
             </div>
           ) : reservations.length === 0 ? (
-            <div className="bg-white p-8 rounded-lg shadow text-center">
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow text-center">
               <p className="text-gray-600">予約がありません</p>
             </div>
           ) : (

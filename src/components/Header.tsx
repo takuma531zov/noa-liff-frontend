@@ -9,11 +9,11 @@ export const Header = () => {
 
   return (
     <header className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="max-w-7xl mx-auto px-3 py-3 sm:px-4 sm:py-4">
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="text-lg sm:text-2xl font-bold text-gray-800"
+            className="text-xl sm:text-2xl font-bold text-gray-800"
           >
             Noa 予約
           </Link>
@@ -22,8 +22,8 @@ export const Header = () => {
               href="/"
               className={
                 pathname === '/'
-                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-1 text-xs sm:text-base'
-                  : 'text-gray-600 hover:text-gray-900 font-medium text-xs sm:text-base'
+                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-2 text-sm sm:text-base'
+                  : 'text-gray-600 hover:text-gray-900 font-medium text-sm sm:text-base'
               }
             >
               <span className="sm:hidden">予約</span>
@@ -33,8 +33,8 @@ export const Header = () => {
               href="/reservations"
               className={
                 pathname === '/reservations'
-                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-1 text-xs sm:text-base'
-                  : 'text-gray-600 hover:text-gray-900 font-medium text-xs sm:text-base'
+                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-2 text-sm sm:text-base'
+                  : 'text-gray-600 hover:text-gray-900 font-medium text-sm sm:text-base'
               }
             >
               <span className="sm:hidden">一覧</span>
@@ -44,8 +44,8 @@ export const Header = () => {
               href="/staff"
               className={
                 pathname === '/staff'
-                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-1 text-xs sm:text-base'
-                  : 'text-gray-600 hover:text-gray-900 font-medium text-xs sm:text-base'
+                  ? 'text-blue-600 font-bold border-b-2 border-blue-600 pb-2 text-sm sm:text-base'
+                  : 'text-gray-600 hover:text-gray-900 font-medium text-sm sm:text-base'
               }
             >
               <span className="sm:hidden">管理</span>

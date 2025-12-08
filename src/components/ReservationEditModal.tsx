@@ -154,8 +154,8 @@ export const ReservationEditModal = ({
         style={isMobile ? undefined : { minHeight: '60vh' }}
       >
         {/* モーダルヘッダー */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-2xl font-bold">予約内容変更</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
+          <h2 className="text-xl sm:text-2xl font-bold">予約内容変更</h2>
           <button
             type="button"
             onClick={onClose}
@@ -168,11 +168,11 @@ export const ReservationEditModal = ({
         {/* モーダルボディ */}
         <form
           onSubmit={handleSubmit}
-          className="p-6 space-y-6 overflow-y-auto flex-1"
+          className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1"
         >
           {/* 店舗選択 */}
           <div>
-            <label htmlFor="store" className="block text-sm font-semibold mb-2">
+            <label htmlFor="store" className="block text-base font-semibold mb-2">
               店舗 <span className="text-red-500">*</span>
             </label>
             <select
@@ -181,7 +181,7 @@ export const ReservationEditModal = ({
               value={formData.store}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">選択してください</option>
               <option value="大宮店">大宮店</option>
@@ -193,7 +193,7 @@ export const ReservationEditModal = ({
           <div>
             <label
               htmlFor="staff_id"
-              className="block text-sm font-semibold mb-2"
+              className="block text-base font-semibold mb-2"
             >
               担当スタッフ <span className="text-red-500">*</span>
             </label>
@@ -202,7 +202,7 @@ export const ReservationEditModal = ({
               name="staff_id"
               value={formData.staff_id}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">選択してください</option>
               {staffList
@@ -223,7 +223,7 @@ export const ReservationEditModal = ({
 
           {/* メニュー */}
           <div>
-            <label htmlFor="menu" className="block text-sm font-semibold mb-2">
+            <label htmlFor="menu" className="block text-base font-semibold mb-2">
               メニュー <span className="text-red-500">*</span>
             </label>
             <input
@@ -232,9 +232,10 @@ export const ReservationEditModal = ({
               name="menu"
               value={formData.menu}
               onChange={handleChange}
+              onBlur={(e) => e.target.blur()}
               required
               placeholder="例: カット・カラー"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
@@ -242,7 +243,7 @@ export const ReservationEditModal = ({
           <div>
             <label
               htmlFor="reservation_date"
-              className="block text-sm font-semibold mb-2"
+              className="block text-base font-semibold mb-2"
             >
               予約日 <span className="text-red-500">*</span>
             </label>
@@ -255,7 +256,7 @@ export const ReservationEditModal = ({
               onClick={(e) => e.currentTarget.showPicker()}
               required
               lang="en"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
             />
           </div>
 
@@ -263,7 +264,7 @@ export const ReservationEditModal = ({
           <div>
             <label
               htmlFor="reservation_time"
-              className="block text-sm font-semibold mb-2"
+              className="block text-base font-semibold mb-2"
             >
               予約時間 <span className="text-red-500">*</span>
             </label>
@@ -273,7 +274,7 @@ export const ReservationEditModal = ({
               value={formData.reservation_time}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">選択してください</option>
               {timeOptions.map((time) => (
@@ -288,7 +289,7 @@ export const ReservationEditModal = ({
           <div>
             <label
               htmlFor="customer_name"
-              className="block text-sm font-semibold mb-2"
+              className="block text-base font-semibold mb-2"
             >
               顧客名 <span className="text-gray-400 text-xs">(任意)</span>
             </label>
@@ -298,8 +299,9 @@ export const ReservationEditModal = ({
               name="customer_name"
               value={formData.customer_name || ''}
               onChange={handleChange}
+              onBlur={(e) => e.target.blur()}
               placeholder="例: 田中 花子"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
@@ -308,7 +310,7 @@ export const ReservationEditModal = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? '更新中...' : '更新する'}
             </button>
