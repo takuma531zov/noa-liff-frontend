@@ -126,7 +126,7 @@ export default function StaffPage() {
       {/* スタッフ追加フォーム */}
       <div className="bg-white p-6 rounded-lg shadow mb-6">
         <h2 className="text-xl font-semibold mb-4">スタッフ追加</h2>
-        <form onSubmit={handleAddStaff} className="space-y-4">
+        <form onSubmit={handleAddStaff} className="space-y-6">
           {/* スタッフ名 */}
           <div>
             <input
@@ -204,7 +204,7 @@ export default function StaffPage() {
             />
           </div>
           {/* 追加ボタン */}
-          <div className="flex justify-end">
+          <div className="flex justify-end mt-2 md:mt-4">
             <button
               type="submit"
               disabled={isAdding || newStaff.stores.length === 0 || !newStaff.name}
@@ -224,9 +224,9 @@ export default function StaffPage() {
             {staffList.map((staff) => (
               <div key={staff.id} className="p-3 border border-gray-200 rounded-lg">
                 {/* 上段: モバイル縦積み、SM以上で横並び */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <span className="font-medium text-sm flex-shrink-0">
+                    <span className="font-medium text-sm truncate">
                       {editingId === staff.id ? (
                         <input
                           type="text"
@@ -274,30 +274,8 @@ export default function StaffPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-start sm:self-auto">
-                    {editingId === staff.id ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateStaff(staff.id)}
-                          className="px-2 py-1 text-xs bg-blue-600 text-white rounded"
-                        >
-                          保存
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingId(null)
-                            setEditingOfficialUrl('')
-                            setEditingName('')
-                            setEditingStores([])
-                          }}
-                          className="px-2 py-1 text-xs text-gray-700 border rounded"
-                        >
-                          キャンセル
-                        </button>
-                      </>
-                    ) : (
+                  <div className="flex items-center gap-2 ml-auto flex-shrink-0">
+                    {editingId !== staff.id ? (
                       <>
                         <button
                           type="button"
@@ -319,20 +297,44 @@ export default function StaffPage() {
                           削除
                         </button>
                       </>
-                    )}
+                    ) : null}
                   </div>
                 </div>
 
                 {/* 下段: 公式LINEリンク（常に店舗の下に表示） */}
                 <div className="mt-2">
                   {editingId === staff.id ? (
-                    <input
-                      type="url"
-                      placeholder="公式LINEリンク（任意）"
-                      defaultValue={staff.official_line_url || ''}
-                      onChange={(e) => setEditingOfficialUrl(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    />
+                    <>
+                      <input
+                        type="url"
+                        placeholder="公式LINEリンク（任意）"
+                        defaultValue={staff.official_line_url || ''}
+                        onChange={(e) => setEditingOfficialUrl(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      />
+                      {/* 編集アクション（リンク入力の下に配置） */}
+                      <div className="mt-3 flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateStaff(staff.id)}
+                          className="px-4 py-2 text-sm bg-blue-600 text-white rounded-full shadow-sm hover:bg-blue-700 active:scale-[0.99]"
+                        >
+                          保存
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingId(null)
+                            setEditingOfficialUrl('')
+                            setEditingName('')
+                            setEditingStores([])
+                          }}
+                          className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 active:scale-[0.99]"
+                        >
+                          キャンセル
+                        </button>
+                      </div>
+                    </>
                   ) : staff.official_line_url ? (
                     <a
                       href={staff.official_line_url}
