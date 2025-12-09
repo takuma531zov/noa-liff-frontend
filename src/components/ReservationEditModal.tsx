@@ -155,11 +155,7 @@ export const ReservationEditModal = ({
 
   return (
     <div
-      className={`
-    fixed inset-0 z-[9999]
-    ${isMobile ? 'p-0 items-start' : 'p-4 items-center justify-center'}
-    flex overflow-y-auto
-  `}
+      className={`fixed inset-0 z-[9999] ${isMobile ? 'p-0' : 'p-4 flex items-center justify-center'}`}
       role="presentation"
       style={{
         backgroundColor: 'rgba(17, 24, 39, 0.6)', // グレーアウト
@@ -176,17 +172,17 @@ export const ReservationEditModal = ({
       <div
         className={
           isMobile
-            ? 'bg-white shadow-lg w-full max-w-none rounded-none'
+            ? 'bg-white shadow-lg w-full max-w-none rounded-none h-screen flex flex-col'
             : 'bg-white rounded-lg shadow-lg max-w-2xl w-full flex flex-col'
         }
         style={
           isMobile
-            ? { marginTop: '1.5rem', marginBottom: '1.5rem' }
+            ? undefined
             : { maxHeight: '90vh', minHeight: '60vh' }
         }
       >
         {/* モーダルヘッダー */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-xl sm:text-2xl font-bold">予約内容変更</h2>
           <button
             type="button"
@@ -198,7 +194,7 @@ export const ReservationEditModal = ({
         </div>
 
         {/* モーダルボディ */}
-        <div className="p-4 sm:p-6 space-y-6">
+        <div className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto" style={{ minHeight: 0 }}>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* 店舗選択 */}
             <div>
