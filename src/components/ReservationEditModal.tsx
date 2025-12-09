@@ -215,16 +215,20 @@ export const ReservationEditModal = ({
           </button>
         </div>
 
-        {/* モーダルボディ（モバイルは内部スクロール領域） */}
-        <div
-          className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto"
-          style={{
-            minHeight: 0,
-            WebkitOverflowScrolling: 'touch',
-            overscrollBehavior: 'contain',
-          }}
-        >
-          <form onSubmit={handleSubmit} className="space-y-6">
+        {/* 入力フォーム（スクロール領域＋フッターの2層構成） */}
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
+          {/* スクロール領域（入力フィールドのみ） */}
+          <div
+            className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto"
+            style={{
+              minHeight: 0,
+              WebkitOverflowScrolling: 'touch',
+              overscrollBehavior: 'contain',
+              paddingBottom: isMobile
+                ? 'calc(1rem + env(safe-area-inset-bottom, 0px))'
+                : undefined,
+            }}
+          >
             {/* 店舗選択 */}
             <div>
               <label
@@ -371,36 +375,26 @@ export const ReservationEditModal = ({
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
               />
             </div>
-
-            {/* 更新ボタン（モバイルは下部に張り付く） */}
-            <div
-              style={{
-                position: isMobile ? 'sticky' : undefined,
-                bottom: isMobile ? 0 : undefined,
-                background: isMobile ? '#ffffff' : undefined,
-                paddingBottom: isMobile
-                  ? 'calc(1rem + env(safe-area-inset-bottom, 0px))'
-                  : undefined,
-                paddingTop: isMobile ? '0.5rem' : undefined,
-                marginLeft: isMobile ? '-1rem' : undefined,
-                marginRight: isMobile ? '-1rem' : undefined,
-                paddingLeft: isMobile ? '1rem' : undefined,
-                paddingRight: isMobile ? '1rem' : undefined,
-                boxShadow: isMobile
-                  ? '0 -4px 10px rgba(0,0,0,0.06)'
-                  : undefined,
-              }}
+          </div>
+          {/* フッター（常時下部固定） */}
+          <div
+            className="px-4 sm:px-6 py-4 flex-shrink-0 border-t border-gray-200"
+            style={{
+              background: '#ffffff',
+              paddingBottom: isMobile
+                ? 'calc(1rem + env(safe-area-inset-bottom, 0px))'
+                : undefined,
+            }}
+          >
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors touch-target text-base"
             >
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors touch-target text-base"
-              >
-                {isSubmitting ? '更新中...' : '更新する'}
-              </button>
-            </div>
-          </form>
-        </div>
+              {isSubmitting ? '更新中...' : '更新する'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>,
     document.body,

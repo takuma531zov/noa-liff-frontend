@@ -57,8 +57,8 @@ pnpm lint
 - モーダル（予約内容変更）は iOS Safari のスタッキングコンテキスト対策として React Portal（`document.body` 直下）で描画しています。
   - オーバーレイは `position: fixed` と `zIndex: 9999` を明示。
   - モバイル時は高さを `100dvh` にし、URLバーの表示/非表示に追従します（`vh` は未使用）。
-  - スクロールはモーダル内に限定し、`WebkitOverflowScrolling: 'touch'` と `overscrollBehavior: 'contain'` を付与。
-  - フッターの「更新する」ボタンはモバイルで `position: sticky; bottom: 0;`。下部の安全領域に `env(safe-area-inset-bottom)` を考慮。
+  - スクロールは「入力フィールド領域」のみに限定し、`WebkitOverflowScrolling: 'touch'` と `overscrollBehavior: 'contain'` を付与。
+  - フッターの「更新する」ボタンはスクロール領域の外に配置し、常時下部に表示（重なり回避のため、下端に `env(safe-area-inset-bottom)` を考慮）。
   - 実装箇所: `src/components/ReservationEditModal.tsx`
 
 ## デプロイ
