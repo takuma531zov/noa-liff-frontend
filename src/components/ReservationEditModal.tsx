@@ -91,27 +91,6 @@ export const ReservationEditModal = ({
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  // モバイル時の実際のビューポート高さを取得（ブラウザUIバーを考慮）
-  const [viewportHeight, setViewportHeight] = useState<number | null>(null)
-  useEffect(() => {
-    if (!isMobile) return
-
-    const updateHeight = () => {
-      // visualViewport APIを使用（ブラウザUIバーを除いた実際の表示領域）
-      const height = window.visualViewport?.height || window.innerHeight
-      // iOS SafariのUIバー（60px）を考慮して少し余裕を持たせる
-      setViewportHeight(height - 60)
-    }
-
-    updateHeight()
-    window.visualViewport?.addEventListener('resize', updateHeight)
-    window.addEventListener('resize', updateHeight)
-
-    return () => {
-      window.visualViewport?.removeEventListener('resize', updateHeight)
-      window.removeEventListener('resize', updateHeight)
-    }
-  }, [isMobile])
 
   // フォーム入力ハンドラ
   const handleChange = (
@@ -184,17 +163,10 @@ export const ReservationEditModal = ({
       <div
         className={
           isMobile
-            ? 'bg-white shadow-lg w-full max-w-none rounded-none flex flex-col'
+            ? 'bg-white shadow-lg w-full max-w-none rounded-none flex flex-col h-screen max-h-screen'
             : 'bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col min-h-0'
         }
-        style={
-          isMobile
-            ? {
-                height: viewportHeight ? `${viewportHeight}px` : 'calc(100dvh - 60px)',
-                maxHeight: viewportHeight ? `${viewportHeight}px` : 'calc(100dvh - 60px)',
-              }
-            : { minHeight: '60vh' }
-        }
+        style={!isMobile ? { minHeight: '60vh' } : undefined}
       >
         {/* モーダルヘッダー */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
