@@ -142,7 +142,7 @@ export const ReservationEditModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] p-4"
+      className={`fixed inset-0 z-[9999] ${isMobile ? 'p-0' : 'p-4'}`}
       style={{
         position: 'fixed',
         top: 0,
@@ -150,15 +150,19 @@ export const ReservationEditModal = ({
         right: 0,
         bottom: 0,
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        ...(isMobile
+          ? {}
+          : {
+              alignItems: 'center',
+              justifyContent: 'center',
+            }),
         backgroundColor: 'rgba(17, 24, 39, 0.6)', // グレーアウト（gray-900相当の半透明）
       }}
     >
       <div
         className={
           isMobile
-            ? 'bg-white shadow-lg w-full h-full max-w-none rounded-none flex flex-col min-h-0'
+            ? 'bg-white shadow-lg w-full h-full max-w-none rounded-none flex flex-col'
             : 'bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col min-h-0'
         }
         style={isMobile ? undefined : { minHeight: '60vh' }}
@@ -176,159 +180,157 @@ export const ReservationEditModal = ({
         </div>
 
         {/* モーダルボディ */}
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col flex-1 min-h-0"
-        >
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
           <div className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1 min-h-0">
-          {/* 店舗選択 */}
-          <div>
-            <label
-              htmlFor="store"
-              className="block text-base font-semibold mb-2"
-            >
-              店舗 <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="store"
-              name="store"
-              value={formData.store}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
-            >
-              <option value="">選択してください</option>
-              <option value="大宮店">大宮店</option>
-              <option value="北浦和店">北浦和店</option>
-            </select>
-          </div>
+            {/* 店舗選択 */}
+            <div>
+              <label
+                htmlFor="store"
+                className="block text-base font-semibold mb-2"
+              >
+                店舗 <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="store"
+                name="store"
+                value={formData.store}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
+              >
+                <option value="">選択してください</option>
+                <option value="大宮店">大宮店</option>
+                <option value="北浦和店">北浦和店</option>
+              </select>
+            </div>
 
-          {/* 担当スタッフ */}
-          <div>
-            <label
-              htmlFor="staff_id"
-              className="block text-base font-semibold mb-2"
-            >
-              担当スタッフ <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="staff_id"
-              name="staff_id"
-              value={formData.staff_id}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
-            >
-              <option value="" disabled>
-                選択してください
-              </option>
-              {staffList
-                .filter((staff) =>
-                  formData.store ? staff.stores.includes(formData.store) : true,
-                )
-                .map((staff) => (
-                  <option key={staff.id} value={staff.id}>
-                    {staff.name}
+            {/* 担当スタッフ */}
+            <div>
+              <label
+                htmlFor="staff_id"
+                className="block text-base font-semibold mb-2"
+              >
+                担当スタッフ <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="staff_id"
+                name="staff_id"
+                value={formData.staff_id}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
+              >
+                <option value="" disabled>
+                  選択してください
+                </option>
+                {staffList
+                  .filter((staff) =>
+                    formData.store
+                      ? staff.stores.includes(formData.store)
+                      : true,
+                  )
+                  .map((staff) => (
+                    <option key={staff.id} value={staff.id}>
+                      {staff.name}
+                    </option>
+                  ))}
+                {formData.store && <option value="__none__">指名無し</option>}
+              </select>
+              {formData.store === '' && (
+                <p className="text-xs text-gray-500 mt-1">
+                  ※先に店舗を選択してください
+                </p>
+              )}
+            </div>
+
+            {/* メニュー */}
+            <div>
+              <label
+                htmlFor="menu"
+                className="block text-base font-semibold mb-2"
+              >
+                メニュー <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="menu"
+                name="menu"
+                value={formData.menu}
+                onChange={handleChange}
+                onBlur={(e) => e.target.blur()}
+                required
+                placeholder="例: カット・カラー"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
+              />
+            </div>
+
+            {/* 予約日 */}
+            <div>
+              <label
+                htmlFor="reservation_date"
+                className="block text-base font-semibold mb-2"
+              >
+                予約日 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                id="reservation_date"
+                name="reservation_date"
+                value={formData.reservation_date}
+                onChange={handleChange}
+                onClick={(e) => e.currentTarget.showPicker()}
+                required
+                lang="en"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer touch-target"
+              />
+            </div>
+
+            {/* 予約時間 */}
+            <div>
+              <label
+                htmlFor="reservation_time"
+                className="block text-base font-semibold mb-2"
+              >
+                予約時間 <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="reservation_time"
+                name="reservation_time"
+                value={formData.reservation_time}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
+              >
+                <option value="">選択してください</option>
+                {timeOptions.map((time) => (
+                  <option key={time} value={time}>
+                    {time}
                   </option>
                 ))}
-              {formData.store && <option value="__none__">指名無し</option>}
-            </select>
-            {formData.store === '' && (
-              <p className="text-xs text-gray-500 mt-1">
-                ※先に店舗を選択してください
-              </p>
-            )}
-          </div>
+              </select>
+            </div>
 
-          {/* メニュー */}
-          <div>
-            <label
-              htmlFor="menu"
-              className="block text-base font-semibold mb-2"
-            >
-              メニュー <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="menu"
-              name="menu"
-              value={formData.menu}
-              onChange={handleChange}
-              onBlur={(e) => e.target.blur()}
-              required
-              placeholder="例: カット・カラー"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
-            />
-          </div>
-
-          {/* 予約日 */}
-          <div>
-            <label
-              htmlFor="reservation_date"
-              className="block text-base font-semibold mb-2"
-            >
-              予約日 <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              id="reservation_date"
-              name="reservation_date"
-              value={formData.reservation_date}
-              onChange={handleChange}
-              onClick={(e) => e.currentTarget.showPicker()}
-              required
-              lang="en"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer touch-target"
-            />
-          </div>
-
-          {/* 予約時間 */}
-          <div>
-            <label
-              htmlFor="reservation_time"
-              className="block text-base font-semibold mb-2"
-            >
-              予約時間 <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="reservation_time"
-              name="reservation_time"
-              value={formData.reservation_time}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
-            >
-              <option value="">選択してください</option>
-              {timeOptions.map((time) => (
-                <option key={time} value={time}>
-                  {time}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 顧客名（任意） */}
-          <div>
-            <label
-              htmlFor="customer_name"
-              className="block text-base font-semibold mb-2"
-            >
-              顧客名 <span className="text-gray-400 text-xs">(任意)</span>
-            </label>
-            <input
-              type="text"
-              id="customer_name"
-              name="customer_name"
-              value={formData.customer_name || ''}
-              onChange={handleChange}
-              onBlur={(e) => e.target.blur()}
-              placeholder="例: 田中 花子"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
-            />
-          </div>
-
+            {/* 顧客名（任意） */}
+            <div>
+              <label
+                htmlFor="customer_name"
+                className="block text-base font-semibold mb-2"
+              >
+                顧客名 <span className="text-gray-400 text-xs">(任意)</span>
+              </label>
+              <input
+                type="text"
+                id="customer_name"
+                name="customer_name"
+                value={formData.customer_name || ''}
+                onChange={handleChange}
+                onBlur={(e) => e.target.blur()}
+                placeholder="例: 田中 花子"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
+              />
+            </div>
           </div>
           {/* ボタン（下部固定） */}
-          <div className="p-4 sm:p-6 pt-0 flex-shrink-0 border-t border-gray-100">
+          <div className="p-4 sm:p-6 flex-shrink-0 border-t border-gray-200 bg-white">
             <button
               type="submit"
               disabled={isSubmitting}
