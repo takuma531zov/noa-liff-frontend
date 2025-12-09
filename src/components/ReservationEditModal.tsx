@@ -178,8 +178,9 @@ export const ReservationEditModal = ({
         {/* モーダルボディ */}
         <form
           onSubmit={handleSubmit}
-          className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1 min-h-0"
+          className="flex flex-col flex-1 min-h-0"
         >
+          <div className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1 min-h-0">
           {/* 店舗選択 */}
           <div>
             <label
@@ -325,8 +326,9 @@ export const ReservationEditModal = ({
             />
           </div>
 
-          {/* ボタン */}
-          <div className="pt-4">
+          </div>
+          {/* ボタン（下部固定） */}
+          <div className="p-4 sm:p-6 pt-0 flex-shrink-0 border-t border-gray-100">
             <button
               type="submit"
               disabled={isSubmitting}
