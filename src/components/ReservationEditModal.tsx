@@ -181,16 +181,18 @@ export const ReservationEditModal = ({
         </div>
 
         {/* モーダルボディ */}
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col"
+          style={{ height: '100%' }}
+        >
           <div
-            className="p-4 sm:p-6 space-y-6 overflow-y-scroll flex-1"
+            className="p-4 sm:p-6 space-y-6"
             style={{
+              flex: '1 1 auto',
+              overflowY: 'auto',
               WebkitOverflowScrolling: 'touch',
-              overscrollBehavior: 'contain',
-              height: 0,
-              flexGrow: 1,
-              flexShrink: 1,
-              flexBasis: 0,
+              minHeight: 0,
             }}
           >
             {/* 店舗選択 */}
@@ -342,8 +344,9 @@ export const ReservationEditModal = ({
           </div>
           {/* ボタン（下部固定） */}
           <div
-            className="px-4 sm:px-6 pt-4 sm:pt-6 flex-shrink-0 border-t border-gray-200 bg-white"
+            className="px-4 sm:px-6 pt-4 sm:pt-6 border-t border-gray-200 bg-white"
             style={{
+              flexShrink: 0,
               paddingBottom: isMobile
                 ? 'calc(1.5rem + env(safe-area-inset-bottom, 0px))'
                 : '1.5rem',
