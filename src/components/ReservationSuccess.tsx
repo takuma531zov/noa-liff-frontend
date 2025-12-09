@@ -38,17 +38,17 @@ export const ReservationSuccess = ({
         {/* 同意リンク表示 */}
         <div className="mb-6">
           <div className="block text-sm font-semibold mb-2">同意リンク</div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-stretch">
             <input
               type="text"
               value={consentUrl}
               readOnly
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm"
+              className="flex-1 min-w-0 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-xs sm:text-sm truncate"
             />
             <button
               type="button"
               onClick={handleCopy}
-              className="flex-shrink-0 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex-shrink-0 px-3 sm:px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap text-sm"
             >
               {copied ? 'コピー済み' : 'コピー'}
             </button>
