@@ -203,20 +203,17 @@ export const ReservationEditModal = ({
             : { maxHeight: '90vh', minHeight: '60vh' }
         }
       >
-        {/* モーダルヘッダー */}
+        {/* モーダルヘッダー（タイトルのみ） */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-xl sm:text-2xl font-bold">予約内容変更</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-gray-600 hover:text-gray-900 text-2xl font-bold"
-          >
-            ×
-          </button>
         </div>
 
         {/* 入力フォーム（スクロール領域＋フッターの2層構成） */}
-        <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
+        <form
+          id="reservation-edit-form"
+          onSubmit={handleSubmit}
+          className="flex-1 flex flex-col"
+        >
           {/* スクロール領域（入力フィールドのみ） */}
           <div
             className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto"
@@ -224,8 +221,9 @@ export const ReservationEditModal = ({
               minHeight: 0,
               WebkitOverflowScrolling: 'touch',
               overscrollBehavior: 'contain',
+              // ボトム固定ボタンと干渉しないよう余白を広めに確保
               paddingBottom: isMobile
-                ? 'calc(1rem + env(safe-area-inset-bottom, 0px))'
+                ? 'calc(120px + env(safe-area-inset-bottom, 0px))'
                 : undefined,
             }}
           >
@@ -376,26 +374,72 @@ export const ReservationEditModal = ({
               />
             </div>
           </div>
-          {/* フッター（常時下部固定） */}
-          <div
-            className="px-4 sm:px-6 py-4 flex-shrink-0 border-t border-gray-200"
+          {/* フッター（デスクトップのみ表示。モバイルは別レイヤーの更新ボタンを使用） */}
+          {!isMobile && (
+            <div className="px-4 sm:px-6 py-4 flex-shrink-0 border-t border-gray-200" style={{ background: '#ffffff' }}>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors touch-target text-base"
+              >
+                {isSubmitting ? '更新中...' : '更新する'}
+              </button>
+            </div>
+          )}
+        </form>
+      </div>
+      {/* 最前レイヤーの操作ボタン（モバイル時） */}
+      {isMobile && (
+        <>
+          {/* 閉じる（右上固定） */}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="閉じる"
             style={{
-              background: '#ffffff',
-              paddingBottom: isMobile
-                ? 'calc(1rem + env(safe-area-inset-bottom, 0px))'
-                : undefined,
+              position: 'fixed',
+              top: '8px',
+              right: '8px',
+              zIndex: 10000,
+              width: '40px',
+              height: '40px',
+              borderRadius: '9999px',
+              background: 'rgba(255,255,255,0.95)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '20px',
+              fontWeight: 700,
+              color: '#4b5563',
+            }}
+          >
+            ×
+          </button>
+          {/* 更新（下部中央固定） */}
+          <div
+            style={{
+              position: 'fixed',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 10000,
+              padding: '12px 16px',
+              paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
+              background: 'transparent',
             }}
           >
             <button
               type="submit"
+              form="reservation-edit-form"
               disabled={isSubmitting}
               className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors touch-target text-base"
             >
               {isSubmitting ? '更新中...' : '更新する'}
             </button>
           </div>
-        </form>
-      </div>
+        </>
+      )}
     </div>,
     document.body,
   )
