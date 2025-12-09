@@ -208,12 +208,14 @@ export const ReservationEditModal = ({
           id="reservation-edit-form"
           onSubmit={handleSubmit}
           className="flex-1 flex flex-col"
+          style={{ minHeight: 0 }}
         >
           {/* スクロール領域（ヘッダー＋入力フィールド） */}
           <div
             className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto"
             style={{
               minHeight: 0,
+              overflowY: 'auto',
               WebkitOverflowScrolling: 'touch',
               overscrollBehavior: 'contain',
               touchAction: 'pan-y',
