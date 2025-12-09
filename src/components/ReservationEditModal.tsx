@@ -187,16 +187,21 @@ export const ReservationEditModal = ({
         className={
           isMobile
             ? 'bg-white shadow-lg w-full max-w-none rounded-none'
-            : 'bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col min-h-0'
+            : 'bg-white rounded-lg shadow-lg max-w-2xl w-full'
         }
         style={
           isMobile
             ? {
                 height: '100vh',
                 display: 'grid',
-                gridTemplateRows: 'auto 1fr auto',
+                gridTemplateRows: 'auto 1fr',
               }
-            : { minHeight: '60vh' }
+            : {
+                maxHeight: '90vh',
+                minHeight: '60vh',
+                display: 'grid',
+                gridTemplateRows: 'auto 1fr',
+              }
         }
       >
         {/* モーダルヘッダー */}
@@ -220,7 +225,6 @@ export const ReservationEditModal = ({
           }}
         >
           <form
-            id="reservation-form"
             onSubmit={handleSubmit}
             className="space-y-6"
           >
@@ -370,26 +374,24 @@ export const ReservationEditModal = ({
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
               />
             </div>
-          </form>
-        </div>
 
-        {/* ボタン（下部固定） */}
-        <div
-          className="px-4 sm:px-6 pt-4 sm:pt-6 border-t border-gray-200 bg-white"
-          style={{
-            paddingBottom: isMobile
-              ? 'calc(1.5rem + env(safe-area-inset-bottom, 0px))'
-              : '1.5rem',
-          }}
-        >
-          <button
-            type="submit"
-            form="reservation-form"
-            disabled={isSubmitting}
-            className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors touch-target text-base"
-          >
-            {isSubmitting ? '更新中...' : '更新する'}
-          </button>
+            {/* 更新ボタン */}
+            <div
+              style={{
+                paddingBottom: isMobile
+                  ? 'calc(1.5rem + env(safe-area-inset-bottom, 0px))'
+                  : '0',
+              }}
+            >
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors touch-target text-base"
+              >
+                {isSubmitting ? '更新中...' : '更新する'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
