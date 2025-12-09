@@ -52,6 +52,13 @@ pnpm typecheck
 pnpm lint
 ```
 
+## フロント実装メモ
+
+- モーダル（予約内容変更）は iOS Safari のスタッキングコンテキスト対策として React Portal（`document.body` 直下）で描画しています。
+  - オーバーレイは `position: fixed` と `zIndex: 9999` を明示。
+  - スクロールはモーダル内に限定し、`WebkitOverflowScrolling: 'touch'` と `overscrollBehavior: 'contain'` を付与。
+  - 実装箇所: `src/components/ReservationEditModal.tsx`
+
 ## デプロイ
 
 ```bash

@@ -7,6 +7,7 @@ import type {
   UpdateReservationInput,
 } from '@/lib/supabase/types'
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 // 30分刻みの時間オプションを生成（9:00~20:00）
 const generateTimeOptions = () => {
@@ -33,6 +34,12 @@ export const ReservationEditModal = ({
   onClose,
   onSuccess,
 }: ReservationEditModalProps) => {
+  // モーダルのマウント状態（Portal用）
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   // 編集フォーム状態（担当者は staff_id、指名無しは空文字）
   const [formData, setFormData] = useState<
     UpdateReservationInput & { staff_id?: string }
@@ -153,12 +160,26 @@ export const ReservationEditModal = ({
     onSuccess()
   }
 
-  return (
+  // SSR回避：クライアントマウント後のみ描画（Portal安全化）
+  if (!mounted) return null
+
+  return createPortal(
+    // オーバーレイ（iOS Safariで最前面固定・全画面）
     <div
-      className={`fixed inset-0 z-[9999] ${isMobile ? 'p-0' : 'p-4 flex items-center justify-center'}`}
       role="presentation"
       style={{
-        backgroundColor: 'rgba(17, 24, 39, 0.6)', // グレーアウト
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        zIndex: 9999,
+        backgroundColor: 'rgba(17, 24, 39, 0.6)',
+        display: isMobile ? 'block' : 'flex',
+        alignItems: isMobile ? undefined : 'center',
+        justifyContent: isMobile ? undefined : 'center',
+        WebkitOverflowScrolling: 'touch',
+        overscrollBehavior: 'contain',
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
@@ -169,6 +190,7 @@ export const ReservationEditModal = ({
       // Escキーは別のuseEffectで処理されるため、ここでは何もしない
       // この関数はBiomeのlintエラーを回避するために存在する
     >
+      {/* モーダル本体（モバイルは全画面、デスクトップは中央寄せ） */}
       <div
         className={
           isMobile
@@ -362,6 +384,7 @@ export const ReservationEditModal = ({
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
