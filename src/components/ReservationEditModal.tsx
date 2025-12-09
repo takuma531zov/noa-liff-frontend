@@ -82,6 +82,18 @@ export const ReservationEditModal = ({
     }
   }, [])
 
+  // Escキーでモーダルを閉じる
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
   // 画面幅に応じてモバイル判定（< 640px をモバイルとする）
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
@@ -144,6 +156,7 @@ export const ReservationEditModal = ({
   return (
     <div
       className={`fixed inset-0 z-[9999] ${isMobile ? 'p-0' : 'p-4'}`}
+      role="presentation"
       style={{
         position: 'fixed',
         top: 0,
@@ -158,6 +171,16 @@ export const ReservationEditModal = ({
               justifyContent: 'center',
             }),
         backgroundColor: 'rgba(17, 24, 39, 0.6)', // グレーアウト（gray-900相当の半透明）
+        touchAction: 'none',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose()
+        }
+      }}
+      onKeyDown={(e) => {
+        // Escキーは別のuseEffectで処理されるため、ここでは何もしない
+        // この関数はBiomeのlintエラーを回避するために存在する
       }}
     >
       <div
@@ -166,7 +189,11 @@ export const ReservationEditModal = ({
             ? 'bg-white shadow-lg w-full h-full max-w-none rounded-none flex flex-col min-h-0'
             : 'bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col min-h-0'
         }
-        style={!isMobile ? { minHeight: '60vh' } : undefined}
+        style={
+          isMobile
+            ? { touchAction: 'auto' }
+            : { minHeight: '60vh' }
+        }
       >
         {/* モーダルヘッダー */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
@@ -183,16 +210,17 @@ export const ReservationEditModal = ({
         {/* モーダルボディ */}
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col"
-          style={{ height: '100%' }}
+          className="flex flex-col flex-1 min-h-0"
         >
           <div
-            className="p-4 sm:p-6 space-y-6"
+            className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1"
             style={{
-              flex: '1 1 auto',
-              overflowY: 'auto',
               WebkitOverflowScrolling: 'touch',
+              overscrollBehavior: 'contain',
               minHeight: 0,
+              position: 'relative',
+              transform: 'translateZ(0)',
+              willChange: 'scroll-position',
             }}
           >
             {/* 店舗選択 */}
