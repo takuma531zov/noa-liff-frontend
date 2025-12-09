@@ -163,17 +163,10 @@ export const ReservationEditModal = ({
       <div
         className={
           isMobile
-            ? 'bg-white shadow-lg w-full max-w-none rounded-none flex flex-col min-h-0'
+            ? 'bg-white shadow-lg w-full h-full max-w-none rounded-none flex flex-col min-h-0'
             : 'bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col min-h-0'
         }
-        style={
-          isMobile
-            ? {
-                height: '100svh',
-                maxHeight: '100svh',
-              }
-            : { minHeight: '60vh' }
-        }
+        style={!isMobile ? { minHeight: '60vh' } : undefined}
       >
         {/* モーダルヘッダー */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
@@ -190,12 +183,14 @@ export const ReservationEditModal = ({
         {/* モーダルボディ */}
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
           <div
-            className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1 min-h-0"
+            className="p-4 sm:p-6 space-y-6 overflow-y-scroll flex-1"
             style={{
               WebkitOverflowScrolling: 'touch',
               overscrollBehavior: 'contain',
-              touchAction: 'pan-y',
-              position: 'relative',
+              height: 0,
+              flexGrow: 1,
+              flexShrink: 1,
+              flexBasis: 0,
             }}
           >
             {/* 店舗選択 */}
