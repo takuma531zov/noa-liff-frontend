@@ -203,18 +203,13 @@ export const ReservationEditModal = ({
             : { maxHeight: '90vh', minHeight: '60vh' }
         }
       >
-        {/* モーダルヘッダー（タイトルのみ） */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-xl sm:text-2xl font-bold">予約内容変更</h2>
-        </div>
-
-        {/* 入力フォーム（スクロール領域＋フッターの2層構成） */}
+        {/* 入力フォーム（コンテンツ全体を1スクロール領域に） */}
         <form
           id="reservation-edit-form"
           onSubmit={handleSubmit}
           className="flex-1 flex flex-col"
         >
-          {/* スクロール領域（入力フィールドのみ） */}
+          {/* スクロール領域（ヘッダー＋入力フィールド） */}
           <div
             className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto"
             style={{
@@ -228,6 +223,10 @@ export const ReservationEditModal = ({
                 : undefined,
             }}
           >
+            {/* モーダルヘッダー（スクロール領域内） */}
+            <div className="flex items-center justify-between pb-4 sm:pb-6 border-b border-gray-200">
+              <h2 className="text-xl sm:text-2xl font-bold">予約内容変更</h2>
+            </div>
             {/* 店舗選択 */}
             <div>
               <label
