@@ -158,8 +158,8 @@ export const ReservationEditModal = ({
       <div
         className={
           isMobile
-            ? 'bg-white shadow-lg w-full h-full max-w-none rounded-none flex flex-col'
-            : 'bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col'
+            ? 'bg-white shadow-lg w-full h-full max-w-none rounded-none flex flex-col min-h-0'
+            : 'bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col min-h-0'
         }
         style={isMobile ? undefined : { minHeight: '60vh' }}
       >
@@ -178,7 +178,7 @@ export const ReservationEditModal = ({
         {/* モーダルボディ */}
         <form
           onSubmit={handleSubmit}
-          className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1"
+          className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1 min-h-0"
         >
           {/* 店舗選択 */}
           <div>
