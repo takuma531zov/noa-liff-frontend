@@ -99,7 +99,8 @@ export const ReservationEditModal = ({
     const updateHeight = () => {
       // visualViewport APIを使用（ブラウザUIバーを除いた実際の表示領域）
       const height = window.visualViewport?.height || window.innerHeight
-      setViewportHeight(height)
+      // iOS SafariのUIバー（60px）を考慮して少し余裕を持たせる
+      setViewportHeight(height - 60)
     }
 
     updateHeight()
@@ -189,8 +190,8 @@ export const ReservationEditModal = ({
         style={
           isMobile
             ? {
-                height: viewportHeight ? `${viewportHeight}px` : '100dvh',
-                maxHeight: viewportHeight ? `${viewportHeight}px` : '100dvh',
+                height: viewportHeight ? `${viewportHeight}px` : 'calc(100dvh - 60px)',
+                maxHeight: viewportHeight ? `${viewportHeight}px` : 'calc(100dvh - 60px)',
               }
             : { minHeight: '60vh' }
         }
@@ -209,7 +210,13 @@ export const ReservationEditModal = ({
 
         {/* モーダルボディ */}
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1 min-h-0">
+          <div
+            className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1 min-h-0"
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              overscrollBehavior: 'contain',
+            }}
+          >
             {/* 店舗選択 */}
             <div>
               <label
