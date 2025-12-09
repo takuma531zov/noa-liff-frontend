@@ -74,11 +74,20 @@ export const ReservationEditModal = ({
 
   // モーダル表示時にbodyのスクロールを無効化
   useEffect(() => {
-    const originalStyle = window.getComputedStyle(document.body).overflow
-    document.body.style.overflow = 'hidden'
+    const scrollY = window.scrollY
+    const body = document.body
+
+    body.style.position = 'fixed'
+    body.style.top = `-${scrollY}px`
+    body.style.width = '100%'
+    body.style.overflow = 'hidden'
 
     return () => {
-      document.body.style.overflow = originalStyle
+      body.style.position = ''
+      body.style.top = ''
+      body.style.width = ''
+      body.style.overflow = ''
+      window.scrollTo(0, scrollY)
     }
   }, [])
 
@@ -220,11 +229,12 @@ export const ReservationEditModal = ({
         <div
           className="p-4 sm:p-6 space-y-6"
           style={{
-            overflowY: 'auto',
+            overflowY: 'scroll',
+            overflowX: 'hidden',
             WebkitOverflowScrolling: 'touch',
             overscrollBehavior: 'contain',
-            transform: 'translateZ(0)',
-            willChange: 'scroll-position',
+            position: 'relative',
+            minHeight: 0,
           }}
         >
           <form
