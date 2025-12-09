@@ -194,27 +194,17 @@ export const ReservationEditModal = ({
       <div
         className={
           isMobile
-            ? 'bg-white shadow-lg w-full max-w-none rounded-none'
-            : 'bg-white rounded-lg shadow-lg max-w-2xl w-full'
+            ? 'bg-white shadow-lg w-full max-w-none rounded-none flex flex-col'
+            : 'bg-white rounded-lg shadow-lg max-w-2xl w-full flex flex-col'
         }
         style={
           isMobile
-            ? {
-                height: '100vh',
-                display: 'grid',
-                gridTemplateRows: 'auto 1fr',
-                touchAction: 'pan-y',
-              }
-            : {
-                maxHeight: '90vh',
-                minHeight: '60vh',
-                display: 'grid',
-                gridTemplateRows: 'auto 1fr',
-              }
+            ? { height: '100vh' }
+            : { maxHeight: '90vh', minHeight: '60vh' }
         }
       >
         {/* モーダルヘッダー */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200" style={{ flexShrink: 0 }}>
           <h2 className="text-xl sm:text-2xl font-bold">予約内容変更</h2>
           <button
             type="button"
@@ -227,14 +217,10 @@ export const ReservationEditModal = ({
 
         {/* モーダルボディ */}
         <div
-          className="p-4 sm:p-6 space-y-6"
+          className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-scroll"
           style={{
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-            WebkitOverflowScrolling: 'touch',
-            overscrollBehavior: 'contain',
-            position: 'relative',
             minHeight: 0,
+            overscrollBehaviorY: 'contain',
           }}
         >
           <form
