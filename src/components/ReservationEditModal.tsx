@@ -194,12 +194,12 @@ export const ReservationEditModal = ({
       <div
         className={
           isMobile
-            ? 'bg-white shadow-lg w-full max-w-none rounded-none h-screen flex flex-col'
+            ? 'bg-white shadow-lg w-full max-w-none rounded-none flex flex-col'
             : 'bg-white rounded-lg shadow-lg max-w-2xl w-full flex flex-col'
         }
         style={
           isMobile
-            ? undefined
+            ? { height: '100dvh' }
             : { maxHeight: '90vh', minHeight: '60vh' }
         }
       >
@@ -215,8 +215,15 @@ export const ReservationEditModal = ({
           </button>
         </div>
 
-        {/* モーダルボディ */}
-        <div className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto" style={{ minHeight: 0 }}>
+        {/* モーダルボディ（モバイルは内部スクロール領域） */}
+        <div
+          className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto"
+          style={{
+            minHeight: 0,
+            WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain',
+          }}
+        >
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* 店舗選択 */}
             <div>
@@ -365,12 +372,23 @@ export const ReservationEditModal = ({
               />
             </div>
 
-            {/* 更新ボタン */}
+            {/* 更新ボタン（モバイルは下部に張り付く） */}
             <div
               style={{
+                position: isMobile ? 'sticky' : undefined,
+                bottom: isMobile ? 0 : undefined,
+                background: isMobile ? '#ffffff' : undefined,
                 paddingBottom: isMobile
-                  ? 'calc(1.5rem + env(safe-area-inset-bottom, 0px))'
-                  : '0',
+                  ? 'calc(1rem + env(safe-area-inset-bottom, 0px))'
+                  : undefined,
+                paddingTop: isMobile ? '0.5rem' : undefined,
+                marginLeft: isMobile ? '-1rem' : undefined,
+                marginRight: isMobile ? '-1rem' : undefined,
+                paddingLeft: isMobile ? '1rem' : undefined,
+                paddingRight: isMobile ? '1rem' : undefined,
+                boxShadow: isMobile
+                  ? '0 -4px 10px rgba(0,0,0,0.06)'
+                  : undefined,
               }}
             >
               <button
