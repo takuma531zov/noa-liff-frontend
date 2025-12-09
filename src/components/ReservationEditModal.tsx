@@ -91,6 +91,27 @@ export const ReservationEditModal = ({
     return () => window.removeEventListener('resize', update)
   }, [])
 
+  // モバイル時の実際のビューポート高さを取得（ブラウザUIバーを考慮）
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null)
+  useEffect(() => {
+    if (!isMobile) return
+
+    const updateHeight = () => {
+      // visualViewport APIを使用（ブラウザUIバーを除いた実際の表示領域）
+      const height = window.visualViewport?.height || window.innerHeight
+      setViewportHeight(height)
+    }
+
+    updateHeight()
+    window.visualViewport?.addEventListener('resize', updateHeight)
+    window.addEventListener('resize', updateHeight)
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', updateHeight)
+      window.removeEventListener('resize', updateHeight)
+    }
+  }, [isMobile])
+
   // フォーム入力ハンドラ
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -168,8 +189,8 @@ export const ReservationEditModal = ({
         style={
           isMobile
             ? {
-                height: '100dvh',
-                maxHeight: '100dvh',
+                height: viewportHeight ? `${viewportHeight}px` : '100dvh',
+                maxHeight: viewportHeight ? `${viewportHeight}px` : '100dvh',
               }
             : { minHeight: '60vh' }
         }
@@ -338,11 +359,11 @@ export const ReservationEditModal = ({
           </div>
           {/* ボタン（下部固定） */}
           <div
-            className="p-4 sm:p-6 flex-shrink-0 border-t border-gray-200 bg-white"
+            className="px-4 sm:px-6 pt-4 sm:pt-6 flex-shrink-0 border-t border-gray-200 bg-white"
             style={{
               paddingBottom: isMobile
-                ? 'max(1rem, env(safe-area-inset-bottom))'
-                : undefined,
+                ? 'calc(1.5rem + env(safe-area-inset-bottom, 0px))'
+                : '1.5rem',
             }}
           >
             <button
