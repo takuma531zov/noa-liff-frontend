@@ -26,10 +26,12 @@ const formatDateWithWeekday = (dateStr: string) => {
   return `${date.getMonth() + 1}月${date.getDate()}日(${w})`
 }
 
-// 時刻: "HH:00"（分は00固定）
+// 時刻: "HH:MM"（分まで表示）
 const formatHourOnly = (timeStr: string) => {
-  const hour = (timeStr || '').split(':')[0]?.padStart(2, '0') || '00'
-  return `${hour}:00`
+  const [h = '00', m = '00'] = (timeStr || '').split(':')
+  const hour = String(h).padStart(2, '0')
+  const minute = String(m).padStart(2, '0')
+  return `${hour}:${minute}`
 }
 
 // リマインダー文面（雛形）

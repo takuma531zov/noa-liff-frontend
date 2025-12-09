@@ -60,10 +60,12 @@ const formatDateWithWeekday = (dateStr: string) => {
   return `${date.getMonth() + 1}月${date.getDate()}日(${w})`
 }
 
-// 時刻を "HH:00" にフォーマット（分は常に00で表示）
+// 時刻を "HH:MM" にフォーマット（分まで表示）
 const formatHourOnly = (timeStr: string) => {
-  const hour = (timeStr || '').split(':')[0]?.padStart(2, '0') || '00'
-  return `${hour}:00`
+  const [h = '00', m = '00'] = (timeStr || '').split(':')
+  const hour = String(h).padStart(2, '0')
+  const minute = String(m).padStart(2, '0')
+  return `${hour}:${minute}`
 }
 
 // 予約確認メッセージを生成
