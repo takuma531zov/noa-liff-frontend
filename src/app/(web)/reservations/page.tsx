@@ -59,9 +59,13 @@ export default function ReservationsPage() {
         .eq('reservation_date', filterDate)
         .order('reservation_time', { ascending: true })
 
-      const { data, error } = await (filterStaff
-        ? base.eq('staff_id', filterStaff)
-        : base.is('staff_id', null))
+      const { data, error } = await (
+        filterStaff === '__none__'
+          ? base.is('staff_id', null)
+          : filterStaff
+          ? base.eq('staff_id', filterStaff)
+          : base
+      )
 
       if (error) {
         console.error('予約取得エラー:', error)
@@ -90,9 +94,13 @@ export default function ReservationsPage() {
       .eq('reservation_date', filterDate)
       .order('reservation_time', { ascending: true })
 
-    const { data, error } = await (filterStaff
-      ? base.eq('staff_id', filterStaff)
-      : base.is('staff_id', null))
+    const { data, error } = await (
+      filterStaff === '__none__'
+        ? base.is('staff_id', null)
+        : filterStaff
+        ? base.eq('staff_id', filterStaff)
+        : base
+    )
 
     if (error) {
       console.error('予約取得エラー:', error)
@@ -183,7 +191,7 @@ export default function ReservationsPage() {
                       {staff.name}
                     </option>
                   ))}
-                <option value="">指名無し</option>
+                <option value="__none__">指名無し</option>
               </select>
               <p className="text-xs text-gray-500 mt-1">
                 ※先に店舗を選択すると絞り込めます

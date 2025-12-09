@@ -38,7 +38,7 @@ export const ReservationEditModal = ({
     UpdateReservationInput & { staff_id?: string }
   >({
     store: reservation.store,
-    staff_id: reservation.staff_id || '',
+    staff_id: reservation.staff_id ?? '__none__',
     menu: reservation.menu,
     reservation_date: reservation.reservation_date,
     reservation_time: reservation.reservation_time.slice(0, 5),
@@ -96,6 +96,10 @@ export const ReservationEditModal = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target
+    if (name === 'staff_id') {
+      setFormData((prev) => ({ ...prev, staff_id: value }))
+      return
+    }
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -111,7 +115,9 @@ export const ReservationEditModal = ({
       reservation_date: formData.reservation_date,
       reservation_time: formData.reservation_time,
       customer_name: formData.customer_name || undefined,
-      ...(formData.staff_id ? { staff_id: formData.staff_id } : {}),
+      ...(formData.staff_id && formData.staff_id !== '__none__'
+        ? { staff_id: formData.staff_id }
+        : {}),
     }
 
     const response = await fetch(`/api/reservations/${reservation.id}`, {
@@ -211,7 +217,9 @@ export const ReservationEditModal = ({
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
             >
-              <option value="">選択してください</option>
+              <option value="" disabled>
+                選択してください
+              </option>
               {staffList
                 .filter((staff) =>
                   formData.store ? staff.stores.includes(formData.store) : true,
@@ -221,7 +229,7 @@ export const ReservationEditModal = ({
                     {staff.name}
                   </option>
                 ))}
-              {formData.store && <option value="">指名無し</option>}
+              {formData.store && <option value="__none__">指名無し</option>}
             </select>
             {formData.store === '' && (
               <p className="text-xs text-gray-500 mt-1">

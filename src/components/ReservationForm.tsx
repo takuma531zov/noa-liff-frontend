@@ -67,6 +67,10 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target
+    if (name === 'staff_id') {
+      setFormData((prev) => ({ ...prev, staff_id: value }))
+      return
+    }
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -83,7 +87,10 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
       // staff_id は空文字の場合は送らない（サーバ側で指名無し処理）
       body: JSON.stringify({
         ...formData,
-        staff_id: formData.staff_id || undefined,
+        staff_id:
+          formData.staff_id && formData.staff_id !== '__none__'
+            ? formData.staff_id
+            : undefined,
       }),
     })
 
@@ -147,7 +154,9 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
           onChange={handleChange}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
         >
-          <option value="">選択してください</option>
+          <option value="" disabled>
+            選択してください
+          </option>
           {staffList
             .filter((staff) =>
               formData.store ? staff.stores.includes(formData.store) : true,
@@ -157,7 +166,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
                 {staff.name}
               </option>
             ))}
-          {formData.store && <option value="">指名無し</option>}
+          {formData.store && <option value="__none__">指名無し</option>}
         </select>
         {formData.store === '' && (
           <p className="text-xs text-gray-500 mt-1">
