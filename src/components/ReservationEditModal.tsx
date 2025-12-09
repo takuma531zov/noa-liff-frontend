@@ -199,7 +199,7 @@ export const ReservationEditModal = ({
         }
         style={
           isMobile
-            ? { height: '100dvh' }
+            ? { height: '100dvh', overflow: 'hidden' }
             : { maxHeight: '90vh', minHeight: '60vh' }
         }
       >
@@ -221,6 +221,7 @@ export const ReservationEditModal = ({
               minHeight: 0,
               WebkitOverflowScrolling: 'touch',
               overscrollBehavior: 'contain',
+              touchAction: 'pan-y',
               // ボトム固定ボタンと干渉しないよう余白を広めに確保
               paddingBottom: isMobile
                 ? 'calc(120px + env(safe-area-inset-bottom, 0px))'
@@ -390,17 +391,23 @@ export const ReservationEditModal = ({
       </div>
       {/* 最前レイヤーの操作ボタン（モバイル時） */}
       {isMobile && (
-        <>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 10000,
+            pointerEvents: 'none',
+          }}
+        >
           {/* 閉じる（右上固定） */}
           <button
             type="button"
             onClick={onClose}
             aria-label="閉じる"
             style={{
-              position: 'fixed',
+              position: 'absolute',
               top: '8px',
               right: '8px',
-              zIndex: 10000,
               width: '40px',
               height: '40px',
               borderRadius: '9999px',
@@ -412,6 +419,7 @@ export const ReservationEditModal = ({
               fontSize: '20px',
               fontWeight: 700,
               color: '#4b5563',
+              pointerEvents: 'auto',
             }}
           >
             ×
@@ -419,14 +427,12 @@ export const ReservationEditModal = ({
           {/* 更新（下部中央固定） */}
           <div
             style={{
-              position: 'fixed',
+              position: 'absolute',
               left: 0,
               right: 0,
               bottom: 0,
-              zIndex: 10000,
               padding: '12px 16px',
               paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
-              background: 'transparent',
             }}
           >
             <button
@@ -434,11 +440,12 @@ export const ReservationEditModal = ({
               form="reservation-edit-form"
               disabled={isSubmitting}
               className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors touch-target text-base"
+              style={{ pointerEvents: 'auto' }}
             >
               {isSubmitting ? '更新中...' : '更新する'}
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>,
     document.body,
