@@ -18,7 +18,7 @@ export const ReservationSuccess = ({
   const handleCopy = async () => {
     await navigator.clipboard.writeText(consentUrl)
     setCopied(true)
-    setTimeout(() => setCopied(false), 3000)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -50,20 +50,8 @@ export const ReservationSuccess = ({
               onClick={handleCopy}
               className="flex-shrink-0 px-3 sm:px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap text-sm"
             >
-              コピー
+              {copied ? 'コピー済み' : 'コピー'}
             </button>
-            {/* コピー完了の一時バッジ（数秒でフェードアウト） */}
-            <span
-              className={`self-center text-green-700 bg-green-100 rounded-full px-2 py-0.5 text-xs transition-opacity duration-300 ${
-                copied ? 'opacity-100' : 'opacity-0'
-              }`}
-            >
-              コピー済み
-            </span>
-            {/* アクセシビリティ通知 */}
-            <span aria-live="polite" className="sr-only">
-              {copied ? 'コピーしました' : ''}
-            </span>
           </div>
         </div>
 
