@@ -104,7 +104,6 @@ export const ReservationEditModal = ({
     return () => window.removeEventListener('resize', update)
   }, [])
 
-
   // フォーム入力ハンドラ
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -156,32 +155,23 @@ export const ReservationEditModal = ({
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] ${isMobile ? 'p-0' : 'p-4'}`}
+      className={`
+    fixed inset-0 z-[9999]
+    ${isMobile ? 'p-0 items-start' : 'p-4 items-center justify-center'}
+    flex overflow-y-auto
+  `}
       role="presentation"
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        display: 'flex',
-        ...(isMobile
-          ? {}
-          : {
-              alignItems: 'center',
-              justifyContent: 'center',
-            }),
-        backgroundColor: 'rgba(17, 24, 39, 0.6)', // グレーアウト（gray-900相当の半透明）
+        backgroundColor: 'rgba(17, 24, 39, 0.6)', // グレーアウト
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose()
         }
       }}
-      onKeyDown={() => {
-        // Escキーは別のuseEffectで処理されるため、ここでは何もしない
-        // この関数はBiomeのlintエラーを回避するために存在する
-      }}
+      onKeyDown={() => {}}
+      // Escキーは別のuseEffectで処理されるため、ここでは何もしない
+      // この関数はBiomeのlintエラーを回避するために存在する
     >
       <div
         className={
@@ -191,12 +181,12 @@ export const ReservationEditModal = ({
         }
         style={
           isMobile
-            ? { height: '100vh' }
+            ? { marginTop: '1.5rem', marginBottom: '1.5rem' }
             : { maxHeight: '90vh', minHeight: '60vh' }
         }
       >
         {/* モーダルヘッダー */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200" style={{ flexShrink: 0 }}>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <h2 className="text-xl sm:text-2xl font-bold">予約内容変更</h2>
           <button
             type="button"
@@ -208,17 +198,8 @@ export const ReservationEditModal = ({
         </div>
 
         {/* モーダルボディ */}
-        <div
-          className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-scroll"
-          style={{
-            minHeight: 0,
-            overscrollBehaviorY: 'contain',
-          }}
-        >
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-6"
-          >
+        <div className="p-4 sm:p-6 space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* 店舗選択 */}
             <div>
               <label
