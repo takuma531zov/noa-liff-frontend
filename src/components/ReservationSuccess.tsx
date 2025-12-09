@@ -18,7 +18,6 @@ export const ReservationSuccess = ({
   const handleCopy = async () => {
     await navigator.clipboard.writeText(consentUrl)
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
