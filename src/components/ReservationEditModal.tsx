@@ -171,7 +171,6 @@ export const ReservationEditModal = ({
               justifyContent: 'center',
             }),
         backgroundColor: 'rgba(17, 24, 39, 0.6)', // グレーアウト（gray-900相当の半透明）
-        touchAction: 'none',
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
@@ -195,6 +194,7 @@ export const ReservationEditModal = ({
                 height: '100vh',
                 display: 'grid',
                 gridTemplateRows: 'auto 1fr',
+                touchAction: 'pan-y',
               }
             : {
                 maxHeight: '90vh',
@@ -222,6 +222,9 @@ export const ReservationEditModal = ({
           style={{
             overflowY: 'auto',
             WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain',
+            transform: 'translateZ(0)',
+            willChange: 'scroll-position',
           }}
         >
           <form
