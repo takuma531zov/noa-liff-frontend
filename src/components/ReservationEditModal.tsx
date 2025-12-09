@@ -178,17 +178,18 @@ export const ReservationEditModal = ({
         display: isMobile ? 'block' : 'flex',
         alignItems: isMobile ? undefined : 'center',
         justifyContent: isMobile ? undefined : 'center',
-        WebkitOverflowScrolling: 'touch',
-        overscrollBehavior: 'contain',
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose()
         }
       }}
-      onKeyDown={() => {}}
-      // Escキーは別のuseEffectで処理されるため、ここでは何もしない
-      // この関数はBiomeのlintエラーを回避するために存在する
+      // アクセシビリティ: キーボード操作でのクローズ（Enter/Space または Esc）
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose()
+        if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) onClose()
+      }}
+      tabIndex={-1}
     >
       {/* モーダル本体（モバイルは全画面、デスクトップは中央寄せ） */}
       <div
@@ -212,7 +213,7 @@ export const ReservationEditModal = ({
         >
           {/* スクロール領域（ヘッダー＋入力フィールド） */}
           <div
-            className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto"
+            className="flex-1 p-4 sm:p-6 space-y-6"
             style={{
               minHeight: 0,
               overflowY: 'auto',
