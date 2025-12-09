@@ -74,20 +74,12 @@ export const ReservationEditModal = ({
 
   // モーダル表示時にbodyのスクロールを無効化
   useEffect(() => {
-    const scrollY = window.scrollY
-    const body = document.body
+    const originalOverflow = document.body.style.overflow
 
-    body.style.position = 'fixed'
-    body.style.top = `-${scrollY}px`
-    body.style.width = '100%'
-    body.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
 
     return () => {
-      body.style.position = ''
-      body.style.top = ''
-      body.style.width = ''
-      body.style.overflow = ''
-      window.scrollTo(0, scrollY)
+      document.body.style.overflow = originalOverflow
     }
   }, [])
 
