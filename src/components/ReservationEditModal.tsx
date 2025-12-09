@@ -54,6 +54,7 @@ export const ReservationEditModal = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [staffList, setStaffList] = useState<Staff[]>([])
+  const [showSuccessToast, setShowSuccessToast] = useState(false)
   const timeOptions = generateTimeOptions()
 
   // スタッフ一覧を取得
@@ -156,8 +157,13 @@ export const ReservationEditModal = ({
     }
 
     setIsSubmitting(false)
-    alert('予約を更新しました')
-    onSuccess()
+    setShowSuccessToast(true)
+
+    // 2秒後にモーダルを閉じる
+    setTimeout(() => {
+      setShowSuccessToast(false)
+      onSuccess()
+    }, 2000)
   }
 
   // SSR回避：クライアントマウント後のみ描画（Portal安全化）
@@ -447,6 +453,33 @@ export const ReservationEditModal = ({
               {isSubmitting ? '更新中...' : '更新する'}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* 成功トースト */}
+      {showSuccessToast && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 10001,
+            background: '#10b981',
+            color: 'white',
+            padding: '16px 24px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            fontSize: '16px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            animation: 'fadeIn 0.2s ease-in',
+          }}
+        >
+          <span style={{ fontSize: '20px' }}>✓</span>
+          予約を更新しました
         </div>
       )}
     </div>,
