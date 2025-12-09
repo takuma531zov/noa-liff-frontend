@@ -178,7 +178,7 @@ export const ReservationEditModal = ({
           onClose()
         }
       }}
-      onKeyDown={(e) => {
+      onKeyDown={() => {
         // Escキーは別のuseEffectで処理されるため、ここでは何もしない
         // この関数はBiomeのlintエラーを回避するために存在する
       }}
@@ -186,17 +186,21 @@ export const ReservationEditModal = ({
       <div
         className={
           isMobile
-            ? 'bg-white shadow-lg w-full h-full max-w-none rounded-none flex flex-col min-h-0'
+            ? 'bg-white shadow-lg w-full max-w-none rounded-none'
             : 'bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col min-h-0'
         }
         style={
           isMobile
-            ? { touchAction: 'auto' }
+            ? {
+                height: '100vh',
+                display: 'grid',
+                gridTemplateRows: 'auto 1fr auto',
+              }
             : { minHeight: '60vh' }
         }
       >
         {/* モーダルヘッダー */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <h2 className="text-xl sm:text-2xl font-bold">予約内容変更</h2>
           <button
             type="button"
@@ -208,20 +212,17 @@ export const ReservationEditModal = ({
         </div>
 
         {/* モーダルボディ */}
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col flex-1 min-h-0"
+        <div
+          className="p-4 sm:p-6 space-y-6"
+          style={{
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+          }}
         >
-          <div
-            className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1"
-            style={{
-              WebkitOverflowScrolling: 'touch',
-              overscrollBehavior: 'contain',
-              minHeight: 0,
-              position: 'relative',
-              transform: 'translateZ(0)',
-              willChange: 'scroll-position',
-            }}
+          <form
+            id="reservation-form"
+            onSubmit={handleSubmit}
+            className="space-y-6"
           >
             {/* 店舗選択 */}
             <div>
@@ -369,26 +370,27 @@ export const ReservationEditModal = ({
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-target"
               />
             </div>
-          </div>
-          {/* ボタン（下部固定） */}
-          <div
-            className="px-4 sm:px-6 pt-4 sm:pt-6 border-t border-gray-200 bg-white"
-            style={{
-              flexShrink: 0,
-              paddingBottom: isMobile
-                ? 'calc(1.5rem + env(safe-area-inset-bottom, 0px))'
-                : '1.5rem',
-            }}
+          </form>
+        </div>
+
+        {/* ボタン（下部固定） */}
+        <div
+          className="px-4 sm:px-6 pt-4 sm:pt-6 border-t border-gray-200 bg-white"
+          style={{
+            paddingBottom: isMobile
+              ? 'calc(1.5rem + env(safe-area-inset-bottom, 0px))'
+              : '1.5rem',
+          }}
+        >
+          <button
+            type="submit"
+            form="reservation-form"
+            disabled={isSubmitting}
+            className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors touch-target text-base"
           >
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 text-white font-semibold py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors touch-target text-base"
-            >
-              {isSubmitting ? '更新中...' : '更新する'}
-            </button>
-          </div>
-        </form>
+            {isSubmitting ? '更新中...' : '更新する'}
+          </button>
+        </div>
       </div>
     </div>
   )
