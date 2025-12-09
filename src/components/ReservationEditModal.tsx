@@ -176,12 +176,12 @@ export const ReservationEditModal = ({
       <div
         className={
           isMobile
-            ? 'bg-white shadow-lg w-full max-w-none rounded-none my-6'
+            ? 'bg-white shadow-lg w-full max-w-none rounded-none'
             : 'bg-white rounded-lg shadow-lg max-w-2xl w-full flex flex-col'
         }
         style={
           isMobile
-            ? undefined
+            ? { marginTop: '1.5rem', marginBottom: '1.5rem' }
             : { maxHeight: '90vh', minHeight: '60vh' }
         }
       >
