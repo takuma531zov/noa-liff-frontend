@@ -162,10 +162,17 @@ export const ReservationEditModal = ({
       <div
         className={
           isMobile
-            ? 'bg-white shadow-lg w-full h-full max-w-none rounded-none flex flex-col'
+            ? 'bg-white shadow-lg w-full max-w-none rounded-none flex flex-col'
             : 'bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col min-h-0'
         }
-        style={isMobile ? undefined : { minHeight: '60vh' }}
+        style={
+          isMobile
+            ? {
+                height: '100dvh',
+                maxHeight: '100dvh',
+              }
+            : { minHeight: '60vh' }
+        }
       >
         {/* モーダルヘッダー */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
@@ -330,7 +337,14 @@ export const ReservationEditModal = ({
             </div>
           </div>
           {/* ボタン（下部固定） */}
-          <div className="p-4 sm:p-6 flex-shrink-0 border-t border-gray-200 bg-white">
+          <div
+            className="p-4 sm:p-6 flex-shrink-0 border-t border-gray-200 bg-white"
+            style={{
+              paddingBottom: isMobile
+                ? 'max(1rem, env(safe-area-inset-bottom))'
+                : undefined,
+            }}
+          >
             <button
               type="submit"
               disabled={isSubmitting}
