@@ -8,6 +8,7 @@ export async function middleware(req: NextRequest) {
 
   // 保護対象判定（/api/admin は配下すべて）
   const isProtected =
+    pathname === '/' ||
     pathname === '/staff' ||
     pathname === '/reservations' ||
     pathname.startsWith('/api/admin')
