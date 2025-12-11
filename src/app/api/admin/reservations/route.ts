@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { NextResponse } from 'next/server'
 
 // 管理: 予約一覧（line_user_id/consent_token は非返却）
 export async function GET(request: Request) {
@@ -8,7 +8,10 @@ export async function GET(request: Request) {
   const staffId = url.searchParams.get('staff_id') || ''
 
   if (!date || !staffId) {
-    return NextResponse.json({ error: 'パラメータが不足しています' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'パラメータが不足しています' },
+      { status: 400 },
+    )
   }
 
   const supabase = createServiceClient()
@@ -22,7 +25,8 @@ export async function GET(request: Request) {
     ? base.is('staff_id', null)
     : base.eq('staff_id', staffId))
 
-  if (error) return NextResponse.json({ error: '取得に失敗しました' }, { status: 500 })
+  if (error)
+    return NextResponse.json({ error: '取得に失敗しました' }, { status: 500 })
 
   const sanitized = (data ?? []).map((r) => ({
     id: r.id,
@@ -42,4 +46,3 @@ export async function GET(request: Request) {
 
   return NextResponse.json({ reservations: sanitized })
 }
-

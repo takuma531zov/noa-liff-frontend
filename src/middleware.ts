@@ -1,12 +1,7 @@
-import { NextResponse, type NextRequest } from 'next/server'
 import { verifySessionToken } from '@/lib/internalAuth/token'
+import { type NextRequest, NextResponse } from 'next/server'
 
 // 管理UI/APIをCookieでガード
-const protectedPaths = [
-  '/staff',
-  '/reservations',
-  '/api/admin',
-]
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
@@ -36,4 +31,3 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: ['/((?!_next/|favicon.ico).*)'],
 }
-

@@ -41,7 +41,10 @@ export default function ReservationsPage() {
 
     const fetchReservations = async () => {
       setIsLoading(true)
-      const params = new URLSearchParams({ date: filterDate, staff_id: filterStaff })
+      const params = new URLSearchParams({
+        date: filterDate,
+        staff_id: filterStaff,
+      })
       const res = await fetch(`/api/admin/reservations?${params.toString()}`)
       if (!res.ok) {
         setIsLoading(false)
@@ -60,7 +63,10 @@ export default function ReservationsPage() {
     if (!filterStaff || !filterDate) return
 
     setIsLoading(true)
-    const params = new URLSearchParams({ date: filterDate, staff_id: filterStaff })
+    const params = new URLSearchParams({
+      date: filterDate,
+      staff_id: filterStaff,
+    })
     const res = await fetch(`/api/admin/reservations?${params.toString()}`)
     if (!res.ok) {
       setIsLoading(false)

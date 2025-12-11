@@ -26,7 +26,11 @@ export const AddStaffForm = ({ onAdded }: Props) => {
     const res = await fetch('/api/admin/staff', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, stores, official_line_url: officialLineUrl || null }),
+      body: JSON.stringify({
+        name,
+        stores,
+        official_line_url: officialLineUrl || null,
+      }),
     })
 
     if (res.ok) {

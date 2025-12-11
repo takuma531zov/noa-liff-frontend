@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { createSessionToken } from '@/lib/internalAuth/token'
+import { NextResponse } from 'next/server'
 
 // 管理ログインAPI（Cookieベース）
 export async function POST(request: Request) {
@@ -13,13 +13,15 @@ export async function POST(request: Request) {
   const expectedPass = process.env.INTERNAL_BASIC_PASSWORD
 
   if (!expectedUser || !expectedPass) {
-    return NextResponse.json(
-      { error: '環境変数が未設定です' },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: '環境変数が未設定です' }, { status: 500 })
   }
 
-  if (!user || !password || user !== expectedUser || password !== expectedPass) {
+  if (
+    !user ||
+    !password ||
+    user !== expectedUser ||
+    password !== expectedPass
+  ) {
     return NextResponse.json({ error: '認証に失敗しました' }, { status: 401 })
   }
 
@@ -34,4 +36,3 @@ export async function POST(request: Request) {
   })
   return res
 }
-

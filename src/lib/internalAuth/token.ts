@@ -7,15 +7,21 @@ const decoder = new TextDecoder()
 
 // base64/base64url ユーティリティ（Node/Edge両対応）
 const b64encode = (bytes: Uint8Array) => {
-  if (typeof Buffer !== 'undefined') return Buffer.from(bytes).toString('base64')
+  if (typeof Buffer !== 'undefined')
+    return Buffer.from(bytes).toString('base64')
   let binary = ''
-  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]!)
-  // @ts-expect-error atob/btoa はEdgeで利用可
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+  // Edge Runtime では btoa が存在する
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return btoa(binary)
 }
 const b64decode = (b64: string) => {
-  if (typeof Buffer !== 'undefined') return new Uint8Array(Buffer.from(b64, 'base64'))
-  // @ts-expect-error atob/btoa はEdgeで利用可
+  if (typeof Buffer !== 'undefined')
+    return new Uint8Array(Buffer.from(b64, 'base64'))
+  // Edge Runtime では atob が存在する
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const bin = atob(b64)
   const out = new Uint8Array(bin.length)
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i) & 0xff
@@ -44,7 +50,10 @@ export const createSessionToken = async (days: number) => {
   const secret = process.env.INTERNAL_AUTH_SECRET
   if (!secret) throw new Error('INTERNAL_AUTH_SECRET が未設定です')
 
-  const payloadObj = { sub: 'internal', exp: Date.now() + days * 24 * 60 * 60 * 1000 }
+  const payloadObj = {
+    sub: 'internal',
+    exp: Date.now() + days * 24 * 60 * 60 * 1000,
+  }
   const payload = JSON.stringify(payloadObj)
   const sig = await sign(payload, secret)
   return `${toBase64Url(encoder.encode(payload))}.${toBase64Url(sig)}`
@@ -62,8 +71,13 @@ export const verifySessionToken = async (token: string) => {
   const expectedSig = await sign(payloadJson, secret)
   const actualSig = fromBase64Url(sigB64)
 
-  if (toBase64Url(expectedSig) !== toBase64Url(new Uint8Array(actualSig))) return false
+  if (toBase64Url(expectedSig) !== toBase64Url(new Uint8Array(actualSig)))
+    return false
 
   const payload = JSON.parse(payloadJson) as { sub: string; exp: number }
-  return payload.sub === 'internal' && typeof payload.exp === 'number' && Date.now() < payload.exp
+  return (
+    payload.sub === 'internal' &&
+    typeof payload.exp === 'number' &&
+    Date.now() < payload.exp
+  )
 }

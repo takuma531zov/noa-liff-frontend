@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 
 // Service Role用Supabaseクライアント（サーバ専用）
 // 注意: ブラウザからは絶対に使用しないこと
@@ -10,7 +10,6 @@ export const createServiceClient = () => {
     throw new Error('Supabase環境変数が不足しています')
   }
 
-  // SSRクライアントをCookie連携なしで使用
-  return createServerClient(supabaseUrl, serviceKey)
+  // サーバ専用クライアント（Service Role）
+  return createClient(supabaseUrl, serviceKey)
 }
-

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 // 管理ログインページ
 export default function InternalLoginPage() {
@@ -38,8 +38,14 @@ export default function InternalLoginPage() {
         <h1 className="text-xl font-bold mb-4">管理ログイン</h1>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">ユーザー</label>
+            <label
+              htmlFor="internal-user"
+              className="block text-sm font-medium mb-1"
+            >
+              ユーザー
+            </label>
             <input
+              id="internal-user"
               type="text"
               value={user}
               onChange={(e) => setUser(e.target.value)}
@@ -49,8 +55,14 @@ export default function InternalLoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">パスワード</label>
+            <label
+              htmlFor="internal-password"
+              className="block text-sm font-medium mb-1"
+            >
+              パスワード
+            </label>
             <input
+              id="internal-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -72,4 +84,3 @@ export default function InternalLoginPage() {
     </div>
   )
 }
-

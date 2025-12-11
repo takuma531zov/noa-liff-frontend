@@ -178,7 +178,11 @@ export const ReservationEditModal = ({
       // アクセシビリティ: キーボード操作でのクローズ（Enter/Space または Esc）
       onKeyDown={(e) => {
         if (e.key === 'Escape') onClose()
-        if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) onClose()
+        if (
+          (e.key === 'Enter' || e.key === ' ') &&
+          e.target === e.currentTarget
+        )
+          onClose()
       }}
       tabIndex={-1}
     >
@@ -370,7 +374,10 @@ export const ReservationEditModal = ({
           </div>
           {/* フッター（デスクトップのみ表示。モバイルは別レイヤーの更新ボタンを使用） */}
           {!isMobile && (
-            <div className="px-4 sm:px-6 py-4 flex-shrink-0 border-t border-gray-200" style={{ background: '#ffffff' }}>
+            <div
+              className="px-4 sm:px-6 py-4 flex-shrink-0 border-t border-gray-200"
+              style={{ background: '#ffffff' }}
+            >
               <button
                 type="submit"
                 disabled={isSubmitting}

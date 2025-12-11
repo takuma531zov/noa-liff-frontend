@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { NextResponse } from 'next/server'
 
 // 管理: スタッフ更新/論理削除
 export async function PATCH(
@@ -19,7 +19,8 @@ export async function PATCH(
     .update({ name, stores, official_line_url: official_line_url ?? null })
     .eq('id', id)
 
-  if (error) return NextResponse.json({ error: '更新に失敗しました' }, { status: 500 })
+  if (error)
+    return NextResponse.json({ error: '更新に失敗しました' }, { status: 500 })
   return NextResponse.json({ success: true })
 }
 
@@ -34,7 +35,7 @@ export async function DELETE(
     .update({ is_active: false })
     .eq('id', id)
 
-  if (error) return NextResponse.json({ error: '削除に失敗しました' }, { status: 500 })
+  if (error)
+    return NextResponse.json({ error: '削除に失敗しました' }, { status: 500 })
   return NextResponse.json({ success: true })
 }
-
