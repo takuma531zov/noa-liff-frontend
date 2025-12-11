@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { NextResponse } from 'next/server'
 
 // トークン検証API
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'トークンが必要です' }, { status: 400 })
   }
 
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
   // consent_tokenで予約情報を取得
   const { data: reservation, error } = await supabase
@@ -38,5 +38,16 @@ export async function POST(request: Request) {
     )
   }
 
-  return NextResponse.json({ reservation })
+  // 最小フィールドのみ返却（機微情報は非返却）
+  return NextResponse.json({
+    reservation: {
+      id: reservation.id,
+      store: reservation.store,
+      reservation_date: reservation.reservation_date,
+      reservation_time: reservation.reservation_time,
+      staff_name_snapshot: reservation.staff_name_snapshot,
+      menu: reservation.menu,
+      status: reservation.status,
+    },
+  })
 }

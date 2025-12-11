@@ -31,6 +31,11 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 # LINE
 LINE_CHANNEL_ACCESS_TOKEN=your-channel-access-token
 NEXT_PUBLIC_LIFF_ID=your-liff-id
+
+# 管理ログイン（Cookieガード）
+INTERNAL_BASIC_USER=your-internal-user
+INTERNAL_BASIC_PASSWORD=your-internal-password
+INTERNAL_AUTH_SECRET=your-long-random-secret
 ```
 
 ## 開発
@@ -142,4 +147,21 @@ vercel
   - 「ご予約の変更などのご相談はこちらまで」
   - 「{担当者公式LINEリンクURL}」
   - 対象: リマインダー（Supabase Edge Function）および Next.js 側のプッシュ送信。
- - 「担当：」の表示は予約作成時のスナップショット名（`reservations.staff_name_snapshot`）を使用します。リンク解決は `reservations.staff_id` 経由で最新の `staff.official_line_url` を参照します。
+- 「担当：」の表示は予約作成時のスナップショット名（`reservations.staff_name_snapshot`）を使用します。リンク解決は `reservations.staff_id` 経由で最新の `staff.official_line_url` を参照します。
+
+## セキュリティ・アクセス制御（管理UI/管理API）
+
+- 管理UI（`/staff`, `/reservations`）と管理API（`/api/admin/*`）はCookieベース認証で保護されます。
+  - ログイン: `/internal/login`
+  - ログアウト: `/api/internal/logout`
+  - 有効期限: デフォルト14日（`INTERNAL_AUTH_SECRET` で署名）
+- RLS（Row Level Security）
+  - `reservations`, `staff`, `reminder_jobs` は RLS 有効化済み（`supabase/sql/08_enable_rls_and_policies.sql`）。
+  - 匿名ユーザー向けポリシーは未付与のため、直接のDBアクセスは拒否されます。
+  - すべてのDB操作は Next.js API から Service Role で実行します。
+- 公開API
+  - 予約作成: `POST /api/reservations`
+  - 同意フロー: `POST /api/consent/verify`, `POST /api/consent/confirm`
+  - スタッフ最小一覧: `GET /api/public/staff`（`id,name,stores` のみ）
+- データ最小化
+  - APIの返却から `line_user_id` および `consent_token` は除外しています。

@@ -345,3 +345,13 @@
 1. 環境準備からスタート
 2. 各工程の完了ごとにチェックを入れる
 3. 不明点があればその都度質問して進める
+
+---
+
+## 追加タスク（セキュリティ強化・RLS導入）
+
+- 管理UI/管理APIのCookieガード導入（/internal/login, middleware）
+- 公開/管理APIの分離（/api/public/*, /api/admin/*）
+- Supabase Service Role 経由への集約（API内で使用）
+- RLS有効化（reservations, staff, reminder_jobs）と匿名拒否
+- API返却の最小化（line_user_id/consent_tokenは非返却）

@@ -1,6 +1,6 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
+// Supabase直呼び出しを廃止し、管理APIを利用
 import { useState } from 'react'
 
 type Props = {
@@ -23,24 +23,19 @@ export const AddStaffForm = ({ onAdded }: Props) => {
     e.preventDefault()
     setIsAdding(true)
 
-    const supabase = createClient()
-    const { error } = await supabase.from('staff').insert([
-      {
-        name,
-        stores,
-        official_line_url: officialLineUrl || null,
-        is_active: true,
-      },
-    ])
+    const res = await fetch('/api/admin/staff', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, stores, official_line_url: officialLineUrl || null }),
+    })
 
-    if (!error) {
+    if (res.ok) {
       setName('')
       setStores([])
       setOfficialLineUrl('')
       onAdded()
     } else {
       alert('スタッフの追加に失敗しました')
-      console.error('スタッフ追加エラー:', error)
     }
 
     setIsAdding(false)

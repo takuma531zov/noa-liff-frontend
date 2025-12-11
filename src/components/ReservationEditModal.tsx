@@ -1,11 +1,6 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
-import type {
-  Reservation,
-  Staff,
-  UpdateReservationInput,
-} from '@/lib/supabase/types'
+import type { Reservation, UpdateReservationInput } from '@/lib/supabase/types'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -53,28 +48,18 @@ export const ReservationEditModal = ({
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [staffList, setStaffList] = useState<Staff[]>([])
+  type MinStaff = { id: string; name: string; stores: string[] }
+  const [staffList, setStaffList] = useState<MinStaff[]>([])
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const timeOptions = generateTimeOptions()
 
   // スタッフ一覧を取得
   useEffect(() => {
     const fetchStaff = async () => {
-      const supabase = createClient()
-      const { data, error } = await supabase
-        .from('staff')
-        .select('*')
-        .eq('is_active', true)
-        .order('name', { ascending: true })
-
-      if (error) {
-        console.error('スタッフ取得エラー:', error)
-        return
-      }
-
-      if (data) {
-        setStaffList(data)
-      }
+      const res = await fetch('/api/public/staff')
+      if (!res.ok) return
+      const json = (await res.json()) as { staff: MinStaff[] }
+      setStaffList(json.staff)
     }
 
     fetchStaff()

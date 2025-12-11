@@ -1,7 +1,6 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
-import type { CreateReservationResponse, Staff } from '@/lib/supabase/types'
+import type { CreateReservationResponse } from '@/lib/supabase/types'
 import { useEffect, useState } from 'react'
 
 // 30分刻みの時間オプションを生成（9:00~20:00）
@@ -35,28 +34,18 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [staffList, setStaffList] = useState<Staff[]>([])
+  // 公開APIの最小スタッフ型
+  type MinStaff = { id: string; name: string; stores: string[] }
+  const [staffList, setStaffList] = useState<MinStaff[]>([])
   const timeOptions = generateTimeOptions()
 
   // スタッフ一覧を取得
   useEffect(() => {
     const fetchStaff = async () => {
-      const supabase = createClient()
-      const { data, error } = await supabase
-        .from('staff')
-        .select('*')
-        .eq('is_active', true)
-        .order('name', { ascending: true })
-
-      if (error) {
-        console.error('スタッフ取得エラー:', error)
-        return
-      }
-
-      if (data) {
-        console.log('取得したスタッフ:', data)
-        setStaffList(data)
-      }
+      const res = await fetch('/api/public/staff')
+      if (!res.ok) return
+      const json = (await res.json()) as { staff: MinStaff[] }
+      setStaffList(json.staff)
     }
 
     fetchStaff()

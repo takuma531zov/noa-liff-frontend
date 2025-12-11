@@ -2,7 +2,7 @@ import {
   createReservationConfirmMessage,
   sendLineMessage,
 } from '@/lib/line/messaging'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { NextResponse } from 'next/server'
 
 // 同意確認入力型
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     )
   }
 
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
   // consent_tokenで予約情報を取得
   const { data: reservation, error: fetchError } = await supabase

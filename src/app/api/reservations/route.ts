@@ -1,10 +1,10 @@
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import type { CreateReservationInput } from '@/lib/supabase/types'
 import { NextResponse } from 'next/server'
 
 // 予約登録API
 export async function POST(request: Request) {
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
   // リクエストボディを取得
   const body = (await request.json()) as CreateReservationInput
