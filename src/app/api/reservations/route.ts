@@ -66,9 +66,9 @@ export async function POST(request: Request) {
     )
   }
 
-  // 同意リンクURLを生成
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-  const consentUrl = `${baseUrl}/liff/consent?token=${consentToken}`
+  // 同意リンクURLを生成（Preview/Productionで正しいドメインにするためリクエストのオリジンを使用）
+  const origin = new URL(request.url).origin
+  const consentUrl = `${origin}/liff/consent?token=${consentToken}`
 
   return NextResponse.json({
     success: true,

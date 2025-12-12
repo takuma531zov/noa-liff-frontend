@@ -160,7 +160,7 @@ vercel
   - 匿名ユーザー向けポリシーは未付与のため、直接のDBアクセスは拒否されます。
   - すべてのDB操作は Next.js API から Service Role で実行します。
 - 公開API
-  - 予約作成: `POST /api/reservations`
+  - 予約作成: `POST /api/reservations`（同意URLはリクエストのオリジンで生成し、Preview/Productionを自動判別）
   - 同意フロー: `POST /api/consent/verify`, `POST /api/consent/confirm`
   - スタッフ最小一覧: `GET /api/public/staff`（`id,name,stores` のみ）
 - データ最小化
