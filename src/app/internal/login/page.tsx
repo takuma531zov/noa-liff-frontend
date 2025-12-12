@@ -30,7 +30,7 @@ export default function InternalLoginPage() {
       return
     }
 
-    router.replace('/reservations')
+    router.replace('/')
   }
 
   return (
