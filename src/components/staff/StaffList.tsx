@@ -1,6 +1,5 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
 import type { Staff } from '@/lib/supabase/types'
 import { useState } from 'react'
 
@@ -36,19 +35,17 @@ export const StaffList = ({ staffList, onChanged }: Props) => {
     )
 
   const handleUpdate = async (id: string) => {
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('staff')
-      .update({
+    const res = await fetch(`/api/admin/staff/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         name: editName,
         stores: editStores,
         official_line_url: editOfficialUrl || null,
-      })
-      .eq('id', id)
-
-    if (error) {
+      }),
+    })
+    if (!res.ok) {
       alert('更新に失敗しました')
-      console.error('スタッフ更新エラー:', error)
       return
     }
     cancelEdit()
@@ -57,14 +54,9 @@ export const StaffList = ({ staffList, onChanged }: Props) => {
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`${name}さんを削除しますか？`)) return
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('staff')
-      .update({ is_active: false })
-      .eq('id', id)
-    if (error) {
+    const res = await fetch(`/api/admin/staff/${id}`, { method: 'DELETE' })
+    if (!res.ok) {
       alert('スタッフの削除に失敗しました')
-      console.error('スタッフ削除エラー:', error)
       return
     }
     onChanged()

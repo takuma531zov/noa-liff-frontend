@@ -1,6 +1,15 @@
 'use client'
 
-import type { Reservation } from '@/lib/supabase/types'
+// LIFF用の最小予約型（API返却に合わせる）
+type LiffReservation = {
+  id: string
+  store: string
+  reservation_date: string
+  reservation_time: string
+  staff_name_snapshot: string
+  menu: string
+  status: 'pending' | 'confirmed' | 'cancelled'
+}
 import liff from '@line/liff'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
@@ -11,7 +20,7 @@ const ConsentPageContent = () => {
   const token = searchParams.get('token')
 
   const [isLiffReady, setIsLiffReady] = useState(false)
-  const [reservation, setReservation] = useState<Reservation | null>(null)
+  const [reservation, setReservation] = useState<LiffReservation | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
@@ -62,7 +71,7 @@ const ConsentPageContent = () => {
         return
       }
 
-      const data = await response.json()
+      const data = (await response.json()) as { reservation: LiffReservation }
       setReservation(data.reservation)
       setIsLoading(false)
     }

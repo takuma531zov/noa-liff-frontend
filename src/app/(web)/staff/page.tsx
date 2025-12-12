@@ -1,6 +1,5 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
 import type { Staff } from '@/lib/supabase/types'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -21,21 +20,10 @@ export default function StaffPage() {
 
   // スタッフ一覧を取得
   const fetchStaff = useCallback(async () => {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('staff')
-      .select('*')
-      .eq('is_active', true)
-      .order('name', { ascending: true })
-
-    if (error) {
-      console.error('スタッフ取得エラー:', error)
-      return
-    }
-
-    if (data) {
-      setStaffList(data)
-    }
+    const res = await fetch('/api/admin/staff')
+    if (!res.ok) return
+    const json = (await res.json()) as { staff: Staff[] }
+    setStaffList(json.staff)
     setIsLoading(false)
   }, [])
 
@@ -48,18 +36,17 @@ export default function StaffPage() {
     e.preventDefault()
     setIsAdding(true)
 
-    const supabase = createClient()
-    const { error } = await supabase.from('staff').insert([
-      {
+    const res = await fetch('/api/admin/staff', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         name: newStaff.name,
         stores: newStaff.stores,
         official_line_url: newStaff.officialLineUrl || null,
-        is_active: true,
-      },
-    ])
+      }),
+    })
 
-    if (error) {
-      console.error('スタッフ追加エラー:', error)
+    if (!res.ok) {
       alert('スタッフの追加に失敗しました')
     } else {
       setNewStaff({ name: '', stores: [], officialLineUrl: '' })
@@ -71,18 +58,17 @@ export default function StaffPage() {
 
   // スタッフ更新（名前・店舗・公式LINE）
   const handleUpdateStaff = async (id: string) => {
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('staff')
-      .update({
+    const res = await fetch(`/api/admin/staff/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         name: editingName,
         stores: editingStores,
         official_line_url: editingOfficialUrl || null,
-      })
-      .eq('id', id)
+      }),
+    })
 
-    if (error) {
-      console.error('スタッフ更新エラー:', error)
+    if (!res.ok) {
       alert('更新に失敗しました')
       return
     }
@@ -97,14 +83,8 @@ export default function StaffPage() {
   const handleDeleteStaff = async (id: string, name: string) => {
     if (!confirm(`${name}さんを削除しますか？`)) return
 
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('staff')
-      .update({ is_active: false })
-      .eq('id', id)
-
-    if (error) {
-      console.error('スタッフ削除エラー:', error)
+    const res = await fetch(`/api/admin/staff/${id}`, { method: 'DELETE' })
+    if (!res.ok) {
       alert('スタッフの削除に失敗しました')
     } else {
       fetchStaff()

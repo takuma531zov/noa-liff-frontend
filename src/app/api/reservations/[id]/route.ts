@@ -2,7 +2,7 @@ import {
   createReservationChangeMessage,
   sendLineMessage,
 } from '@/lib/line/messaging'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import type { UpdateReservationInput } from '@/lib/supabase/types'
 import { NextResponse } from 'next/server'
 
@@ -11,7 +11,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: { id: string } },
 ) {
-  const supabase = await createClient()
+  const supabase = createServiceClient()
   const { id } = params
 
   // リクエストボディを取得
@@ -139,7 +139,21 @@ export async function PATCH(
 
   return NextResponse.json({
     success: true,
-    reservation: data,
+    reservation: {
+      id: data.id,
+      store: data.store,
+      staff_id: data.staff_id,
+      staff_name_snapshot: data.staff_name_snapshot,
+      menu: data.menu,
+      reservation_date: data.reservation_date,
+      reservation_time: data.reservation_time,
+      customer_name: data.customer_name,
+      line_display_name: data.line_display_name,
+      consent: data.consent,
+      status: data.status,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+    },
   })
 }
 
@@ -148,7 +162,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } },
 ) {
-  const supabase = await createClient()
+  const supabase = createServiceClient()
   const { id } = params
 
   // ステータスを'cancelled'に更新（論理削除）

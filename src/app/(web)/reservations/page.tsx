@@ -2,14 +2,14 @@
 
 import { ReservationCard } from '@/components/ReservationCard'
 import { ReservationEditModal } from '@/components/ReservationEditModal'
-import { createClient } from '@/lib/supabase/client'
-import type { Reservation, Staff } from '@/lib/supabase/types'
+import type { Reservation } from '@/lib/supabase/types'
 import { useEffect, useState } from 'react'
 
 // 予約一覧ページ
 export default function ReservationsPage() {
   const [reservations, setReservations] = useState<Reservation[]>([])
-  const [staffList, setStaffList] = useState<Staff[]>([])
+  type MinStaff = { id: string; name: string; stores: string[] }
+  const [staffList, setStaffList] = useState<MinStaff[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [filterStore, setFilterStore] = useState('') // 店舗フィルター（任意）
   // フィルタ: 担当スタッフは staff_id、指名無しは空文字
@@ -21,21 +21,10 @@ export default function ReservationsPage() {
   // スタッフ一覧を取得
   useEffect(() => {
     const fetchStaff = async () => {
-      const supabase = createClient()
-      const { data, error } = await supabase
-        .from('staff')
-        .select('*')
-        .eq('is_active', true)
-        .order('name', { ascending: true })
-
-      if (error) {
-        console.error('スタッフ取得エラー:', error)
-        return
-      }
-
-      if (data) {
-        setStaffList(data)
-      }
+      const res = await fetch('/api/public/staff')
+      if (!res.ok) return
+      const json = (await res.json()) as { staff: MinStaff[] }
+      setStaffList(json.staff)
     }
 
     fetchStaff()
@@ -52,30 +41,17 @@ export default function ReservationsPage() {
 
     const fetchReservations = async () => {
       setIsLoading(true)
-      const supabase = createClient()
-      const base = supabase
-        .from('reservations')
-        .select('*')
-        .eq('reservation_date', filterDate)
-        .order('reservation_time', { ascending: true })
-
-      const { data, error } = await (
-        filterStaff === '__none__'
-          ? base.is('staff_id', null)
-          : filterStaff
-          ? base.eq('staff_id', filterStaff)
-          : base
-      )
-
-      if (error) {
-        console.error('予約取得エラー:', error)
+      const params = new URLSearchParams({
+        date: filterDate,
+        staff_id: filterStaff,
+      })
+      const res = await fetch(`/api/admin/reservations?${params.toString()}`)
+      if (!res.ok) {
         setIsLoading(false)
         return
       }
-
-      if (data) {
-        setReservations(data)
-      }
+      const json = (await res.json()) as { reservations: Reservation[] }
+      setReservations(json.reservations)
       setIsLoading(false)
     }
 
@@ -87,30 +63,17 @@ export default function ReservationsPage() {
     if (!filterStaff || !filterDate) return
 
     setIsLoading(true)
-    const supabase = createClient()
-    const base = supabase
-      .from('reservations')
-      .select('*')
-      .eq('reservation_date', filterDate)
-      .order('reservation_time', { ascending: true })
-
-    const { data, error } = await (
-      filterStaff === '__none__'
-        ? base.is('staff_id', null)
-        : filterStaff
-        ? base.eq('staff_id', filterStaff)
-        : base
-    )
-
-    if (error) {
-      console.error('予約取得エラー:', error)
+    const params = new URLSearchParams({
+      date: filterDate,
+      staff_id: filterStaff,
+    })
+    const res = await fetch(`/api/admin/reservations?${params.toString()}`)
+    if (!res.ok) {
       setIsLoading(false)
       return
     }
-
-    if (data) {
-      setReservations(data)
-    }
+    const json = (await res.json()) as { reservations: Reservation[] }
+    setReservations(json.reservations)
     setIsLoading(false)
   }
 
