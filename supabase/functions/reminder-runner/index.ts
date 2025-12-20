@@ -57,7 +57,7 @@ const createReminderMessage = (params: {
   } = params
   const dateText = `${formatDateWithWeekday(reservationDate)} ${formatHourOnly(reservationTime)}`
   const footer = staffOfficialLineUrl
-    ? `\n\nご予約の変更などのご相談はこちらまで⬇️\n${staffOfficialLineUrl}`
+    ? `\n\nご予約の変更などのご相談は担当スタッフ公式LINEまで⬇️\n${staffOfficialLineUrl}`
     : ''
 
   if (type === '7days_before') {

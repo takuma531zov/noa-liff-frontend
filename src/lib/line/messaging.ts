@@ -21,7 +21,7 @@ export const sendLineMessage = async (params: SendMessageParams) => {
 
   // 担当者公式LINEリンクのフッターを1通あたり最初のテキストメッセージだけに付与
   const footer = params.staffOfficialLineUrl
-    ? `\n\nご予約の変更などのご相談はこちらまで⬇️\n${params.staffOfficialLineUrl}`
+    ? `\n\nご予約の変更などのご相談は担当スタッフ公式LINEまで⬇️\n${params.staffOfficialLineUrl}`
     : ''
 
   const messages =
