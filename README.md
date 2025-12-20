@@ -32,6 +32,10 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 LINE_CHANNEL_ACCESS_TOKEN=your-channel-access-token
 NEXT_PUBLIC_LIFF_ID=your-liff-id
 
+# 顧客データ暗号化（Web Crypto AES-GCM）
+# 32バイトの鍵をBase64URLで設定（例: openssl で 32B 生成 → base64url 変換）
+CUSTOMER_AES_KEY_V1=your-base64url-32bytes-key
+
 # 管理ログイン（Cookieガード）
 INTERNAL_BASIC_USER=your-internal-user
 INTERNAL_BASIC_PASSWORD=your-internal-password
@@ -165,3 +169,17 @@ vercel
   - スタッフ最小一覧: `GET /api/public/staff`（`id,name,stores` のみ）
 - データ最小化
   - APIの返却から `line_user_id` および `consent_token` は除外しています。
+
+## 顧客データの暗号化
+
+- 方式: Web Crypto API の AES-256-GCM を使用（IVは12Bランダム）
+- 保存形式: `enc:v1:iv=<base64url>:ct=<base64url>`
+- 鍵: `CUSTOMER_AES_KEY_V1`（32B Base64URL）をサーバ側でのみ使用（ブラウザへは送信しません）
+- 対象フィールド:
+  - `reservations.customer_name`
+  - `reservations.line_display_name`
+  - `reservations.line_user_id`
+- 読み書き方針:
+  - 書き込み時に暗号化、管理APIでの読み出し時に復号
+  - LIFFの同意検証APIは顧客名などPIIを返さないため復号不要
+  - Supabase Edge Function（リマインダー送信）は復号して文面生成・送信先IDに利用
