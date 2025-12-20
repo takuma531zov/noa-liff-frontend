@@ -5,6 +5,51 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+// Base64URL ユーティリティ
+const fromBase64Url = (b64url: string): Uint8Array => {
+  const b64 = b64url.replaceAll('-', '+').replaceAll('_', '/')
+  // @ts-ignore Deno環境の atob
+  const bin: string = atob(b64)
+  const out = new Uint8Array(bin.length)
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i) & 0xff
+  return out
+}
+
+// 顧客データ復号（enc:v1:iv=..:ct=.. or 平文）
+const ENC_PREFIX = 'enc:v1:'
+const getAesKey = (): Promise<CryptoKey> => {
+  const k = Deno.env.get('CUSTOMER_AES_KEY_V1') || ''
+  const raw = fromBase64Url(k)
+  return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, [
+    'decrypt',
+  ])
+}
+
+const decryptMaybe = async (
+  v: string | null,
+): Promise<{ ok: boolean; value: string | null }> => {
+  if (!v) return Promise.resolve({ ok: true, value: null })
+  if (!v.startsWith(ENC_PREFIX)) return Promise.resolve({ ok: true, value: v })
+
+  const without = v.slice(ENC_PREFIX.length)
+  const parts = without.split(':')
+  const ivPart = parts.find((p) => p.startsWith('iv=')) || ''
+  const ctPart = parts.find((p) => p.startsWith('ct=')) || ''
+  const iv = fromBase64Url(ivPart.replace('iv=', ''))
+  const ct = fromBase64Url(ctPart.replace('ct=', ''))
+  return getAesKey()
+    .then((key) =>
+      crypto.subtle
+        .decrypt({ name: 'AES-GCM', iv }, key, ct)
+        .then((buf) => {
+          const text = new TextDecoder().decode(new Uint8Array(buf))
+          return { ok: true, value: text }
+        })
+        .catch(() => ({ ok: false, value: null })),
+    )
+    .catch(() => ({ ok: false, value: null }))
+}
+
 // 環境変数（Supabaseダッシュボードで設定）
 // SUPABASE_URL はプラットフォームが自動注入（Secrets登録は不要）
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') as string
@@ -223,9 +268,15 @@ const run = async () => {
     const resv = mapById.get(job.reservation_id)
     if (!resv) continue
 
+    const displayNameRes = await decryptMaybe(resv.line_display_name)
+    const displayName =
+      displayNameRes.ok && displayNameRes.value
+        ? displayNameRes.value
+        : 'お客様'
+
     const text = createReminderMessage({
       type: job.remind_type,
-      displayName: resv.line_display_name || 'お客様',
+      displayName,
       store: resv.store,
       reservationDate: resv.reservation_date,
       reservationTime: resv.reservation_time,
@@ -236,7 +287,13 @@ const run = async () => {
         : null,
     })
 
-    await sendLineMessage(resv.line_user_id, text)
+    const toRes = await decryptMaybe(resv.line_user_id)
+    const toId = toRes.ok ? toRes.value || '' : ''
+
+    await (toId
+      ? sendLineMessage(toId, text)
+      : Promise.reject(new Error('line_user_id decrypt failed'))
+    )
       .then(async () => {
         await supabase
           .from('reminder_jobs')

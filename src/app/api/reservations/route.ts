@@ -1,3 +1,4 @@
+import { encryptCustomerName } from '@/lib/crypto/customerFields'
 import { createServiceClient } from '@/lib/supabase/service'
 import type { CreateReservationInput } from '@/lib/supabase/types'
 import { NextResponse } from 'next/server'
@@ -39,6 +40,18 @@ export async function POST(request: Request) {
       ).data?.name || '指名無し'
     : '指名無し'
 
+  // 顧客名の暗号化
+  const encName = body.customer_name
+    ? await encryptCustomerName(body.customer_name)
+    : ({ ok: true, value: null } as const)
+
+  if (encName && 'ok' in encName && !encName.ok) {
+    return NextResponse.json(
+      { error: '顧客名の暗号化に失敗しました' },
+      { status: 500 },
+    )
+  }
+
   const { data, error } = await supabase
     .from('reservations')
     .insert([
@@ -49,7 +62,7 @@ export async function POST(request: Request) {
         menu: body.menu,
         reservation_date: body.reservation_date,
         reservation_time: body.reservation_time,
-        customer_name: body.customer_name || null,
+        customer_name: (encName as { ok: true; value: string | null }).value,
         consent_token: consentToken,
         consent: false,
         status: 'pending',

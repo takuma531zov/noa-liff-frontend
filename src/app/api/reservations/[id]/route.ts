@@ -1,4 +1,10 @@
 import {
+  decryptCustomerName,
+  decryptLineDisplayName,
+  decryptLineUserId,
+  encryptCustomerName,
+} from '@/lib/crypto/customerFields'
+import {
   createReservationChangeMessage,
   sendLineMessage,
 } from '@/lib/line/messaging'
@@ -54,6 +60,23 @@ export async function PATCH(
       : '指名無し'
     : before.staff_name_snapshot
 
+  // 顧客名の暗号化（更新がある場合のみ）
+  const nextCustomerEnc = Object.prototype.hasOwnProperty.call(
+    body,
+    'customer_name',
+  )
+    ? body.customer_name
+      ? await encryptCustomerName(body.customer_name)
+      : ({ ok: true, value: null } as const)
+    : ({ ok: true, value: before.customer_name } as const)
+
+  if (!nextCustomerEnc.ok) {
+    return NextResponse.json(
+      { error: '顧客名の暗号化に失敗しました' },
+      { status: 500 },
+    )
+  }
+
   const { data, error } = await supabase
     .from('reservations')
     .update({
@@ -63,7 +86,7 @@ export async function PATCH(
       menu: body.menu,
       reservation_date: body.reservation_date,
       reservation_time: body.reservation_time,
-      customer_name: body.customer_name || null,
+      customer_name: nextCustomerEnc.value,
     })
     .eq('id', id)
     .select()
@@ -93,7 +116,13 @@ export async function PATCH(
       normalizeTime(data.reservation_time)
 
   if (canNotify && hasDiff) {
-    const displayName = data.line_display_name || 'お客様'
+    const displayNameRes = data.line_display_name
+      ? await decryptLineDisplayName(data.line_display_name)
+      : ({ ok: true, value: 'お客様' } as const)
+    const displayName =
+      displayNameRes.ok && displayNameRes.value
+        ? displayNameRes.value
+        : 'お客様'
 
     const messageText = createReservationChangeMessage({
       displayName,
@@ -123,18 +152,23 @@ export async function PATCH(
           .single()
       : { data: null, error: null }
 
-    await sendLineMessage({
-      to: before.line_user_id as string,
-      messages: [
-        {
-          type: 'text',
-          text: messageText,
-        },
-      ],
-      staffOfficialLineUrl: staffErr
-        ? undefined
-        : (staff?.official_line_url ?? undefined),
-    })
+    const toRes = await decryptLineUserId(String(before.line_user_id))
+    const toId = toRes.ok ? toRes.value : ''
+
+    if (toId) {
+      await sendLineMessage({
+        to: toId,
+        messages: [
+          {
+            type: 'text',
+            text: messageText,
+          },
+        ],
+        staffOfficialLineUrl: staffErr
+          ? undefined
+          : (staff?.official_line_url ?? undefined),
+      })
+    }
   }
 
   return NextResponse.json({
@@ -147,8 +181,17 @@ export async function PATCH(
       menu: data.menu,
       reservation_date: data.reservation_date,
       reservation_time: data.reservation_time,
-      customer_name: data.customer_name,
-      line_display_name: data.line_display_name,
+      customer_name: await (async () => {
+        if (!data.customer_name) return null
+        const r = await decryptCustomerName(String(data.customer_name))
+        return r.ok ? r.value : null
+      })(),
+      line_display_name: await (async () => {
+        const r = data.line_display_name
+          ? await decryptLineDisplayName(String(data.line_display_name))
+          : ({ ok: true, value: null } as const)
+        return r.ok ? r.value : null
+      })(),
       consent: data.consent,
       status: data.status,
       created_at: data.created_at,

@@ -1,4 +1,8 @@
 import {
+  encryptLineDisplayName,
+  encryptLineUserId,
+} from '@/lib/crypto/customerFields'
+import {
   createReservationConfirmMessage,
   sendLineMessage,
 } from '@/lib/line/messaging'
@@ -45,12 +49,22 @@ export async function POST(request: Request) {
     )
   }
 
-  // 予約情報を更新
+  // 予約情報を更新（LINEユーザー情報を暗号化して保存）
+  const encUserId = await encryptLineUserId(lineUserId)
+  const encDisplay = await encryptLineDisplayName(lineDisplayName)
+
+  if (!encUserId.ok || !encDisplay.ok) {
+    return NextResponse.json(
+      { error: '同意データの暗号化に失敗しました' },
+      { status: 500 },
+    )
+  }
+
   const { error: updateError } = await supabase
     .from('reservations')
     .update({
-      line_user_id: lineUserId,
-      line_display_name: lineDisplayName,
+      line_user_id: encUserId.value,
+      line_display_name: encDisplay.value,
       consent: true,
       status: 'confirmed',
     })
