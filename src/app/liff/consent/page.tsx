@@ -27,7 +27,8 @@ const ConsentPageContent = () => {
   const [isAgreed, setIsAgreed] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
 
-  // LIFF初期化
+  // LIFF初期化（iOS LINEアプリ内での一瞬のログインエラー回避）
+  // - ポイント: in-client では login を呼ばない / 認証確定まで UI をreadyにしない
   useEffect(() => {
     const initLiff = async () => {
       const liffId = process.env.NEXT_PUBLIC_LIFF_ID
@@ -38,13 +39,25 @@ const ConsentPageContent = () => {
       }
 
       await liff.init({ liffId })
-      setIsLiffReady(true)
 
-      if (!liff.isLoggedIn()) {
-        // ログイン時に現在のURLをリダイレクト先として指定
+      // LINEアプリ内（in-client）は既に認証コンテキストが提供されるため、loginは呼ばない
+      const inClient = liff.isInClient()
+      const loggedIn = liff.isLoggedIn()
+
+      if (inClient) {
+        // アプリ内: そのままreadyに遷移（エラーのチラ見えを防ぐ）
+        setIsLiffReady(true)
+        return
+      }
+
+      // 外部ブラウザのみ、未ログインならリダイレクト式ログイン
+      if (!loggedIn) {
         liff.login({ redirectUri: window.location.href })
         return
       }
+
+      // 外部ブラウザでもログイン済みならready
+      setIsLiffReady(true)
     }
 
     initLiff()
