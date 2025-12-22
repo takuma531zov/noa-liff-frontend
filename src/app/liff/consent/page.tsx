@@ -19,6 +19,10 @@ const ConsentPageContent = () => {
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
 
+  // 初期描画フェーズ（boot -> stabilizing -> ready）
+  type Phase = 'boot' | 'stabilizing' | 'ready'
+  const [phase, setPhase] = useState<Phase>('boot')
+
   const [isLiffReady, setIsLiffReady] = useState(false)
   const [reservation, setReservation] = useState<LiffReservation | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -27,8 +31,8 @@ const ConsentPageContent = () => {
   const [isAgreed, setIsAgreed] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
 
-  // LIFF初期化（iOS LINEアプリ内での一瞬のログインエラー回避）
-  // - ポイント: in-client では login を呼ばない / 認証確定まで UI をreadyにしない
+  // LIFF初期化（iOS 初回のログイントースト抑制）
+  // - in-client では login を呼ばず、短時間の安定化待機後に ready 遷移
   useEffect(() => {
     const initLiff = async () => {
       const liffId = process.env.NEXT_PUBLIC_LIFF_ID
@@ -45,8 +49,12 @@ const ConsentPageContent = () => {
       const loggedIn = liff.isLoggedIn()
 
       if (inClient) {
-        // アプリ内: そのままreadyに遷移（エラーのチラ見えを防ぐ）
-        setIsLiffReady(true)
+        // アプリ内: 短い安定化待機を挟んでから ready
+        setPhase('stabilizing')
+        setTimeout(() => {
+          setIsLiffReady(true)
+          setPhase('ready')
+        }, 700)
         return
       }
 
@@ -58,6 +66,7 @@ const ConsentPageContent = () => {
 
       // 外部ブラウザでもログイン済みならready
       setIsLiffReady(true)
+      setPhase('ready')
     }
 
     initLiff()
@@ -65,7 +74,7 @@ const ConsentPageContent = () => {
 
   // トークン検証と予約情報取得
   useEffect(() => {
-    if (!isLiffReady || !token) return
+    if (!isLiffReady || phase !== 'ready' || !token) return
 
     const verifyToken = async () => {
       setIsLoading(true)
@@ -90,7 +99,18 @@ const ConsentPageContent = () => {
     }
 
     verifyToken()
-  }, [isLiffReady, token])
+  }, [isLiffReady, phase, token])
+
+  // フェーズ未完了（boot/stabilizing）は中立ローディングのみ表示
+  if (phase !== 'ready') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white p-8 rounded-lg shadow text-center">
+          <p className="text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
 
   // 同意処理
   const handleConsent = async () => {
