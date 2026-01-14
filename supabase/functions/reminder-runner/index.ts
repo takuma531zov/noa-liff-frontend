@@ -118,7 +118,7 @@ const createReminderMessage = (params: {
     const telNum = envKey ? Deno.env.get(envKey) : null
 
     if (telNum) {
-      return `\n\nご予約の変更などのご相談は、お電話にてご連絡ください\n℡${telNum}`
+      return `\n\nご予約の変更などのご相談はお電話にてご連絡ください📞\n℡${telNum}`
     }
 
     return ''

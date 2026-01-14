@@ -18,7 +18,7 @@ const createFooter = (params: {
   if (storeName) {
     const telNum = getStoreTelNum(storeName)
     if (telNum) {
-      return `\n\nご予約の変更などのご相談は、お電話にてご連絡ください\n℡${telNum}`
+      return `\n\nご予約の変更などのご相談はお電話にてご連絡ください📞\n℡${telNum}`
     }
   }
 
