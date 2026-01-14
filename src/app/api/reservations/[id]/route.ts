@@ -167,6 +167,7 @@ export async function PATCH(
         staffOfficialLineUrl: staffErr
           ? undefined
           : (staff?.official_line_url ?? undefined),
+        storeName: data.store,
       })
     }
   }

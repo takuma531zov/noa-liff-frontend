@@ -1,7 +1,32 @@
 // LINE Messaging API ユーティリティ
 
+import { getStoreTelNum } from '@/lib/store/config'
+
+// フッター生成（担当者公式LINE または 店舗電話番号）
+const createFooter = (params: {
+  staffOfficialLineUrl?: string | null
+  storeName?: string
+}): string => {
+  const { staffOfficialLineUrl, storeName } = params
+
+  // 担当者公式LINEリンクがある場合
+  if (staffOfficialLineUrl) {
+    return `\n\nご予約の変更などのご相談は担当スタッフ公式LINEまで⬇️\n${staffOfficialLineUrl}`
+  }
+
+  // 店舗電話番号フッター
+  if (storeName) {
+    const telNum = getStoreTelNum(storeName)
+    if (telNum) {
+      return `\n\nご予約の変更やキャンセルなどのご相談は、お電話にてご連絡ください\n℡${telNum}`
+    }
+  }
+
+  return ''
+}
+
 // メッセージ送信型
-// 送信パラメータ（担当者公式LINEリンクは任意で指定）
+// 送信パラメータ（担当者公式LINEリンクと店舗名は任意で指定）
 type SendMessageParams = {
   to: string
   messages: Array<{
@@ -9,6 +34,7 @@ type SendMessageParams = {
     text: string
   }>
   staffOfficialLineUrl?: string | null
+  storeName?: string
 }
 
 // LINE Messaging APIでプッシュメッセージを送信
@@ -19,10 +45,11 @@ export const sendLineMessage = async (params: SendMessageParams) => {
     throw new Error('LINE_CHANNEL_ACCESS_TOKEN が設定されていません')
   }
 
-  // 担当者公式LINEリンクのフッターを1通あたり最初のテキストメッセージだけに付与
-  const footer = params.staffOfficialLineUrl
-    ? `\n\nご予約の変更などのご相談は担当スタッフ公式LINEまで⬇️\n${params.staffOfficialLineUrl}`
-    : ''
+  // フッターを1通あたり最初のテキストメッセージだけに付与
+  const footer = createFooter({
+    staffOfficialLineUrl: params.staffOfficialLineUrl,
+    storeName: params.storeName,
+  })
 
   const messages =
     footer && params.messages.length > 0 && params.messages[0]?.type === 'text'

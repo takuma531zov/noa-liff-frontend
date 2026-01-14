@@ -36,6 +36,10 @@ NEXT_PUBLIC_LIFF_ID=your-liff-id
 # 32バイトの鍵をBase64URLで設定（例: openssl で 32B 生成 → base64url 変換）
 CUSTOMER_AES_KEY_V1=your-base64url-32bytes-key
 
+# 店舗電話番号（指名無し時の連絡先）
+STORE_TEL_NUM_OMIYA=048-XXX-XXXX
+STORE_TEL_NUM_KITAURAWA=048-YYY-YYYY
+
 # 管理ログイン（Cookieガード）
 INTERNAL_BASIC_USER=your-internal-user
 INTERNAL_BASIC_PASSWORD=your-internal-password
@@ -147,10 +151,14 @@ vercel
   - いずれも【店舗 / 日時 / 担当 / メニュー】を記載（文面は `supabase/functions/reminder-runner/index.ts` および `src/lib/line/messaging.ts` 内で編集可能）
 
 補足
-- 担当スタッフに「公式LINEリンク」が設定されている場合、送信メッセージ末尾に以下のフッターが自動追記されます（未設定時は追記なし）。
-  - 「ご予約の変更などのご相談はこちらまで」
+- 担当スタッフに「公式LINEリンク」が設定されている場合、送信メッセージ末尾に担当スタッフ公式LINEのフッターが自動追記されます。
+  - 「ご予約の変更などのご相談は担当スタッフ公式LINEまで⬇️」
   - 「{担当者公式LINEリンクURL}」
-  - 対象: リマインダー（Supabase Edge Function）および Next.js 側のプッシュ送信。
+- 担当スタッフの公式LINEリンクが未設定の場合（「指名無し」など）、店舗電話番号のフッターが自動追記されます。
+  - 「ご予約の変更やキャンセルなどのご相談は、お電話にてご連絡ください」
+  - 「℡{店舗電話番号}」
+  - 店舗電話番号は環境変数 `STORE_TEL_NUM_OMIYA`, `STORE_TEL_NUM_KITAURAWA` で管理します。
+- 対象: リマインダー（Supabase Edge Function）および Next.js 側のプッシュ送信。
 - 「担当：」の表示は予約作成時のスナップショット名（`reservations.staff_name_snapshot`）を使用します。リンク解決は `reservations.staff_id` 経由で最新の `staff.official_line_url` を参照します。
 
 ## セキュリティ・アクセス制御（管理UI/管理API）

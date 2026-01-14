@@ -108,6 +108,7 @@ export async function POST(request: Request) {
     staffOfficialLineUrl: staffErr
       ? undefined
       : (staff?.official_line_url ?? undefined),
+    storeName: reservation.store,
   })
 
   return NextResponse.json({

@@ -101,9 +101,28 @@ const createReminderMessage = (params: {
     staffOfficialLineUrl,
   } = params
   const dateText = `${formatDateWithWeekday(reservationDate)} ${formatHourOnly(reservationTime)}`
-  const footer = staffOfficialLineUrl
-    ? `\n\nご予約の変更などのご相談は担当スタッフ公式LINEまで⬇️\n${staffOfficialLineUrl}`
-    : ''
+
+  // フッター生成ロジック
+  const footer = (() => {
+    // 担当者公式LINEリンクがある場合
+    if (staffOfficialLineUrl) {
+      return `\n\nご予約の変更などのご相談は担当スタッフ公式LINEまで⬇️\n${staffOfficialLineUrl}`
+    }
+
+    // 店舗電話番号フッター
+    const storeEnvKeyMap: Record<string, string> = {
+      大宮店: 'STORE_TEL_NUM_OMIYA',
+      北浦和店: 'STORE_TEL_NUM_KITAURAWA',
+    }
+    const envKey = storeEnvKeyMap[store]
+    const telNum = envKey ? Deno.env.get(envKey) : null
+
+    if (telNum) {
+      return `\n\nご予約の変更やキャンセルなどのご相談は、お電話にてご連絡ください\n℡${telNum}`
+    }
+
+    return ''
+  })()
 
   if (type === '7days_before') {
     return `${displayName}様
