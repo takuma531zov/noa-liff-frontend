@@ -1,6 +1,9 @@
 import { createServiceClient } from '@/lib/supabase/service'
 import { NextResponse } from 'next/server'
 
+// キャッシュ無効化（スタッフ追加時に即時反映するため）
+export const dynamic = 'force-dynamic'
+
 // 公開スタッフ一覧API（最小フィールド・is_active=trueのみ）
 export async function GET() {
   const supabase = createServiceClient()
