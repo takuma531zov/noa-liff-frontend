@@ -22,10 +22,7 @@ export async function GET() {
     .map(({ id, name, stores }) => ({ id, name, stores }))
 
   // ブラウザ/CDNキャッシュを無効化
-  const response = NextResponse.json({
-    staff: activeStaff,
-    _debug: { totalFromDB: data?.length, allNames: data?.map((s) => s.name) },
-  })
+  const response = NextResponse.json({ staff: activeStaff })
   response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
   return response
 }
