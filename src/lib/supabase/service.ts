@@ -11,5 +11,11 @@ export const createServiceClient = () => {
   }
 
   // サーバ専用クライアント（Service Role）
-  return createClient(supabaseUrl, serviceKey)
+  // fetchのキャッシュを無効化してリアルタイム反映を保証
+  return createClient(supabaseUrl, serviceKey, {
+    global: {
+      fetch: (url, options) =>
+        fetch(url, { ...options, cache: 'no-store' }),
+    },
+  })
 }
