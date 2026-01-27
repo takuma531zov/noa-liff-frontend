@@ -15,5 +15,9 @@ export async function GET() {
 
   if (error)
     return NextResponse.json({ error: '取得に失敗しました' }, { status: 500 })
-  return NextResponse.json({ staff: data ?? [] })
+
+  // ブラウザ/CDNキャッシュを無効化
+  const response = NextResponse.json({ staff: data ?? [] })
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
+  return response
 }

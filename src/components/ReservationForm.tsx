@@ -42,7 +42,7 @@ export const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
   // スタッフ一覧を取得
   useEffect(() => {
     const fetchStaff = async () => {
-      const res = await fetch('/api/public/staff')
+      const res = await fetch('/api/public/staff', { cache: 'no-store' })
       if (!res.ok) return
       const json = (await res.json()) as { staff: MinStaff[] }
       setStaffList(json.staff)
